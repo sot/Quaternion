@@ -4,7 +4,7 @@ setup(name='Quaternion',
       description='Quaternion object manipulation',
       author_email = 'jeanconn@head.cfa.harvard.edu',
       py_modules = ['Quaternion'],
-      version='0.02',
+      version='0.03',
       zip_safe=False,
       package_data={}
       )

@@ -8,7 +8,7 @@ Quaternion provides a class, Quat, and its methods.  This class provides:
 
       
 import numpy as np
-import math
+from math import cos, sin, radians, degrees, atan2, sqrt
 
 class Quat(object):
    """
@@ -171,9 +171,9 @@ class Quat(object):
       zn = q2[3] + q2[2] - q2[0] - q2[1] 
 
       ##; calculate RA, Dec, Roll from cosine matrix elements
-      ra   = math.degrees(math.atan2(xb , xa)) ;
-      dec  = math.degrees(math.atan2(xn , math.sqrt(1 - xn**2)));
-      roll = math.degrees(math.atan2(yn , zn)) ;
+      ra   = degrees(atan2(xb , xa)) ;
+      dec  = degrees(atan2(xn , sqrt(1 - xn**2)));
+      roll = degrees(atan2(yn , zn)) ;
       if ( ra < 0 ):
          ra += 360
       if ( roll < 0 ):
@@ -189,15 +189,15 @@ class Quat(object):
       
       """
       x, y, z, w = self.q
-      xx2 = 2*x*x
-      yy2 = 2*y*y
-      zz2 = 2*z*z
-      xy2 = 2*x*y
-      wz2 = 2*w*z
-      zx2 = 2*z*x
-      wy2 = 2*w*y
-      yz2 = 2*y*z
-      wx2 = 2*w*x
+      xx2 = 2 * x * x
+      yy2 = 2 * y * y
+      zz2 = 2 * z * z
+      xy2 = 2 * x * y
+      wz2 = 2 * w * z
+      zx2 = 2 * z * x
+      wy2 = 2 * w * y
+      yz2 = 2 * y * z
+      wx2 = 2 * w * x
       
       rmat = np.empty((3, 3), float)
       rmat[0,0] = 1. - yy2 - zz2
@@ -218,31 +218,28 @@ class Quat(object):
    
    def _equatorial2transform( self ):
       """ construct the transform/rotation matrix from RA,Dec,Roll"""
-      ra = self._get_ra()
-      dec = self._get_dec()
-      roll = self._get_roll()
-      ca = math.cos(math.radians(ra))
-      sa = math.sin(math.radians(ra))
-      cd = math.cos(math.radians(dec))
-      sd = math.sin(math.radians(dec))
-      cr = math.cos(math.radians(roll))
-      sr = math.sin(math.radians(roll))
+      ra = radians(self._get_ra())
+      dec = radians(self._get_dec())
+      roll = radians(self._get_roll())
+      ca = cos(ra)
+      sa = sin(ra)
+      cd = cos(dec)
+      sd = sin(dec)
+      cr = cos(roll)
+      sr = sin(roll)
       
-      rmat = np.array([[ ca * cd, 
-                         sa * cd,
-                         sd],
-                       [-ca * sd * sr - sa * cr,
-                        -sa * sd * sr + ca * cr,
-                        cd * sr],
-                       [ -ca * sd * cr + sa * sr,
-                         -sa * sd * cr - ca * sr,
-                         cd * cr]])
+      # This is the transpose of the transformation matrix (related to translation
+      # of original perl code
+      rmat = np.array([[ca * cd,                    sa * cd,                  sd     ],
+                       [-ca * sd * sr - sa * cr,   -sa * sd * sr + ca * cr,   cd * sr],
+                       [-ca * sd * cr + sa * sr,   -sa * sd * cr - ca * sr,   cd * cr]])
 
-      return rmat
+      return rmat.transpose()
 
    def _transform2quat( self ):
       """ determine the quat from the transform/rotation matrix """
-      T = self.transform
+      # Code was copied from perl PDL code that uses backwards index ordering
+      T = self.transform.transpose()  
       den = np.array([ 1.0 + T[0,0] - T[1,1] - T[2,2],
                       1.0 - T[0,0] + T[1,1] - T[2,2],
                       1.0 - T[0,0] - T[1,1] + T[2,2],
@@ -254,24 +251,24 @@ class Quat(object):
       max_idx = int(match)
 
       q = np.zeros(4)
-      q[max_idx] = 0.5 * math.sqrt( max(den) )
+      q[max_idx] = 0.5 * sqrt( max(den) )
       denom = 4.0 * q[max_idx]
       if (max_idx == 0):
-         q[1] = (T[1,0] + T[0,1]) / denom 
-         q[2] = (T[2,0] + T[0,2]) / denom 
+         q[1] =  (T[1,0] + T[0,1]) / denom 
+         q[2] =  (T[2,0] + T[0,2]) / denom 
          q[3] = -(T[2,1] - T[1,2]) / denom 
       if (max_idx == 1):
-	q[0] = (T[1,0] + T[0,1]) / denom 
-	q[2] = (T[2,1] + T[1,2]) / denom 
-	q[3] = -(T[0,2] - T[2,0]) / denom 
+         q[0] =  (T[1,0] + T[0,1]) / denom 
+         q[2] =  (T[2,1] + T[1,2]) / denom 
+         q[3] = -(T[0,2] - T[2,0]) / denom 
       if (max_idx == 2):
-	q[0] = (T[2,0] + T[0,2]) / denom 
-	q[1] = (T[2,1] + T[1,2]) / denom 
-	q[3] = -(T[1,0] - T[0,1]) / denom 
+         q[0] =  (T[2,0] + T[0,2]) / denom 
+         q[1] =  (T[2,1] + T[1,2]) / denom 
+         q[3] = -(T[1,0] - T[0,1]) / denom 
       if (max_idx == 3):
-	q[0] = -(T[2,1] - T[1,2]) / denom 
-	q[1] = -(T[0,2] - T[2,0]) / denom 
-	q[2] = -(T[1,0] - T[0,1]) / denom 
+         q[0] = -(T[2,1] - T[1,2]) / denom 
+         q[1] = -(T[0,2] - T[2,0]) / denom 
+         q[2] = -(T[1,0] - T[0,1]) / denom 
 
       if (q[3] < 0):
          q = -q
