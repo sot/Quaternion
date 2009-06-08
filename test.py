@@ -1,34 +1,40 @@
+import numpy as np
 from Quaternion import Quat
+from nose.tools import *
+
 ra = 10.
 dec = 20.
 roll = 30.
+q0 = Quat([ra,dec,roll])
 
-print '-' * 40
-print
+def test_from_eq():
+    q = Quat([ra, dec, roll])
+    assert_almost_equal(q.q[0], 0.26853582)
+    assert_almost_equal(q.q[1], -0.14487813)
+    assert_almost_equal(q.q[2],  0.12767944)
+    assert_almost_equal(q.q[3],  0.94371436)
 
-q_eq = Quat([ra, dec, roll])
-print 'q_eq.equatorial=', q_eq.equatorial
-print 'q_eq.q=', q_eq.q
-print 'q_eq.transform=', q_eq.transform
-print
-q_eq._equatorial = None
-q_eq._T = None
-print 'q_eq.transform=', q_eq.transform
-print
+def test_from_transform():
+    """Initialize from inverse of q0 via transform matrix"""
+    q = Quat(q0.transform.transpose())
+    assert_almost_equal(q.q[0], -0.26853582)
+    assert_almost_equal(q.q[1], 0.14487813)
+    assert_almost_equal(q.q[2], -0.12767944)
+    assert_almost_equal(q.q[3],  0.94371436)
 
-q1, q2, q3, q4 = q_eq.q
+def test_inv_eq():
+    q = Quat(q0.equatorial)
+    t = q.transform
+    tinv = q.inv().transform
+    t_tinv = np.dot(t, tinv)
+    for v1, v2 in zip(t_tinv.flatten(), [1,0,0,0,1,0,0,0,1]):
+        assert_almost_equal(v1, v2)
 
-# q_eq_inv = q_eq.inv()
-q_eq_inv = Quat([ 340.99173674 , -11.82213076 , 326.246305  ])
-print 'q_eq_inv.equatorial=', q_eq_inv.equatorial
-# print 'q_eq_inv.q=', q_eq_inv.q
-print 'q_eq_inv.transform=', q_eq_inv.transform
-print
-print q_eq_inv.equatorial
-
-print '(q_eq * q_eq_inv).q=', (q_eq * q_eq_inv).q
-
-q_eq_inv = q_eq.inv()
-print '(q_eq * q_q_inv).q=', (q_eq * q_eq_inv).q
-
+def test_inv_q():
+    q = Quat(q0.q)
+    t = q.transform
+    tinv = q.inv().transform
+    t_tinv = np.dot(t, tinv)
+    for v1, v2 in zip(t_tinv.flatten(), [1,0,0,0,1,0,0,0,1]):
+        assert_almost_equal(v1, v2)
 
