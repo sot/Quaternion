@@ -79,7 +79,7 @@ class Quat(object):
       q = np.array(q)
       if abs(np.sum(q**2) - 1.0) > 1e-6:
          raise ValueError('Quaternion must be normalized so sum(q**2) == 1; use Quaternion.normalize')
-      self._q = q
+      self._q = (q if q[3] > 0 else -q)
       # Erase internal values of other representations
       self._equatorial = None
       self._T = None
@@ -245,13 +245,10 @@ class Quat(object):
                       1.0 - T[0,0] - T[1,1] + T[2,2],
                       1.0 + T[0,0] + T[1,1] + T[2,2]])
       
-      match = np.flatnonzero( den == max(den) )
-      if ( len(match) > 1 ):
-         raise ValueError( "Extra matches")
-      max_idx = int(match)
+      max_idx = np.flatnonzero(den == max(den))[0]
 
       q = np.zeros(4)
-      q[max_idx] = 0.5 * sqrt( max(den) )
+      q[max_idx] = 0.5 * sqrt(max(den))
       denom = 4.0 * q[max_idx]
       if (max_idx == 0):
          q[1] =  (T[1,0] + T[0,1]) / denom 
@@ -269,9 +266,6 @@ class Quat(object):
          q[0] = -(T[2,1] - T[1,2]) / denom 
          q[1] = -(T[0,2] - T[2,0]) / denom 
          q[2] = -(T[1,0] - T[0,1]) / denom 
-
-      if (q[3] < 0):
-         q = -q
 
       return q
 
@@ -300,30 +294,22 @@ class Quat(object):
 
       Example usage::
 
-       >>> q1 = Quat((20,30,40))
-       >>> q2 = Quat((30,40,50))
-       >>> q = q1 * q2
+        >>> q1 = Quat((20,30,40))
+        >>> q2 = Quat((30,40,50))
+        >>> (q1 * q2).equatorial
+        array([ 349.73395729,   76.25393056,  127.61636727])
 
-       :rtype: Quat
+      :rtype: Quat
 
       """
-
       q1 = self.q
       q2 = quat2.q
       mult = np.zeros(4)
-   ## x = w1*x2 - z1*y2 + y1*z2 + x1*w2
-   ## y = z1*x2 + w1*y2 - x1*z2 + y1*w2
-   ## z = y1*x2 + x1*y2 + w1*z2 + z1*w2
-   ## w = x1*x2 - y1*y2 - z1*z2 + w1*w2
       mult[0] = q1[3]*q2[0] - q1[2]*q2[1] + q1[1]*q2[2] + q1[0]*q2[3]
       mult[1] = q1[2]*q2[0] + q1[3]*q2[1] - q1[0]*q2[2] + q1[1]*q2[3]
       mult[2] = -q1[1]*q2[0] + q1[0]*q2[1] + q1[3]*q2[2] + q1[2]*q2[3]
       mult[3] = -q1[0]*q2[0] - q1[1]*q2[1] - q1[2]*q2[2] + q1[3]*q2[3]
-      q = mult.copy()
-      if (mult[3] < 0):
-         q = -mult
-      return Quat(q)
-
+      return Quat(mult)
 
    def inv(self):
       """
