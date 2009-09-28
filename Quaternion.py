@@ -91,9 +91,9 @@ class Quat(object):
 
    def _get_q(self):
       """
-      Retrieve value of q
+      Retrieve 4-vector of quaternion elements in [x, y, z, w] form
       
-      :returns: numpy array q
+      :rtype: numpy array
 
       """
       if self._q is None:
@@ -126,7 +126,10 @@ class Quat(object):
       self._equatorial = att
     
    def _get_equatorial(self):
-      """Retrieve [RA, Dec, Roll]"""
+      """Retrieve [RA, Dec, Roll]
+
+      :rtype: numpy array
+      """
       if self._equatorial is None:
          if self._q is not None:
             self._equatorial = self._quat2equatorial()
