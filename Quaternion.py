@@ -1,7 +1,8 @@
 """
-Quaternion provides a class, Quat, and its methods.  This class provides:
+Quaternion provides a class for manipulating quaternion objects.  This class provides:
 
-   - a convenient constructor to convert to/from (RA,Dec,Roll) to/from quaternions
+   - a convenient constructor to convert to/from Euler Angles (RA,Dec,Roll) 
+       to/from quaternions
    - class methods to multiply and divide quaternions 
 """
 
@@ -27,8 +28,8 @@ class Quat(object):
     11.999999315925008
 
 
-   __mul__ and __div__ are overloaded for the class to perform quaternion
-   multiplication and division
+   Multiplication and division operators are overloaded for the class to 
+   perform appropriate quaternion multiplication and division.
 
    Example usage::
    
@@ -75,7 +76,11 @@ class Quat(object):
          
 
    def _set_q(self, q):
-      """ set the value of the 4 element quaternion vector """
+      """
+      Set the value of the 4 element quaternion vector 
+
+      :param q: list or array of normalized quaternion elements
+      """
       q = np.array(q)
       if abs(np.sum(q**2) - 1.0) > 1e-6:
          raise ValueError('Quaternion must be normalized so sum(q**2) == 1; use Quaternion.normalize')
@@ -87,6 +92,9 @@ class Quat(object):
    def _get_q(self):
       """
       Retrieve value of q
+      
+      :returns: numpy array q
+
       """
       if self._q is None:
          # Figure out q from available values, doing nothing others are not defined
@@ -100,9 +108,12 @@ class Quat(object):
    q = property(_get_q, _set_q)
 
    def _set_equatorial(self, equatorial):
-      """set the value of the 3 element equatorial coordinate list [RA,Dec,Roll]
+      """Set the value of the 3 element equatorial coordinate list [RA,Dec,Roll]
          expects values in degrees
          bounds are not checked
+      
+         :param equatorial: list or array [ RA, Dec, Roll] in degrees
+         
       """
       att = np.array(equatorial)
       ra, dec, roll = att
@@ -115,7 +126,7 @@ class Quat(object):
       self._equatorial = att
     
    def _get_equatorial(self):
-      """retrieve [RA, Dec, Roll]"""
+      """Retrieve [RA, Dec, Roll]"""
       if self._equatorial is None:
          if self._q is not None:
             self._equatorial = self._quat2equatorial()
@@ -127,15 +138,15 @@ class Quat(object):
    equatorial = property(_get_equatorial,_set_equatorial)
 
    def _get_ra(self):
-      """retrieve RA term from equatorial system in degrees"""
+      """Retrieve RA term from equatorial system in degrees"""
       return self.equatorial[0]
         
    def _get_dec(self):
-      """retrieve Dec term from equatorial system in degrees"""
+      """Retrieve Dec term from equatorial system in degrees"""
       return self.equatorial[1]
         
    def _get_roll(self):
-      """retrieve Roll term from equatorial system in degrees"""
+      """Retrieve Roll term from equatorial system in degrees"""
       return self.equatorial[2]
 
    ra = property(_get_ra)
@@ -143,12 +154,22 @@ class Quat(object):
    roll = property(_get_roll)
 
    def _set_transform(self, T):
-      """set the value of the 3x3 rotation/transform matrix"""
+      """
+      Set the value of the 3x3 rotation/transform matrix
+      
+      :param T: 3x3 array/numpy array
+      """
       transform = np.array(T)
       self._T = transform
 
    def _get_transform(self):
-      """retrieve the value of the 3x3 rotation/transform matrix"""
+      """
+      Retrieve the value of the 3x3 rotation/transform matrix
+
+      :returns: 3x3 rotation/transform matrix
+      :rtype: numpy array
+      
+      """
       if self._T is None:
          if self._q is not None:
             self._T = self._quat2transform()
@@ -159,7 +180,13 @@ class Quat(object):
    transform = property(_get_transform, _set_transform)
 
    def _quat2equatorial(self):
-      """ determine RA, Dec, and Roll for the object quaternion"""
+      """
+      Determine Right Ascension, Declination, and Roll for the object quaternion
+      
+      :returns: RA, Dec, Roll
+      :rtype: numpy array [ra,dec,roll]
+      """
+      
       q = self.q
       q2 = self.q**2
 
@@ -187,6 +214,9 @@ class Quat(object):
       Transform a unit quaternion into its corresponding rotation matrix (to
       be applied on the right side).
       
+      :returns: transform matrix
+      :rtype: numpy array
+      
       """
       x, y, z, w = self.q
       xx2 = 2 * x * x
@@ -213,11 +243,21 @@ class Quat(object):
       return rmat
 
    def _equatorial2quat( self ):
-      """ construct the object 4 quat if needed """
+      """Dummy method to return return quat. 
+
+      :returns: quaternion
+      :rtype: Quat
+      
+      """
       return self._transform2quat()
    
    def _equatorial2transform( self ):
-      """ construct the transform/rotation matrix from RA,Dec,Roll"""
+      """Construct the transform/rotation matrix from RA,Dec,Roll
+
+      :returns: transform matrix
+      :rtype: 3x3 numpy array
+
+      """
       ra = radians(self._get_ra())
       dec = radians(self._get_dec())
       roll = radians(self._get_roll())
@@ -237,13 +277,18 @@ class Quat(object):
       return rmat.transpose()
 
    def _transform2quat( self ):
-      """ determine the quat from the transform/rotation matrix """
+      """Construct quaternion from the transform/rotation matrix 
+
+      :returns: quaternion formed from transform matrix
+      :rtype: numpy array
+      """
+
       # Code was copied from perl PDL code that uses backwards index ordering
       T = self.transform.transpose()  
       den = np.array([ 1.0 + T[0,0] - T[1,1] - T[2,2],
-                      1.0 - T[0,0] + T[1,1] - T[2,2],
-                      1.0 - T[0,0] - T[1,1] + T[2,2],
-                      1.0 + T[0,0] + T[1,1] + T[2,2]])
+                       1.0 - T[0,0] + T[1,1] - T[2,2],
+                       1.0 - T[0,0] - T[1,1] + T[2,2],
+                       1.0 + T[0,0] + T[1,1] + T[2,2]])
       
       max_idx = np.flatnonzero(den == max(den))[0]
 
@@ -282,6 +327,7 @@ class Quat(object):
 
       Performs the operation as q1 * inverse q2
 
+      :returns: product q1 * inverse q2
       :rtype: Quat
 
       """
@@ -299,6 +345,7 @@ class Quat(object):
         >>> (q1 * q2).equatorial
         array([ 349.73395729,   76.25393056,  127.61636727])
 
+      :returns: product q1 * q2
       :rtype: Quat
 
       """
@@ -314,7 +361,8 @@ class Quat(object):
    def inv(self):
       """
       Invert the quaternion 
-      
+
+      :returns: inverted quaternion
       :rtype: Quat
       """
       return Quat([self.q[0], self.q[1], self.q[2], -self.q[3]])
@@ -325,7 +373,7 @@ def normalize(array):
    Normalize a 4 element array/list/numpy.array for use as a quaternion
    
    :param quat_array: 4 element list/array
-   
+   :returns: normalized array
    :rtype: numpy array
 
    """
