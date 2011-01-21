@@ -8,7 +8,7 @@ setup(name='Quaternion',
       download_url = 'http://pypi.python.org/pypi/Quaternion/',
       url = 'http://cxc.harvard.edu/mta/ASPECT/tool_doc/pydocs/Quaternion.html',
       scripts = [ 'test.py' ],
-      version='0.03.1',
+      version='0.03.2',
       zip_safe=False,
       package_data={}
       )

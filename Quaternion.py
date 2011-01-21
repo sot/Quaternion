@@ -4,10 +4,35 @@ Quaternion provides a class for manipulating quaternion objects.  This class pro
    - a convenient constructor to convert to/from Euler Angles (RA,Dec,Roll) 
        to/from quaternions
    - class methods to multiply and divide quaternions 
+
+:Copyright: Smithsonian Astrophysical Observatory (2010)
+:Author: Jean Connelly (jconnelly@cfa.harvard.edu)
 """
+## Copyright (c) 2010, Smithsonian Astrophysical Observatory
+## All rights reserved.
+## 
+## Redistribution and use in source and binary forms, with or without
+## modification, are permitted provided that the following conditions are met:
+##     * Redistributions of source code must retain the above copyright
+##       notice, this list of conditions and the following disclaimer.
+##     * Redistributions in binary form must reproduce the above copyright
+##       notice, this list of conditions and the following disclaimer in the
+##       documentation and/or other materials provided with the distribution.
+##     * Neither the name of the Smithsonian Astrophysical Observatory nor the
+##       names of its contributors may be used to endorse or promote products
+##       derived from this software without specific prior written permission.
+## 
+## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+## ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+## WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+## DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+## DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+## (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+## LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+## ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS  
+## SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-      
 import numpy as np
 from math import cos, sin, radians, degrees, atan2, sqrt
 
@@ -23,27 +48,33 @@ class Quat(object):
     (12, 45, 45)
     >>> quat.q
     array([ 0.38857298, -0.3146602 ,  0.23486498,  0.8335697 ])
-    >>> q2 = Quat([ 0.38857298, -0.3146602 ,  0.23486498,  0.8335697])
+    >>> q2 = Quat(quat.q)
     >>> q2.ra
-    11.999999315925008
-
+    12.0
 
    Multiplication and division operators are overloaded for the class to 
    perform appropriate quaternion multiplication and division.
 
-   Example usage::
-   
-    >>> q1 = Quat((20,30,40))
-    >>> q2 = Quat((30,40,50))
-    >>> q = q1 / q2
+   Quaternion composition as a multiplication q = q1 * q2 is equivalent to
+   applying the q2 transform followed by the q1 transform.  Another way to
+   express this is::
 
-   Performs the operation as q1 * inverse q2
+     q = Quat(numpy.dot(q1.transform, q2.transform))
 
    Example usage::
 
-    >>> q1 = Quat((20,30,40))
-    >>> q2 = Quat((30,40,50))
-    >>> q = q1 * q2
+     >>> q1 = Quat((20, 30, 0))
+     >>> q2 = Quat((0, 0, 40))
+     >>> (q1 * q2).equatorial
+     array([20., 30., 40.])
+
+   This example first rolls about X by 40 degrees, then rotates that rolled frame
+   to RA=20 and Dec=30.  Doing the composition in the other order does a roll about
+   (the original) X-axis of the (RA, Dec) = (20, 30) frame, yielding a non-intuitive
+   though correct result::
+
+     >>> (q2 * q1).equatorial
+     array([ 353.37684725,   34.98868888,   47.499696  ])
 
 
    :param attitude: initialization attitude for quat
@@ -328,7 +359,9 @@ class Quat(object):
        >>> q2 = Quat((30,40,50))
        >>> q = q1 / q2
 
-      Performs the operation as q1 * inverse q2
+      Performs the operation as q1 * inverse(q2) which is equivalent to
+      the inverse(q2) transform followed by the q1 transform.  See the __mul__
+      operator help for more explanation on composing quaternions.
 
       :returns: product q1 * inverse q2
       :rtype: Quat
@@ -341,12 +374,26 @@ class Quat(object):
       """
       Multiply quaternion by another.
 
+      Quaternion composition as a multiplication q = q1 * q2 is equivalent to
+      applying the q2 transform followed by the q1 transform.  Another way to
+      express this is::
+
+        q = Quat(numpy.dot(q1.transform, q2.transform))
+
       Example usage::
 
-        >>> q1 = Quat((20,30,40))
-        >>> q2 = Quat((30,40,50))
+        >>> q1 = Quat((20,30,0))
+        >>> q2 = Quat((0,0,40))
         >>> (q1 * q2).equatorial
-        array([ 349.73395729,   76.25393056,  127.61636727])
+        array([20., 30., 40.])
+
+      This example first rolls about X by 40 degrees, then rotates that rolled frame
+      to RA=20 and Dec=30.  Doing the composition in the other order does a roll about
+      (the original) X-axis of the (RA, Dec) = (20, 30) frame, yielding a non-intuitive
+      though correct result::
+
+        >>> (q2 * q1).equatorial
+        array([ 353.37684725,   34.98868888,   47.499696  ])
 
       :returns: product q1 * q2
       :rtype: Quat

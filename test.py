@@ -9,6 +9,7 @@ q0 = Quat([ra,dec,roll])
 
 def test_from_eq():
     q = Quat([ra, dec, roll])
+    print 'q.equatorial=', q.equatorial
     assert_almost_equal(q.q[0], 0.26853582)
     assert_almost_equal(q.q[1], -0.14487813)
     assert_almost_equal(q.q[2],  0.12767944)
