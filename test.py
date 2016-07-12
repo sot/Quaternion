@@ -48,3 +48,11 @@ def test_dq():
     q2 = Quat((20, 30.1, 1))
     dq = q1.dq(q2)
     assert np.allclose(dq.equatorial, (0, 0.1, 1))
+
+
+def test_ra0_roll0():
+    q = Quat(Quat([-1, 0, -1]).q)
+    assert np.allclose(q.ra, 359)
+    assert np.allclose(q.ra0, -1)
+    assert np.allclose(q.roll, 359)
+    assert np.allclose(q.roll0, -1)

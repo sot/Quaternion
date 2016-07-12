@@ -202,6 +202,28 @@ class Quat(object):
     dec = property(_get_dec)
     roll = property(_get_roll)
 
+    def _get_zero(self, attr):
+        """
+        Return a version of attr that is between -180 <= val < 180
+        """
+        if not hasattr(self, '_' + attr):
+            val = getattr(self, attr) % 360.0
+            if val >= 180:
+                val -= 360
+        return val
+
+    @property
+    def ra0(self):
+        if not hasattr(self, '_ra0'):
+            self._ra0 = self._get_zero('ra')
+        return self._ra0
+
+    @property
+    def roll0(self):
+        if not hasattr(self, '_roll0'):
+            self._roll0 = self._get_zero('ra')
+        return self._roll0
+
     def _set_transform(self, T):
         """
         Set the value of the 3x3 rotation/transform matrix
