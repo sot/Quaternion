@@ -35,6 +35,7 @@ Quaternion provides a class for manipulating quaternion objects.  This class pro
 
 import numpy as np
 from math import cos, sin, radians, degrees, atan2, sqrt
+import warnings
 
 class Quat(object):
    """
@@ -352,7 +353,7 @@ class Quat(object):
    def __div__(self, quat2):
       """
       Divide one quaternion by another.
-      
+
       Example usage::
 
        >>> q1 = Quat((20,30,40))
@@ -367,6 +368,7 @@ class Quat(object):
       :rtype: Quat
 
       """
+      warnings.warn('This operation does NOT return a useful delta quaternion')
       return self * quat2.inv()
 
 
@@ -395,6 +397,14 @@ class Quat(object):
         >>> (q2 * q1).equatorial
         array([ 353.37684725,   34.98868888,   47.499696  ])
 
+      Be aware that for Chandra operations the correct formalism for applying a
+      delta quaternion ``dq`` to maneuver from ``q1`` to ``q2`` is::
+
+        q2 = q1 * dq
+        dq = q1.inv() * q2
+
+      Any permutation of ``q1 / q2`` using the divide operator is WRONG.
+
       :returns: product q1 * q2
       :rtype: Quat
 
@@ -416,6 +426,28 @@ class Quat(object):
       :rtype: Quat
       """
       return Quat([self.q[0], self.q[1], self.q[2], -self.q[3]])
+
+   def dq(self, q2):
+      """
+      Return a delta quaternion ``dq`` such that ``q2 = self * dq`` where ``q2``
+      is anything that instantiates a ``Quat`` object.
+
+      This method returns the delta quaternion which represents the transformation
+      from the frame of this quaternion (``self``) to ``q2``.
+
+        q = Quat(numpy.dot(q1.transform, q2.transform))
+
+      Example usage::
+
+        >>> q1 = Quat((20, 30, 0))
+        >>> q2 = Quat((20, 30.1, 1))
+        >>> dq = q1.dq(q2)
+        >>> dq.equatorial
+        array([  1.79974166e-15,   1.00000000e-01,   1.00000000e+00])
+      """
+      if not isinstance(q2, Quat):
+         q2 = Quat(q2)
+      return self.inv() * q2
 
 
 def normalize(array):
