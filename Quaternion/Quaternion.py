@@ -214,15 +214,35 @@ class Quat(object):
 
     @property
     def ra0(self):
+        """
+        Return quaternion RA in the range -180 <= roll < 180.
+        """
         if not hasattr(self, '_ra0'):
             self._ra0 = self._get_zero('ra')
         return self._ra0
 
     @property
     def roll0(self):
+        """
+        Return quaternion roll in the range -180 <= roll < 180.
+        """
         if not hasattr(self, '_roll0'):
             self._roll0 = self._get_zero('ra')
         return self._roll0
+
+    @property
+    def pitch(self):
+        """
+        Return quaternion pitch (same as -dec)
+        """
+        return -self.dec
+
+    @property
+    def yaw(self):
+        """
+        Return quaternion yaw (same as ra0)
+        """
+        return self.ra0
 
     def _set_transform(self, T):
         """

@@ -1,5 +1,5 @@
 import numpy as np
-from Quaternion import Quat
+from .. import Quat
 
 ra = 10.
 dec = 20.
