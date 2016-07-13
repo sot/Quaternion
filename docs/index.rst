@@ -11,6 +11,3 @@ Quaternion
 
 .. automodule:: Quaternion.Quaternion
    :members:
-
-.. autoclass:: Quaternion.Quaternion.Quat
-   :members:
