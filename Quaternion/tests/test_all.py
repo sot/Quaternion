@@ -56,3 +56,14 @@ def test_ra0_roll0():
     assert np.allclose(q.ra0, -1)
     assert np.allclose(q.roll, 359)
     assert np.allclose(q.roll0, -1)
+
+
+def test_repr():
+    q = Quat([1, 2, 3])
+    assert repr(q) == '<Quat q1=0.02632421 q2=-0.01721736 q3=0.00917905 q4=0.99946303>'
+
+    class SubQuat(Quat):
+        pass
+
+    q = SubQuat([1, 2, 3])
+    assert repr(q) == '<SubQuat q1=0.02632421 q2=-0.01721736 q3=0.00917905 q4=0.99946303>'
