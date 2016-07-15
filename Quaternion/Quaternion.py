@@ -285,9 +285,17 @@ class Quat(object):
         yn = 2 * (q[1] * q[2] + q[0] * q[3])
         zn = q2[3] + q2[2] - q2[0] - q2[1]
 
+        # Due to numerical precision this can go negative.  Allow *slightly* negative
+        # values but raise an exception otherwise.
+        one_minus_xn2 = 1 - xn**2
+        if one_minus_xn2 < 0:
+            if one_minus_xn2 < -1e-12:
+                raise ValueError('Unexpected negative norm: {}'.format(one_minus_xn2))
+            one_minus_xn2 = 0
+
         # ; calculate RA, Dec, Roll from cosine matrix elements
         ra = degrees(atan2(xb, xa))
-        dec = degrees(atan2(xn, sqrt(1 - xn**2)))
+        dec = degrees(atan2(xn, sqrt(one_minus_xn2)))
         roll = degrees(atan2(yn, zn))
         if (ra < 0):
             ra += 360
