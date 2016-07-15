@@ -51,11 +51,11 @@ def test_dq():
 
 
 def test_ra0_roll0():
-    q = Quat(Quat([-1, 0, -1]).q)
+    q = Quat(Quat([-1, 0, -2]).q)
     assert np.allclose(q.ra, 359)
     assert np.allclose(q.ra0, -1)
-    assert np.allclose(q.roll, 359)
-    assert np.allclose(q.roll0, -1)
+    assert np.allclose(q.roll, 358)
+    assert np.allclose(q.roll0, -2)
 
 
 def test_repr():

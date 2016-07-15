@@ -166,15 +166,7 @@ class Quat(object):
            :param equatorial: list or array [ RA, Dec, Roll] in degrees
 
         """
-        att = np.array(equatorial)
-        ra, dec, roll = att
-        self._ra0 = ra
-        if (ra > 180):
-            self._ra0 = ra - 360
-            self._roll0 = roll
-        if (roll > 180):
-            self._roll0 = roll - 360
-        self._equatorial = att
+        self._equatorial = np.array(equatorial)
 
     def _get_equatorial(self):
         """Retrieve [RA, Dec, Roll]
@@ -232,7 +224,7 @@ class Quat(object):
         Return quaternion roll in the range -180 <= roll < 180.
         """
         if not hasattr(self, '_roll0'):
-            self._roll0 = self._get_zero('ra')
+            self._roll0 = self._get_zero('roll')
         return self._roll0
 
     @property
