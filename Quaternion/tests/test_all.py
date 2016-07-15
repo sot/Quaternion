@@ -75,8 +75,17 @@ def test_repr():
     assert repr(q) == '<SubQuat q1=0.02632421 q2=-0.01721736 q3=0.00917905 q4=0.99946303>'
 
 
-def test_issue_1():
-    # Test for numeric issue https://github.com/sot/Quaternion/issues/1
+def test_numeric_underflow():
+    """
+    Test new code (below) for numeric issue https://github.com/sot/Quaternion/issues/1.
+    If this code is not included then the test fails with a MathDomainError::
+
+        one_minus_xn2 = 1 - xn**2
+        if one_minus_xn2 < 0:
+            if one_minus_xn2 < -1e-12:
+                raise ValueError('Unexpected negative norm: {}'.format(one_minus_xn2))
+            one_minus_xn2 = 0
+    """
     quat = Quat((0, 0, 0))
     angle = 0
     while angle < 360:
