@@ -14,6 +14,8 @@ def test_from_eq():
     assert np.allclose(q.q[1], -0.14487813)
     assert np.allclose(q.q[2],  0.12767944)
     assert np.allclose(q.q[3],  0.94371436)
+    assert np.allclose(q.roll0, 30)
+    assert np.allclose(q.ra0, 10)
 
 
 def test_from_transform():
@@ -23,6 +25,10 @@ def test_from_transform():
     assert np.allclose(q.q[1], 0.14487813)
     assert np.allclose(q.q[2], -0.12767944)
     assert np.allclose(q.q[3],  0.94371436)
+
+    q = Quat(q0.transform)
+    assert np.allclose(q.roll0, 30)
+    assert np.allclose(q.ra0, 10)
 
 
 def test_inv_eq():
