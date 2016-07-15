@@ -73,3 +73,14 @@ def test_repr():
 
     q = SubQuat([1, 2, 3])
     assert repr(q) == '<SubQuat q1=0.02632421 q2=-0.01721736 q3=0.00917905 q4=0.99946303>'
+
+
+def test_issue_1():
+    # Test for numeric issue https://github.com/sot/Quaternion/issues/1
+    quat = Quat((0, 0, 0))
+    angle = 0
+    while angle < 360:
+        q = Quat((0, angle, 0))
+        quat = q * quat
+        quat.equatorial
+        angle += 0.1
