@@ -35,7 +35,6 @@ Quaternion provides a class for manipulating quaternion objects.  This class pro
 
 import numpy as np
 from math import cos, sin, radians, degrees, atan2, sqrt
-import warnings
 
 
 class Quat(object):
@@ -85,8 +84,12 @@ class Quat(object):
        >>> q2 = q1 * dq
        >>> dq = q1.inv() * q2
 
-     Any permutation of ``q1 / q2`` using the divide operator is WRONG.  One can also
-     use the ``dq`` method::
+     The quaternion returned by ``q1 / q2`` using the divide operator represents the
+     delta quaternion in the INERTIAL FRAME, which is not what is used by the
+     spacecraft to represent maneuvers.
+
+     Instead use the ``dq`` method (or equivalently ``q1.inv() * q2``) for computing a
+     delta quaternion to maneuver from ``q1`` to ``q2``::
 
        >>> dq = q1.dq(q2)
 
@@ -427,7 +430,6 @@ class Quat(object):
         :rtype: Quat
 
         """
-        warnings.warn('This operation does NOT return a useful delta quaternion')
         return self * quat2.inv()
 
     def __mul__(self, quat2):
