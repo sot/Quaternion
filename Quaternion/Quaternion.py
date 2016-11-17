@@ -35,7 +35,6 @@ Quaternion provides a class for manipulating quaternion objects.  This class pro
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import numpy as np
-from math import cos, sin, radians, degrees, atan2, sqrt
 
 
 class Quat(object):
@@ -101,10 +100,24 @@ class Quat(object):
       * a 4 element array (expects x,y,z,w quat form)
       * a 3 element array (expects ra,dec,roll in degrees)
       * a 3x3 transform/rotation matrix
+    N x those types :
+     * an N x 4 element array ( N by x,y,z,w quat form)
+     * an N x 3 element array ( N by ra, dec, roll in degrees,
+       if N == 3, the optional 'intype = 'equatorial' may be used to differentiate,
+       this from a transform matrix)
+     * an N x 3x3
+
+   :param intype: optional type to describe input attitude
+
+   ``intype`` may be:
+     * transform
+     * equatorial
+     * quaternion
+
 
     """
 
-    def __init__(self, attitude):
+    def __init__(self, attitude, intype=None):
         self._q = None
         self._equatorial = None
         self._T = None
@@ -114,27 +127,36 @@ class Quat(object):
         else:
             # make it an array and check to see if it is a supported shape
             attitude = np.array(attitude)
-            if len(attitude) == 4:
+            if ((attitude.shape == (3, 3) and (intype is None or intype == 'transform'))
+                or (attitude.ndim == 3 and attitude.shape[-1] == 3 and attitude.shape[2] == 3)):
+                    self._set_transform(attitude)
+            elif (intype == 'quaternion' or attitude.shape == (4,) or
+                  (attitude.ndim == 2 and attitude.shape[-1] == 4)):
                 self._set_q(attitude)
-            elif attitude.shape == (3, 3):
-                self._set_transform(attitude)
-            elif attitude.shape == (3,):
+            elif (intype == 'equatorial' or attitude.shape == (3,)
+                  or (attitude.ndim == 2 and attidue.shape[-1] == 3)):
                 self._set_equatorial(attitude)
             else:
                 raise TypeError(
-                    "attitude is not one of possible types (3 or 4 elements, Quat, or 3x3 matrix)")
+                    "attitude is not one of possible types "
+                    "(3 or 4 elements, Quat, or 3x3 matrix, or N x (those types))")
 
     def _set_q(self, q):
         """
         Set the value of the 4 element quaternion vector
+        May be 4 element list or array or N x 4 element array.
 
         :param q: list or array of normalized quaternion elements
         """
         q = np.array(q)
-        if abs(np.sum(q**2) - 1.0) > 1e-6:
+        if q.ndim == 1:
+            q = q[np.newaxis]
+        if np.any((np.sum(q ** 2, axis=-1)[:, np.newaxis] - 1.0) > 1e-6):
             raise ValueError(
-                'Quaternion must be normalized so sum(q**2) == 1; use Quaternion.normalize')
-        self._q = (q if q[3] > 0 else -q)
+                'Quaternions must be normalized so sum(q**2) == 1; use Quaternion.normalize')
+        self._q = q
+        flip_q = q[:, 3] < 0
+        self._q[flip_q] = -1 * q[flip_q]
         # Erase internal values of other representations
         self._equatorial = None
         self._T = None
@@ -142,6 +164,7 @@ class Quat(object):
     def _get_q(self):
         """
         Retrieve 4-vector of quaternion elements in [x, y, z, w] form
+        or N x 4-vector if N > 1.
 
         :rtype: numpy array
 
@@ -152,6 +175,8 @@ class Quat(object):
                 self._q = self._equatorial2quat()
             elif self._T is not None:
                 self._q = self._transform2quat()
+        if self._q.shape[0] == 1:
+            return self._q[0, :]
         return self._q
 
     # use property to make this get/set automatic
@@ -171,6 +196,8 @@ class Quat(object):
 
         """
         self._equatorial = np.array(equatorial)
+        if self._equatorial.ndim == 1:
+            self._equatorial = self._equatorial[np.newaxis]
 
     def _get_equatorial(self):
         """Retrieve [RA, Dec, Roll]
@@ -183,21 +210,32 @@ class Quat(object):
             elif self._T is not None:
                 self._q = self._transform2quat()
                 self._equatorial = self._quat2equatorial()
+        if self._equatorial.shape[0] == 1:
+            return self._equatorial[0, :]
         return self._equatorial
 
     equatorial = property(_get_equatorial, _set_equatorial)
 
     def _get_ra(self):
         """Retrieve RA term from equatorial system in degrees"""
-        return self.equatorial[0]
+        if self.equatorial.ndim == 2:
+            return self.equatorial[:, 0]
+        else:
+            return self.equatorial[0]
 
     def _get_dec(self):
         """Retrieve Dec term from equatorial system in degrees"""
-        return self.equatorial[1]
+        if self.equatorial.ndim == 2:
+            return self.equatorial[:, 1]
+        else:
+            return self.equatorial[1]
 
     def _get_roll(self):
         """Retrieve Roll term from equatorial system in degrees"""
-        return self.equatorial[2]
+        if self.equatorial.ndim == 2:
+            return self.equatorial[:, 2]
+        else:
+            return self.equatorial[2]
 
     ra = property(_get_ra)
     dec = property(_get_dec)
@@ -208,9 +246,11 @@ class Quat(object):
         Return a version of attr that is between -180 <= val < 180
         """
         if not hasattr(self, '_' + attr):
-            val = getattr(self, attr) % 360.0
-            if val >= 180:
-                val -= 360
+            val = getattr(self, attr)
+            if val.ndim == 0:
+                val = val[np.newaxis]
+            val = val % 360
+            val[val >= 180] -= 360
         return val
 
     @property
@@ -252,6 +292,8 @@ class Quat(object):
         :param T: 3x3 array/numpy array
         """
         transform = np.array(T)
+        if transform.ndim == 2:
+            transform = transform[np.newaxis]
         self._T = transform
 
     def _get_transform(self):
@@ -267,6 +309,8 @@ class Quat(object):
                 self._T = self._quat2transform()
             elif self._equatorial is not None:
                 self._T = self._equatorial2transform()
+        if self._T.shape[0] == 1:
+            return self._T[0, :]
         return self._T
 
     transform = property(_get_transform, _set_transform)
@@ -275,38 +319,37 @@ class Quat(object):
         """
         Determine Right Ascension, Declination, and Roll for the object quaternion
 
-        :returns: RA, Dec, Roll
+        :returns: N x (RA, Dec, Roll)
         :rtype: numpy array [ra,dec,roll]
         """
 
         q = self.q
-        q2 = self.q**2
+        if q.ndim == 1:
+            q = q[np.newaxis]
+        q2 = q ** 2
 
         # calculate direction cosine matrix elements from $quaternions
-        xa = q2[0] - q2[1] - q2[2] + q2[3]
-        xb = 2 * (q[0] * q[1] + q[2] * q[3])
-        xn = 2 * (q[0] * q[2] - q[1] * q[3])
-        yn = 2 * (q[1] * q[2] + q[0] * q[3])
-        zn = q2[3] + q2[2] - q2[0] - q2[1]
+        xa = q2[:, 0] - q2[:, 1] - q2[:, 2] + q2[:, 3]
+        xb = 2 * (q[:, 0] * q[:, 1] + q[:, 2] * q[:, 3])
+        xn = 2 * (q[:, 0] * q[:, 2] - q[:, 1] * q[:, 3])
+        yn = 2 * (q[:, 1] * q[:, 2] + q[:, 0] * q[:, 3])
+        zn = q2[:, 3] + q2[:, 2] - q2[:, 0] - q2[:, 1]
 
         # Due to numerical precision this can go negative.  Allow *slightly* negative
         # values but raise an exception otherwise.
         one_minus_xn2 = 1 - xn**2
-        if one_minus_xn2 < 0:
-            if one_minus_xn2 < -1e-12:
+        if np.any(one_minus_xn2 < 0):
+            if np.any(one_minus_xn2 < -1e-12):
                 raise ValueError('Unexpected negative norm: {}'.format(one_minus_xn2))
-            one_minus_xn2 = 0
+            one_minus_xn2[one_minus_xn2 < 0] = 0
 
         # ; calculate RA, Dec, Roll from cosine matrix elements
-        ra = degrees(atan2(xb, xa))
-        dec = degrees(atan2(xn, sqrt(one_minus_xn2)))
-        roll = degrees(atan2(yn, zn))
-        if (ra < 0):
-            ra += 360
-        if (roll < 0):
-            roll += 360
-
-        return np.array([ra, dec, roll])
+        ra = np.degrees(np.arctan2(xb, xa))
+        dec = np.degrees(np.arctan2(xn, np.sqrt(one_minus_xn2)))
+        roll = np.degrees(np.arctan2(yn, zn))
+        ra[ra < 0] = ra[ra < 0] + 360
+        roll[roll < 0] = roll[roll < 0] + 360
+        return np.array([ra, dec, roll]).transpose()
 
 
 #  _quat2transform is largely from Enthought's quaternion.rotmat, though this math is
@@ -347,11 +390,15 @@ class Quat(object):
         Transform a unit quaternion into its corresponding rotation matrix (to
         be applied on the right side).
 
-        :returns: transform matrix
+        :returns: Nx3x3 transform matrix
         :rtype: numpy array
 
         """
-        x, y, z, w = self.q
+        q = self.q
+        if q.ndim == 1:
+            q = q[np.newaxis]
+
+        x, y, z, w = q[:, 0], q[:, 1], q[:, 2], q[:, 3]
         xx2 = 2 * x * x
         yy2 = 2 * y * y
         zz2 = 2 * z * z
@@ -362,16 +409,16 @@ class Quat(object):
         yz2 = 2 * y * z
         wx2 = 2 * w * x
 
-        rmat = np.empty((3, 3), float)
-        rmat[0, 0] = 1. - yy2 - zz2
-        rmat[0, 1] = xy2 - wz2
-        rmat[0, 2] = zx2 + wy2
-        rmat[1, 0] = xy2 + wz2
-        rmat[1, 1] = 1. - xx2 - zz2
-        rmat[1, 2] = yz2 - wx2
-        rmat[2, 0] = zx2 - wy2
-        rmat[2, 1] = yz2 + wx2
-        rmat[2, 2] = 1. - xx2 - yy2
+        rmat = np.empty((len(q), 3, 3), float)
+        rmat[:, 0, 0] = 1. - yy2 - zz2
+        rmat[:, 0, 1] = xy2 - wz2
+        rmat[:, 0, 2] = zx2 + wy2
+        rmat[:, 1, 0] = xy2 + wz2
+        rmat[:, 1, 1] = 1. - xx2 - zz2
+        rmat[:, 1, 2] = yz2 - wx2
+        rmat[:, 2, 0] = zx2 - wy2
+        rmat[:, 2, 1] = yz2 + wx2
+        rmat[:, 2, 2] = 1. - xx2 - yy2
 
         return rmat
 
@@ -388,18 +435,18 @@ class Quat(object):
         """Construct the transform/rotation matrix from RA,Dec,Roll
 
         :returns: transform matrix
-        :rtype: 3x3 numpy array
+        :rtype: Nx3x3 numpy array
 
         """
-        ra = radians(self._get_ra())
-        dec = radians(self._get_dec())
-        roll = radians(self._get_roll())
-        ca = cos(ra)
-        sa = sin(ra)
-        cd = cos(dec)
-        sd = sin(dec)
-        cr = cos(roll)
-        sr = sin(roll)
+        ra = np.radians(self._get_ra())
+        dec = np.radians(self._get_dec())
+        roll = np.radians(self._get_roll())
+        ca = np.cos(ra)
+        sa = np.sin(ra)
+        cd = np.cos(dec)
+        sd = np.sin(dec)
+        cr = np.cos(roll)
+        sr = np.sin(roll)
 
         # This is the transpose of the transformation matrix (related to translation
         # of original perl code
@@ -410,46 +457,61 @@ class Quat(object):
         return rmat.transpose()
 
     def _transform2quat(self):
-        """Construct quaternion from the transform/rotation matrix
+        """Construct quaternions from the transform/rotation matrices
 
-        :returns: quaternion formed from transform matrix
+        :returns: quaternions formed from transform matrices
         :rtype: numpy array
         """
 
+        transform = self.transform
+        if transform.ndim == 2:
+            transform = transform[np.newaxis]
         # Code was copied from perl PDL code that uses backwards index ordering
-        T = self.transform.transpose()
-        den = np.array([1.0 + T[0, 0] - T[1, 1] - T[2, 2],
-                        1.0 - T[0, 0] + T[1, 1] - T[2, 2],
-                        1.0 - T[0, 0] - T[1, 1] + T[2, 2],
-                        1.0 + T[0, 0] + T[1, 1] + T[2, 2]])
+        T = transform.transpose(0, 2, 1)
+        den = np.array([1.0 + T[:, 0, 0] - T[:, 1, 1] - T[:, 2, 2],
+                        1.0 - T[:, 0, 0] + T[:, 1, 1] - T[:, 2, 2],
+                        1.0 - T[:, 0, 0] - T[:, 1, 1] + T[:, 2, 2],
+                        1.0 + T[:, 0, 0] + T[:, 1, 1] + T[:, 2, 2]])
 
-        max_idx = np.flatnonzero(den == max(den))[0]
+        half_rt_q_max = 0.5 * np.sqrt(np.max(den, axis=0))
+        max_idx = np.argmax(den, axis=0)
+        poss_quat = np.zeros((4, len(T), 4))
+        denom = 4.0 * half_rt_q_max
+        poss_quat[0] = np.transpose(
+            np.array(
+                [half_rt_q_max,
+                 (T[:, 1, 0] + T[:, 0, 1]) / denom,
+                 (T[:, 2, 0] + T[:, 0, 2]) / denom,
+                 -(T[:, 2, 1] - T[:, 1, 2]) / denom]))
+        poss_quat[1] = np.transpose(
+            np.array(
+                [(T[:, 1, 0] + T[:, 0, 1]) / denom,
+                 half_rt_q_max,
+                 (T[:, 2, 1] + T[:, 1, 2]) / denom,
+                 -(T[:, 0, 2] - T[:, 2, 0]) / denom]))
+        poss_quat[2] = np.transpose(
+            np.array(
+                [(T[:, 2, 0] + T[:, 0, 2]) / denom,
+                 (T[:, 2, 1] + T[:, 1, 2]) / denom,
+                 half_rt_q_max,
+                 -(T[:, 1, 0] - T[:, 0, 1]) / denom]))
+        poss_quat[3] = np.transpose(
+            np.array(
+                [-(T[:, 2, 1] - T[:, 1, 2]) / denom,
+                  -(T[:, 0, 2] - T[:, 2, 0]) / denom,
+                  -(T[:, 1, 0] - T[:, 0, 1]) / denom,
+                  half_rt_q_max]))
 
-        q = np.zeros(4)
-        q[max_idx] = 0.5 * sqrt(max(den))
-        denom = 4.0 * q[max_idx]
-        if (max_idx == 0):
-            q[1] = (T[1, 0] + T[0, 1]) / denom
-            q[2] = (T[2, 0] + T[0, 2]) / denom
-            q[3] = -(T[2, 1] - T[1, 2]) / denom
-        if (max_idx == 1):
-            q[0] = (T[1, 0] + T[0, 1]) / denom
-            q[2] = (T[2, 1] + T[1, 2]) / denom
-            q[3] = -(T[0, 2] - T[2, 0]) / denom
-        if (max_idx == 2):
-            q[0] = (T[2, 0] + T[0, 2]) / denom
-            q[1] = (T[2, 1] + T[1, 2]) / denom
-            q[3] = -(T[1, 0] - T[0, 1]) / denom
-        if (max_idx == 3):
-            q[0] = -(T[2, 1] - T[1, 2]) / denom
-            q[1] = -(T[0, 2] - T[2, 0]) / denom
-            q[2] = -(T[1, 0] - T[0, 1]) / denom
+        q = np.zeros((len(T), 4))
+        for idx in range(0, 4):
+            max_match = max_idx == idx
+            q[max_match] = poss_quat[idx][max_match]
 
         return q
 
     def __div__(self, quat2):
         """
-        Divide one quaternion by another.
+        Divide one quaternion by another (or divide N quats by N quats)
 
         Example usage::
 
@@ -479,6 +541,9 @@ class Quat(object):
 
           q = Quat(numpy.dot(q1.transform, q2.transform))
 
+       (though numpy.dot is not used because it is awkward in the vector case
+        when the transforms are of the shape Nx3x3)
+
         Example usage::
 
           >>> q1 = Quat((20,30,0))
@@ -499,12 +564,16 @@ class Quat(object):
 
         """
         q1 = self.q
+        if q1.ndim == 1:
+            q1 = q1[np.newaxis]
         q2 = quat2.q
-        mult = np.zeros(4)
-        mult[0] = q1[3] * q2[0] - q1[2] * q2[1] + q1[1] * q2[2] + q1[0] * q2[3]
-        mult[1] = q1[2] * q2[0] + q1[3] * q2[1] - q1[0] * q2[2] + q1[1] * q2[3]
-        mult[2] = -q1[1] * q2[0] + q1[0] * q2[1] + q1[3] * q2[2] + q1[2] * q2[3]
-        mult[3] = -q1[0] * q2[0] - q1[1] * q2[1] - q1[2] * q2[2] + q1[3] * q2[3]
+        if q2.ndim == 1:
+            q2 = q2[np.newaxis]
+        mult = np.zeros((len(q1), 4))
+        mult[:,0] =  q1[:,3] * q2[:,0] - q1[:,2] * q2[:,1] + q1[:,1] * q2[:,2] + q1[:,0] * q2[:,3]
+        mult[:,1] =  q1[:,2] * q2[:,0] + q1[:,3] * q2[:,1] - q1[:,0] * q2[:,2] + q1[:,1] * q2[:,3]
+        mult[:,2] = -q1[:,1] * q2[:,0] + q1[:,0] * q2[:,1] + q1[:,3] * q2[:,2] + q1[:,2] * q2[:,3]
+        mult[:,3] = -q1[:,0] * q2[:,0] - q1[:,1] * q2[:,1] - q1[:,2] * q2[:,2] + q1[:,3] * q2[:,3]
         return Quat(mult)
 
     def inv(self):
@@ -514,7 +583,10 @@ class Quat(object):
         :returns: inverted quaternion
         :rtype: Quat
         """
-        return Quat([self.q[0], self.q[1], self.q[2], -self.q[3]])
+        q = self.q
+        if q.ndim == 1:
+            q = q[np.newaxis]
+        return Quat(np.array([q[:, 0], q[:, 1], q[:, 2], -1.0 * q[:, 3]]).transpose())
 
     def dq(self, q2):
         """
@@ -541,12 +613,17 @@ class Quat(object):
 
 def normalize(array):
     """
-    Normalize a 4 element array/list/numpy.array for use as a quaternion
+    Normalize a 4 (or Nx4) element array/list/numpy.array for use as a quaternion
 
-    :param quat_array: 4 element list/array
+    :param quat_array: 4 or Nx4 element list/array
     :returns: normalized array
     :rtype: numpy array
 
     """
     quat = np.array(array)
-    return quat / np.sqrt(np.dot(quat, quat))
+    if quat.ndim == 1:
+        return quat / np.sqrt(np.dot(quat, quat))
+    elif quat.ndim == 2:
+        return quat / np.sqrt(np.sum(quat * quat, axis=-1)[:, np.newaxis])
+    else:
+        raise TypeError("Input must be 1 or 2d")
