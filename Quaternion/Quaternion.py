@@ -387,8 +387,7 @@ class Quat(object):
 #
     def _quat2transform(self):
         """
-        Transform a unit quaternion into its corresponding rotation matrix (to
-        be applied on the right side).
+        Transform a unit quaternion into its corresponding rotation/transform matrix.
 
         :returns: Nx3x3 transform matrix
         :rtype: numpy array
