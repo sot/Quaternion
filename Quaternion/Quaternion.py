@@ -398,28 +398,28 @@ class Quat(object):
             q = q[np.newaxis]
 
         x, y, z, w = q[:, 0], q[:, 1], q[:, 2], q[:, 3]
-        xx2 = 2 * x * x
-        yy2 = 2 * y * y
-        zz2 = 2 * z * z
-        xy2 = 2 * x * y
-        wz2 = 2 * w * z
-        zx2 = 2 * z * x
-        wy2 = 2 * w * y
-        yz2 = 2 * y * z
-        wx2 = 2 * w * x
+        xx2 = x * x * 2.
+        yy2 = y * y * 2.
+        zz2 = z * z * 2.
+        xy2 = x * y * 2.
+        wz2 = w * z * 2.
+        zx2 = z * x * 2.
+        wy2 = w * y * 2.
+        yz2 = y * z * 2.
+        wx2 = w * x * 2.
 
-        rmat = np.empty((len(q), 3, 3), float)
-        rmat[:, 0, 0] = 1. - yy2 - zz2
-        rmat[:, 0, 1] = xy2 - wz2
-        rmat[:, 0, 2] = zx2 + wy2
-        rmat[:, 1, 0] = xy2 + wz2
-        rmat[:, 1, 1] = 1. - xx2 - zz2
-        rmat[:, 1, 2] = yz2 - wx2
-        rmat[:, 2, 0] = zx2 - wy2
-        rmat[:, 2, 1] = yz2 + wx2
-        rmat[:, 2, 2] = 1. - xx2 - yy2
+        t = np.empty((len(q), 3, 3), float)
+        t[:, 0, 0] = 1. - yy2 - zz2
+        t[:, 0, 1] = xy2 - wz2
+        t[:, 0, 2] = zx2 + wy2
+        t[:, 1, 0] = xy2 + wz2
+        t[:, 1, 1] = 1. - xx2 - zz2
+        t[:, 1, 2] = yz2 - wx2
+        t[:, 2, 0] = zx2 - wy2
+        t[:, 2, 1] = yz2 + wx2
+        t[:, 2, 2] = 1. - xx2 - yy2
 
-        return rmat
+        return t
 
     def _equatorial2quat(self):
         """Dummy method to return return quat.
