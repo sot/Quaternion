@@ -182,10 +182,10 @@ class Quat(object):
     # use property to make this get/set automatic
     q = property(_get_q, _set_q)
 
-    def __repr__(self):
-        q = self.q
-        return ('<{} q1={:.8f} q2={:.8f} q3={:.8f} q4={:.8f}>'
-                .format(self.__class__.__name__, q[0], q[1], q[2], q[3]))
+    #def __repr__(self):
+    #    q = self.q
+    #    return ('<{} q1={:.8f} q2={:.8f} q3={:.8f} q4={:.8f}>'
+    #            .format(self.__class__.__name__, q[:, 0], q[:, 1], q[:, 2], q[:, 3]))
 
     def _set_equatorial(self, equatorial):
         """Set the value of the 3 element equatorial coordinate list [RA,Dec,Roll]
