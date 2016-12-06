@@ -134,7 +134,7 @@ class Quat(object):
                   (attitude.ndim == 2 and attitude.shape[-1] == 4)):
                 self._set_q(attitude)
             elif (intype == 'equatorial' or attitude.shape == (3,)
-                  or (attitude.ndim == 2 and attidue.shape[-1] == 3)):
+                  or (attitude.ndim == 2 and attitude.shape[-1] == 3)):
                 self._set_equatorial(attitude)
             else:
                 raise TypeError(
