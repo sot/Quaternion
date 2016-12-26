@@ -9,7 +9,6 @@ q0 = Quat([ra, dec, roll])
 
 def test_from_eq():
     q = Quat([ra, dec, roll])
-    print 'q.equatorial=', q.equatorial
     assert np.allclose(q.q[0], 0.26853582)
     assert np.allclose(q.q[1], -0.14487813)
     assert np.allclose(q.q[2],  0.12767944)
