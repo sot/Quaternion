@@ -1,6 +1,6 @@
-__version__ = "0.4.2"
-
 from .Quaternion import *
+
+__version__ = "3.4.1"
 
 
 def test(*args, **kwargs):
