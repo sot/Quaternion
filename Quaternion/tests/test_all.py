@@ -92,3 +92,11 @@ def test_numeric_underflow():
         quat = q * quat
         quat.equatorial
         angle += 0.1
+
+
+def test_div_mult():
+    q1 = Quat((1, 2, 3))
+    q2 = Quat((10, 20, 30))
+    q12d = q1 / q2
+    q12m = q1 * q2.inv()
+    assert np.all(q12d.q == q12m.q)
