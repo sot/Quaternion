@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 from .Quaternion import *
 
 __version__ = "3.4.1"
