@@ -357,23 +357,6 @@ class Quat(object):
         return np.moveaxis(np.array([ra, dec, roll]), 0, -1)
 
 
-    def _quat2equatorial_norm(self):
-        q = np.atleast_2d(self.q)
-        q2 = q ** 2
-
-        # calculate direction cosine matrix elements from $quaternions
-        xa = q2[..., 0] - q2[..., 1] - q2[..., 2] + q2[..., 3]
-        xb = 2 * (q[..., 0] * q[..., 1] + q[..., 2] * q[..., 3])
-        xn = 2 * (q[..., 0] * q[..., 2] - q[..., 1] * q[..., 3])
-        yn = 2 * (q[..., 1] * q[..., 2] + q[..., 0] * q[..., 3])
-        zn = q2[..., 3] + q2[..., 2] - q2[..., 0] - q2[..., 1]
-
-        # Due to numerical precision this can go negative.  Allow *slightly* negative
-        # values but raise an exception otherwise.
-        one_minus_xn2 = 1 - xn**2
-        return one_minus_xn2
-
-
 #  _quat2transform is largely from Enthought's quaternion.rotmat, though this math is
 #  probably from Hamilton.
 #  License included for completeness
