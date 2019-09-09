@@ -105,7 +105,8 @@ class Quat(object):
      * an N x 3 element array ( N by ra, dec, roll in degrees,
        if N == 3, the optional 'intype = 'equatorial' may be used to differentiate,
        this from a transform matrix)
-     * an N x 3x3
+     * an N x 3x3,
+     where N can be an arbitrary shape
 
    :param intype: optional type to describe input attitude
 
@@ -121,7 +122,10 @@ class Quat(object):
         npar = (int(attitude is not None) + int(transform is not None) +
                 int(q is not None) + int(equatorial is not None))
         if npar != 1:
-            raise Exception('One and only one of attitude, transform, quaternion, equatorial must be given ({})'.format(npar))
+            raise ValueError(
+                f'{npar} arguments passed to constructor that takes only one of'
+                ' attitude, transform, quaternion, equatorial.'
+            )
         self._q = None
         self._equatorial = None
         self._T = None
@@ -139,7 +143,8 @@ class Quat(object):
                 equatorial = attitude
             else:
                 raise TypeError(
-                    "attitude is not one of possible types (3 or 4 elements, Quat, or 3x3 matrix): {}".format(attitude.shape))
+                    "attitude argument is not one of an allowed type:"
+                    " Quat or array with shape (...,3), (...,4), or (..., 3, 3)")
 
         # checking correct shapes
         if q is not None:
@@ -215,7 +220,7 @@ class Quat(object):
            :param equatorial: list or array [ RA, Dec, Roll] in degrees
 
         """
-        self._equatorial = np.atleast_2d(np.array(equatorial))
+        self._equatorial = np.atleast_2d(equatorial)
 
     def _get_equatorial(self):
         """Retrieve [RA, Dec, Roll]
@@ -352,6 +357,8 @@ class Quat(object):
         ra = np.degrees(np.arctan2(xb, xa))
         dec = np.degrees(np.arctan2(xn, np.sqrt(one_minus_xn2)))
         roll = np.degrees(np.arctan2(yn, zn))
+        # all negative angles are incremented by 360,
+        # the output is in the (0,360) interval instead of in (-180, 180)
         ra[ra < 0] = ra[ra < 0] + 360
         roll[roll < 0] = roll[roll < 0] + 360
         return np.moveaxis(np.array([ra, dec, roll]), 0, -1)
