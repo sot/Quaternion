@@ -358,6 +358,9 @@ class Quat(object):
         # the output is in the (0,360) interval instead of in (-180, 180)
         ra[ra < 0] = ra[ra < 0] + 360
         roll[roll < 0] = roll[roll < 0] + 360
+        # moveaxis in the following line is a "transpose"
+        # from shape (3, N) to (N, 3), where N can be an arbitrary tuple
+        # e.g. (3, 2, 5) -> (2, 5, 3) (np.transpose would give (2, 3, 5))
         return np.moveaxis(np.array([ra, dec, roll]), 0, -1)
 
 
