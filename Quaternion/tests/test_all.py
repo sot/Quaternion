@@ -81,6 +81,22 @@ def test_from_eq_vectorized():
     assert q.q.shape == (2, 3, 4)
     assert np.allclose(q.q, q_23)
 
+def test_from_eq_shapes():
+    q = Quat(equatorial=equatorial_23[0,0])
+    assert q.ra.shape == ()
+    assert q.dec.shape == ()
+    assert q.roll.shape == ()
+    assert q.q.shape == (4,)
+    assert q.equatorial.shape == (3,)
+    assert q.transform.shape == (3,3)
+
+    q = Quat(equatorial=equatorial_23[:1,:1])
+    assert q.ra.shape == (1,1)
+    assert q.dec.shape == (1,1)
+    assert q.roll.shape == (1,1)
+    assert q.q.shape == (1,1,4)
+    assert q.equatorial.shape == (1,1,3)
+    assert q.transform.shape == (1,1,3,3)
 
 def test_transform_from_eq():
     q = Quat(equatorial=equatorial_23)
@@ -106,6 +122,8 @@ def test_from_transform_vectorized():
     assert q.q.shape == (2, 3, 4)
     assert np.allclose(q.q, q_23)
 
+    q = Quat(transform=transform_23[:1,:1])
+    assert q.q.shape == (1, 1, 4)
 
 def test_eq_from_transform():
     # this raises 'Unexpected negative norm' exception due to roundoff in copy/paste above
@@ -127,6 +145,15 @@ def test_eq_from_transform():
 
     assert q.equatorial.shape == (4, 5, 3)
 
+def test_from_q_vectorized():
+    q = Quat(q=q_23)
+    assert q.q.shape == (2, 3, 4)
+
+    q = Quat(q=q_23[0])
+    assert q.q.shape == (3, 4)
+
+    q = Quat(q=q_23[:1,:1])
+    assert q.q.shape == (1, 1, 4)
 
 def test_inv_eq():
     q = Quat(q0.equatorial)
