@@ -131,6 +131,11 @@ class Quat(object):
         self._q = None
         self._equatorial = None
         self._T = None
+
+        # other data members that are set lazily.
+        self._ra0 = None
+        self._roll0 = None
+
         # checks to see if we've been passed a Quat
         if isinstance(attitude, Quat):
             q = attitude.q
@@ -257,14 +262,14 @@ class Quat(object):
     dec = property(_get_dec)
     roll = property(_get_roll)
 
-    def _get_zero(self, attr):
+    @staticmethod
+    def _get_zero(val):
         """
-        Return a version of attr that is between -180 <= val < 180
+        Return a version of val that is between -180 <= val < 180
         """
-        if not hasattr(self, '_' + attr):
-            val = np.atleast_1d(getattr(self, attr))
-            val = val % 360
-            val[val >= 180] -= 360
+        val = np.atleast_1d(val)
+        val = val % 360
+        val[val >= 180] -= 360
         return val
 
     @property
@@ -272,8 +277,8 @@ class Quat(object):
         """
         Return quaternion RA in the range -180 <= roll < 180.
         """
-        if not hasattr(self, '_ra0'):
-            self._ra0 = self._get_zero('ra')
+        if self._ra0 is None:
+            self._ra0 = self._get_zero(self.ra)
         return self._ra0
 
     @property
@@ -281,8 +286,8 @@ class Quat(object):
         """
         Return quaternion roll in the range -180 <= roll < 180.
         """
-        if not hasattr(self, '_roll0'):
-            self._roll0 = self._get_zero('roll')
+        if self._roll0 is None:
+            self._roll0 = self._get_zero(self.roll)
         return self._roll0
 
     @property
