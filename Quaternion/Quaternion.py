@@ -214,7 +214,7 @@ class Quat(object):
         if q.ndim == 1:
             return ('<{} q1={:.8f} q2={:.8f} q3={:.8f} q4={:.8f}>'
                     .format(self.__class__.__name__, q[0], q[1], q[2], q[3]))
-        return ('{}({})'.format(self.__class__.__name__, repr(q)))
+        return '{}({})'.format(self.__class__.__name__, repr(q))
 
     def _set_equatorial(self, equatorial):
         """Set the value of the 3 element equatorial coordinate list [RA,Dec,Roll]
@@ -299,13 +299,13 @@ class Quat(object):
         """
         return self.ra0
 
-    def _set_transform(self, T):
+    def _set_transform(self, t):
         """
         Set the value of the 3x3 rotation/transform matrix
 
-        :param T: 3x3 array/numpy array
+        :param t: 3x3 array/numpy array
         """
-        transform = np.array(T)
+        transform = np.array(t)
         if transform.ndim == 2:
             transform = transform[np.newaxis]
         self._T = transform
@@ -323,7 +323,7 @@ class Quat(object):
                 self._T = self._quat2transform()
             elif self._equatorial is not None:
                 self._T = self._equatorial2transform()
-        return self._T.reshape(self._shape+(3,3))
+        return self._T.reshape(self._shape+(3, 3))
 
     transform = property(_get_transform, _set_transform)
 
@@ -371,35 +371,35 @@ class Quat(object):
 #  probably from Hamilton.
 #  License included for completeness
 #
-#This software is OSI Certified Open Source Software.
-#OSI Certified is a certification mark of the Open Source Initiative.
+# This software is OSI Certified Open Source Software.
+# OSI Certified is a certification mark of the Open Source Initiative.
 #
-#Copyright (c) 2006, Enthought, Inc.
-#All rights reserved.
+# Copyright (c) 2006, Enthought, Inc.
+# All rights reserved.
 #
-#Redistribution and use in source and binary forms, with or without
-#modification, are permitted provided that the following conditions are met:
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
 #
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-# * Neither the name of Enthought, Inc. nor the names of its contributors may
-#   be used to endorse or promote products derived from this software without
-#   specific prior written permission.
+#  * Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#  * Neither the name of Enthought, Inc. nor the names of its contributors may
+#    be used to endorse or promote products derived from this software without
+#    specific prior written permission.
 #
-#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-#ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-#WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-#DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-#ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-#(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-#LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-#ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-#(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-#SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
     def _quat2transform(self):
         """
         Transform a unit quaternion into its corresponding rotation/transform matrix.
@@ -510,9 +510,9 @@ class Quat(object):
         poss_quat[3] = np.moveaxis(
             np.array(
                 [-(T[..., 2, 1] - T[..., 1, 2]) / denom,
-                  -(T[..., 0, 2] - T[..., 2, 0]) / denom,
-                  -(T[..., 1, 0] - T[..., 0, 1]) / denom,
-                  half_rt_q_max]), 0, -1)
+                 -(T[..., 0, 2] - T[..., 2, 0]) / denom,
+                 -(T[..., 1, 0] - T[..., 0, 1]) / denom,
+                 half_rt_q_max]), 0, -1)
 
         q = np.zeros(tuple(T.shape[:-2] + (4,)))
         for idx in range(0, 4):
@@ -574,7 +574,7 @@ class Quat(object):
         """
         q1 = np.atleast_2d(self.q)
         q2 = np.atleast_2d(quat2.q)
-        assert q1.shape==q2.shape
+        assert q1.shape == q2.shape
         mult = np.zeros(q1.shape)
         mult[...,0] =  q1[...,3] * q2[...,0] - q1[...,2] * q2[...,1] + q1[...,1] * q2[...,2] + q1[...,0] * q2[...,3]
         mult[...,1] =  q1[...,2] * q2[...,0] + q1[...,3] * q2[...,1] - q1[...,0] * q2[...,2] + q1[...,1] * q2[...,3]
@@ -590,7 +590,7 @@ class Quat(object):
         :rtype: Quat
         """
         q = np.array(self.q)
-        q[...,3] *= -1
+        q[..., 3] *= -1
         return Quat(q=q)
 
     def dq(self, q2):
@@ -628,7 +628,7 @@ def normalize(array):
     """
     Normalize a 4 (or Nx4) element array/list/numpy.array for use as a quaternion
 
-    :param quat_array: 4 or Nx4 element list/array
+    :param array: 4 or Nx4 element list/array
     :returns: normalized array
     :rtype: numpy array
 
