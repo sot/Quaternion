@@ -148,22 +148,22 @@ class Quat(object):
 
         # checking correct shapes
         if q is not None:
-            self._shape = q.shape[:-1]
             q = np.atleast_1d(q)
+            self._shape = q.shape[:-1]
             if q.shape[-1:] != (4,):
                 raise TypeError("Creating a Quaternion from quaternion(s) "
                                 "requires shape (..., 4), not {}".format(q.shape))
             self._set_q(q)
         elif transform is not None:
-            self._shape = transform.shape[:-2]
             transform = np.atleast_2d(transform)
+            self._shape = transform.shape[:-2]
             if transform.shape[-2:] != (3, 3):
                 raise TypeError("Creating a Quaternion from quaternion(s) "
                                 "requires shape (..., 3, 3), not {}".format(transform.shape))
             self._set_transform(transform)
         elif equatorial is not None:
-            self._shape = equatorial.shape[:-1]
             equatorial = np.atleast_1d(equatorial)
+            self._shape = equatorial.shape[:-1]
             if equatorial.shape[-1:] != (3,):
                 raise TypeError("Creating a Quaternion from ra, dec, roll "
                                 "requires shape (..., 3), not {}".format(equatorial.shape))
@@ -574,7 +574,8 @@ class Quat(object):
         """
         q1 = np.atleast_2d(self.q)
         q2 = np.atleast_2d(quat2.q)
-        mult = np.zeros((len(q1), 4))
+        assert q1.shape==q2.shape
+        mult = np.zeros(q1.shape)
         mult[...,0] =  q1[...,3] * q2[...,0] - q1[...,2] * q2[...,1] + q1[...,1] * q2[...,2] + q1[...,0] * q2[...,3]
         mult[...,1] =  q1[...,2] * q2[...,0] + q1[...,3] * q2[...,1] - q1[...,0] * q2[...,2] + q1[...,1] * q2[...,3]
         mult[...,2] = -q1[...,1] * q2[...,0] + q1[...,0] * q2[...,1] + q1[...,3] * q2[...,2] + q1[...,2] * q2[...,3]
@@ -588,8 +589,9 @@ class Quat(object):
         :returns: inverted quaternion
         :rtype: Quat
         """
-        q = np.atleast_2d(self.q)
-        return Quat(q=np.array([q[..., 0], q[..., 1], q[..., 2], -1.0 * q[..., 3]]).swapaxes(-2, -1))
+        q = np.array(self.q)
+        q[...,3] *= -1
+        return Quat(q=q)
 
     def dq(self, q2):
         """
@@ -610,7 +612,7 @@ class Quat(object):
           array([  1.79974166e-15,   1.00000000e-01,   1.00000000e+00])
         """
         if not isinstance(q2, Quat):
-            q2 = Quat(q2)
+            q2 = Quat(q=q2)
         return self.inv() * q2
 
 

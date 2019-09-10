@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 
-from .. import Quat
+from .. import Quat, normalize
 
 ra = 10.
 dec = 20.
@@ -45,16 +45,47 @@ transform_23 = np.array([[[[  9.25416578e-01,  -3.18795778e-01,  -2.04874129e-01
 
 def test_init_exceptions():
     with pytest.raises(TypeError):
-        q = Quat(np.zeros((2,)))
+        _ = Quat(q=np.zeros((3,)))  # old-style API, wrong shape
     with pytest.raises(TypeError):
-        q = Quat(np.zeros((5,)))
+        _ = Quat(equatorial=np.zeros((4,)))  # old-style API, wrong shape
     with pytest.raises(TypeError):
-        q = Quat(equatorial_23)
+        _ = Quat(transform=np.zeros((4,)))  # old-style API, wrong shape
     with pytest.raises(TypeError):
-        q = Quat(q_23)
+        _ = Quat(np.zeros((2,)))  # old-style API, wrong shape
     with pytest.raises(TypeError):
-        q = Quat(transform_23)
+        _ = Quat(np.zeros((5,)))  # old-style API, wrong shape
+    with pytest.raises(TypeError):
+        _ = Quat(equatorial_23)  # old-style API, wrong shape
+    with pytest.raises(TypeError):
+        _ = Quat(q_23)  # old-style API, wrong shape
+    with pytest.raises(TypeError):
+        _ = Quat(transform_23)  # old-style API, wrong shape
+    with pytest.raises(ValueError):
+        _ = Quat(q=np.zeros(4), transform=np.zeros((3,3)))  # too many arguments
+    with pytest.raises(ValueError):
+        _ = Quat(q=np.zeros(4), equatorial=np.zeros(3))  # too many arguments
+    with pytest.raises(ValueError):
+        _ = Quat(equatorial=np.zeros(3), transform=np.zeros((3,3)))  # too many arguments
+    with pytest.raises(ValueError):
+        # too many arguments
+        _ = Quat(q=np.zeros(4), transform=np.zeros((3,3)), equatorial=np.zeros(3))
+    with pytest.raises(ValueError):
+        _ = Quat(q=[[[1., 0., 0., 1.]]])  # q not normalized
 
+def test_from_q():
+    q = [ 0.26853582, -0.14487813,  0.12767944,  0.94371436]
+    q1 = Quat(q)
+    q2 = Quat(q=q)
+    q3 = Quat(q1)
+    q = np.array(q)
+    assert np.all(q1.q == q)
+    assert np.all(q2.q == q)
+    assert np.all(q3.q == q)
+
+    # q is flipped in set_q
+    q = np.array([ 0.1227878 ,  0.69636424,  0.1227878 , -0.69636424])
+    q4 = Quat(q=q)
+    assert np.all(q4.q == -q)
 
 def test_from_eq():
     q = Quat([ra, dec, roll])
@@ -64,7 +95,8 @@ def test_from_eq():
     assert np.allclose(q.q[3],  0.94371436)
     assert np.allclose(q.roll0, 30)
     assert np.allclose(q.ra0, 10)
-
+    assert q.pitch == -q.dec
+    assert q.yaw == q.ra0
 
 def test_from_eq_vectorized():
     # the following line would give unexpected results
@@ -80,6 +112,10 @@ def test_from_eq_vectorized():
     q = Quat(equatorial=equatorial_23)
     assert q.q.shape == (2, 3, 4)
     assert np.allclose(q.q, q_23)
+
+    # test init from list
+    q = Quat(equatorial=[ra, dec, roll])
+    assert np.all(q.q == q0.q)
 
 def test_from_eq_shapes():
     q = Quat(equatorial=equatorial_23[0,0])
@@ -116,6 +152,10 @@ def test_from_transform():
     assert np.allclose(q.roll0, 30)
     assert np.allclose(q.ra0, 10)
 
+    t = [[  9.25416578e-01,  -3.18795778e-01,  -2.04874129e-01],
+         [  1.63175911e-01,   8.23172945e-01,  -5.43838142e-01],
+         [  3.42020143e-01,   4.69846310e-01,   8.13797681e-01]]
+    q = Quat(t)
 
 def test_from_transform_vectorized():
     q = Quat(transform=transform_23)
@@ -124,6 +164,12 @@ def test_from_transform_vectorized():
 
     q = Quat(transform=transform_23[:1,:1])
     assert q.q.shape == (1, 1, 4)
+
+    t = [[[[9.25416578e-01, -3.18795778e-01, -2.04874129e-01],
+           [1.63175911e-01, 8.23172945e-01, -5.43838142e-01],
+           [3.42020143e-01, 4.69846310e-01, 8.13797681e-01]]]]
+    q = Quat(transform=t)
+    assert q.q.shape == (1,1,4)
 
 def test_eq_from_transform():
     # this raises 'Unexpected negative norm' exception due to roundoff in copy/paste above
@@ -166,18 +212,53 @@ def test_inv_eq():
 
 def test_inv_q():
     q = Quat(q0.q)
+    assert q.q.shape == q.inv().q.shape
     t = q.transform
     tinv = q.inv().transform
     t_tinv = np.dot(t, tinv)
     for v1, v2 in zip(t_tinv.flatten(), [1, 0, 0, 0, 1, 0, 0, 0, 1]):
         assert np.allclose(v1, v2)
 
+def test_inv_vectorized():
+    q1 = Quat(q=q_23[:1,:1])
+    assert q1.q.shape == (1,1,4)
+    q1_inv = q1.inv()
+    assert q1_inv.q.shape == q1.q.shape
+    q1_inv = Quat(q=q1_inv.q.reshape((-1,4)))
+    q1 = Quat(q=q1.q.reshape((-1, 4)))
+    for i in range(q1_inv.q.shape[0]):
+        q1_inv_2 = Quat(q=q1.q[i]).inv()
+        assert np.allclose(q1_inv_2.q, q1_inv.q[i])
 
 def test_dq():
     q1 = Quat((20, 30, 0))
     q2 = Quat((20, 30.1, 1))
     dq = q1.dq(q2)
     assert np.allclose(dq.equatorial, (0, 0.1, 1))
+
+    # same from array instead of Quat
+    dq = q1.dq(q2.q)
+    assert np.allclose(dq.equatorial, (0, 0.1, 1))
+
+def test_dq_vectorized():
+    q1 = Quat(q=q_23[:1,:2])
+    q2 = Quat(q=q_23[1:,1:])
+    assert q1.q.shape == q2.q.shape
+
+    dq = q1.dq(q2)
+    assert dq.q.shape == q1.q.shape # shape (1,2,4)
+
+    # same but with array argument instead of Quat
+    dq2 = q1.dq(q2.q)
+    assert dq2.q.shape == dq.q.shape
+    assert np.all(dq2.q == dq.q)
+
+    q1 = q1.q.reshape((-1, 4))
+    q2 = q2.q.reshape((-1, 4))
+    dq = Quat(q=dq.q.reshape((-1, 4)))
+    for i in range(q1.shape[0]):
+        assert np.all(dq.q[i] == Quat(q=q1[i]).dq(Quat(q=q2[i])).q)
+
 
 
 def test_ra0_roll0():
@@ -198,6 +279,8 @@ def test_repr():
     q = SubQuat([1, 2, 3])
     assert repr(q) == '<SubQuat q1=0.02632421 q2=-0.01721736 q3=0.00917905 q4=0.99946303>'
 
+    q = Quat(equatorial=[[1,2,3]])
+    assert repr(q) == 'Quat(array([[ 0.02632421, -0.01721736,  0.00917905,  0.99946303]]))'
 
 def test_numeric_underflow():
     """
@@ -225,3 +308,15 @@ def test_div_mult():
     q12d = q1 / q2
     q12m = q1 * q2.inv()
     assert np.all(q12d.q == q12m.q)
+
+def test_mult_vectorized():
+    q1 = Quat(q=q_23[:1, :2])  # (shape (2,1)
+    q2 = Quat(q=q_23[1:, 1:])  # (shape (2,1)
+    assert q1.q.shape == q2.q.shape
+    q12 = q1*q2
+    assert q12.q.shape == q1.q.shape
+
+
+def test_normalize():
+    a = [[[1., 0., 0., 1.]]]
+    _ = Quat(q=normalize(a))
