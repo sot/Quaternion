@@ -185,9 +185,8 @@ def test_eq_from_transform():
     # assert np.allclose(q.equatorial, equatorial_23)
 
     # this one fails (quaternion -> equatorial -> quaternion is not an identity)
-    # q = Quat(transform=np.vstack([q0.transform[np.newaxis], q0.transform[np.newaxis]]))
-    # assert np.allclose(q.roll0, 30)
-    # assert np.allclose(q.ra0, 10)
+    # q = [0.24184476, -0.66446302, 0.24184476, 0.66446302]
+    # assert np.allclose(q, Quat(equatorial=Quat(q=q).equatorial).q)
 
     t = np.zeros((4, 5, 3, 3))
     t[:] = q0.transform[np.newaxis][np.newaxis]
