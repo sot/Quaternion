@@ -61,7 +61,7 @@ class Quat(object):
     applying the q2 transform followed by the q1 transform.  Another way to
     express this is::
 
-      q = Quat(numpy.dot(q1.transform, q2.transform))
+      q = Quat(q1.transform @ q2.transform)
 
     Example usage::
 
@@ -100,22 +100,24 @@ class Quat(object):
       * a 4 element array (expects x,y,z,w quat form)
       * a 3 element array (expects ra,dec,roll in degrees)
       * a 3x3 transform/rotation matrix
-    N x those types :
-     * an N x 4 element array ( N by x,y,z,w quat form)
-     * an N x 3 element array ( N by ra, dec, roll in degrees,
-       if N == 3, the optional 'intype = 'equatorial' may be used to differentiate,
-       this from a transform matrix)
-     * an N x 3x3,
-     where N can be an arbitrary shape
 
-   :param intype: optional type to describe input attitude
+    :param q: attitude as a quaternion.
 
-   ``intype`` may be:
-     * transform
-     * equatorial
-     * quaternion
+    ``q`` must be an array with shape (4,) or (N, 4), with arbitrary N.
+    The last axis corresponds to quaternion coordinates x, y, z, w.
+    For example: (3, 2, 4) corresponds to a (3, 2) array of quaternions.
 
+    :param equatorial: attitude in equatorial coordinates.
 
+    ``q`` must be an array with shape (3,) or (N, 3), with arbitrary N.
+    The last axis corresponds to equatorial coordinates ra, dec, roll.
+    For example: (3, 2, 3) corresponds to a (3, 2) array of quaternions.
+
+    :param transform: attitude as a 3x3 transform.
+
+    ``q`` must be an array with shape (3, 3) or (N, 3, 3), with arbitrary N.
+    The last two axes correspond to (3, 3) transformations.
+    For example: (3, 2, 3, 3) corresponds to a (3, 2) array of quaternions.
     """
 
     def __init__(self, attitude=None, transform=None, q=None, equatorial=None):
@@ -172,7 +174,8 @@ class Quat(object):
     def _set_q(self, q):
         """
         Set the value of the 4 element quaternion vector
-        May be 4 element list or array or N x 4 element array.
+        May be 4 element list or array or N x 4 element array,
+        where N can be an arbitrary shape. E.g.: (3,2,4) is allowed.
 
         :param q: list or array of normalized quaternion elements
         """
@@ -326,7 +329,7 @@ class Quat(object):
 
     def _quat2equatorial(self):
         """
-        Determine Right Ascension, Declination, and Roll for the object quaternion
+        Determine Right Ascension, Declination, and Roll for the quaternion
 
         :returns: N x (RA, Dec, Roll)
         :rtype: numpy array [ra,dec,roll]
@@ -432,7 +435,7 @@ class Quat(object):
         return t
 
     def _equatorial2quat(self):
-        """Dummy method to return return quat.
+        """Return quaternion.
 
         :returns: quaternion
         :rtype: Quat
@@ -520,7 +523,7 @@ class Quat(object):
 
     def __div__(self, quat2):
         """
-        Divide one quaternion by another (or divide N quats by N quats)
+        Divide one quaternion by another (or divide N quats by N quats).
 
         Example usage::
 
@@ -542,16 +545,13 @@ class Quat(object):
 
     def __mul__(self, quat2):
         """
-        Multiply quaternion by another.
+        Multiply quaternion by another (or multiply N quats by N quats).
 
         Quaternion composition as a multiplication q = q1 * q2 is equivalent to
         applying the q2 transform followed by the q1 transform.  Another way to
         express this is::
 
-          q = Quat(numpy.dot(q1.transform, q2.transform))
-
-       (though numpy.dot is not used because it is awkward in the vector case
-        when the transforms are of the shape Nx3x3)
+          q = Quat(q1.transform @ q2.transform)
 
         Example usage::
 
@@ -584,7 +584,7 @@ class Quat(object):
 
     def inv(self):
         """
-        Invert the quaternion
+        Invert the quaternion.
 
         :returns: inverted quaternion
         :rtype: Quat
@@ -601,7 +601,7 @@ class Quat(object):
         This method returns the delta quaternion which represents the transformation
         from the frame of this quaternion (``self``) to ``q2``.
 
-          q = Quat(numpy.dot(q1.transform, q2.transform))
+          q = Quat(q1.transform @ q2.transform)
 
         Example usage::
 
@@ -610,6 +610,14 @@ class Quat(object):
           >>> dq = q1.dq(q2)
           >>> dq.equatorial
           array([  1.79974166e-15,   1.00000000e-01,   1.00000000e+00])
+
+        :param: q2 Quat or array
+
+        ``q2`` must have the same shape as self.
+
+        :returns: Quat
+        :rtype: numpy array
+
         """
         if not isinstance(q2, Quat):
             q2 = Quat(q=q2)
