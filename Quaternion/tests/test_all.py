@@ -43,6 +43,12 @@ transform_23 = np.array([[[[  9.25416578e-01,  -3.18795778e-01,  -2.04874129e-01
                            [  1.00000000e+00,  -3.06161700e-17,   5.30287619e-17]]]])
 
 
+def indices(t):
+    import itertools
+    for k in itertools.product(*[range(i) for i in t]):
+        yield k
+
+
 def test_init_exceptions():
     with pytest.raises(TypeError):
         _ = Quat(q=np.zeros((3, )))  # old-style API, wrong shape
@@ -110,11 +116,15 @@ def test_from_eq_vectorized():
     # this is the proper way:
     q = Quat(equatorial=equatorial_23[0])
     assert q.q.shape == (3, 4)
-    assert np.allclose(q.q, q_23[0])
+    for i in indices(equatorial_23[0].shape[:-1]):
+        # check that Quat(equatorial).q[i] == Quat(equatorial[i]).q
+        assert np.all(q.q[i] == Quat(equatorial_23[0][i]).q)
 
     q = Quat(equatorial=equatorial_23)
     assert q.q.shape == (2, 3, 4)
-    assert np.allclose(q.q, q_23)
+    for i in indices(equatorial_23.shape[:-1]):
+        # check that Quat(equatorial).q[i] == Quat(equatorial[i]).q
+        assert np.all(q.q[i] == Quat(equatorial_23[i]).q)
 
     # test init from list
     q = Quat(equatorial=[ra, dec, roll])
@@ -142,8 +152,10 @@ def test_from_eq_shapes():
 def test_transform_from_eq():
     q = Quat(equatorial=equatorial_23)
     assert q.transform.shape == (2, 3, 3, 3)
-    assert np.allclose(q.transform, transform_23)
-
+    for i in indices(equatorial_23.shape[:-1]):
+        # check that
+        # Quat(equatorial).transform[i] == Quat(equatorial[i]).transform
+        assert np.all(q.transform[i] == Quat(equatorial_23[i]).transform)
 
 def test_from_transform():
     """Initialize from inverse of q0 via transform matrix"""
@@ -166,7 +178,9 @@ def test_from_transform():
 def test_from_transform_vectorized():
     q = Quat(transform=transform_23)
     assert q.q.shape == (2, 3, 4)
-    assert np.allclose(q.q, q_23)
+    for i in indices(equatorial_23.shape[:-1]):
+        # check that Quat(transform).q[i] == Quat(transform[i]).q
+        assert np.all(q.q[i] == Quat(transform=transform_23[i]).q)
 
     q = Quat(transform=transform_23[:1, :1])
     assert q.q.shape == (1, 1, 4)
@@ -237,7 +251,7 @@ def test_inv_vectorized():
     q1 = Quat(q=q1.q.reshape((-1, 4)))
     for i in range(q1_inv.q.shape[0]):
         q1_inv_2 = Quat(q=q1.q[i]).inv()
-        assert np.allclose(q1_inv_2.q, q1_inv.q[i])
+        assert np.all(q1_inv_2.q == q1_inv.q[i])
 
 
 def test_dq():
