@@ -158,25 +158,40 @@ class Quat(object):
         # checking correct shapes
         if q is not None:
             q = np.atleast_1d(q)
-            self.shape = q.shape[:-1]
+            self._shape = q.shape[:-1]
             if q.shape[-1:] != (4,):
                 raise TypeError("Creating a Quaternion from quaternion(s) "
                                 "requires shape (..., 4), not {}".format(q.shape))
             self._set_q(q)
         elif transform is not None:
             transform = np.atleast_2d(transform)
-            self.shape = transform.shape[:-2]
+            self._shape = transform.shape[:-2]
             if transform.shape[-2:] != (3, 3):
                 raise TypeError("Creating a Quaternion from quaternion(s) "
                                 "requires shape (..., 3, 3), not {}".format(transform.shape))
             self._set_transform(transform)
         elif equatorial is not None:
             equatorial = np.atleast_1d(equatorial)
-            self.shape = equatorial.shape[:-1]
+            self._shape = equatorial.shape[:-1]
             if equatorial.shape[-1:] != (3,):
                 raise TypeError("Creating a Quaternion from ra, dec, roll "
                                 "requires shape (..., 3), not {}".format(equatorial.shape))
             self._set_equatorial(equatorial)
+        assert self._shape is not None
+
+    @property
+    def shape(self):
+        """
+        The shape of the multi-quaternion.
+
+        For example, if the Quat is:
+        - a single quaternion, then its shape is ().
+        - a multi-quaternion with self.q.shape = (N, 4), then its shape is (N,)
+
+        :returns: self.q.shape[:-1]
+        :rtype: tuple
+        """
+        return self._shape
 
     def _set_q(self, q):
         """

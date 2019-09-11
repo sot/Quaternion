@@ -49,6 +49,13 @@ def indices(t):
         yield k
 
 
+def test_shape():
+    q = Quat(q=np.zeros(4,))
+    assert q.shape == ()
+    with pytest.raises(AttributeError):
+        q.shape = (4,)
+
+
 def test_init_exceptions():
     with pytest.raises(TypeError):
         _ = Quat(q=np.zeros((3, )))  # old-style API, wrong shape
