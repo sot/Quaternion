@@ -247,12 +247,9 @@ def test_inv_vectorized():
     assert q1.q.shape == (1, 1, 4)
     q1_inv = q1.inv()
     assert q1_inv.q.shape == q1.q.shape
-    q1_inv = Quat(q=q1_inv.q.reshape((-1, 4)))
-    q1 = Quat(q=q1.q.reshape((-1, 4)))
-    for i in range(q1_inv.q.shape[0]):
-        q1_inv_2 = Quat(q=q1.q[i]).inv()
-        assert np.all(q1_inv_2.q == q1_inv.q[i])
-
+    for i in indices(q1.q.shape[:-1]):
+        # check that Quat(q).inv().q[i] == Quat(q[i]).inv().q
+        assert np.all(q1_inv.q[i] == Quat(q=q1.q[i]).inv().q)
 
 def test_dq():
     q1 = Quat((20, 30, 0))
@@ -278,12 +275,9 @@ def test_dq_vectorized():
     assert dq2.q.shape == dq.q.shape
     assert np.all(dq2.q == dq.q)
 
-    q1 = q1.q.reshape((-1, 4))
-    q2 = q2.q.reshape((-1, 4))
-    dq = Quat(q=dq.q.reshape((-1, 4)))
-    for i in range(q1.shape[0]):
-        assert np.all(dq.q[i] == Quat(q=q1[i]).dq(Quat(q=q2[i])).q)
-
+    for i in indices(q1.q.shape[:-1]):
+        # check that Quat(q1).dq(q2).q[i] == Quat(q1[i]).dq(q2[i]).q
+        assert np.all(dq.q[i] == Quat(q=q1.q[i]).dq(Quat(q=q2.q[i])).q)
 
 def test_ra0_roll0():
     q = Quat(Quat([-1, 0, -2]).q)
