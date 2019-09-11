@@ -7,7 +7,9 @@ Quaternion provides a class for manipulating quaternion objects.  This class pro
    - class methods to multiply and divide quaternions
 
 :Copyright: Smithsonian Astrophysical Observatory (2010)
-:Authors: Tom Aldcroft (aldcroft@cfa.harvard.edu), Jean Connelly (jconnelly@cfa.harvard.edu), Javier Gonzalez (javier.gonzalez@cfa.harvard.edu)
+:Authors: - Tom Aldcroft (aldcroft@cfa.harvard.edu)
+          - Jean Connelly (jconnelly@cfa.harvard.edu)
+          - Javier Gonzalez (javier.gonzalez@cfa.harvard.edu)
 """
 # Copyright (c) 2010, Smithsonian Astrophysical Observatory
 # All rights reserved.
