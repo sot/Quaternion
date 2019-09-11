@@ -116,13 +116,13 @@ def test_from_eq_vectorized():
     # this is the proper way:
     q = Quat(equatorial=equatorial_23[0])
     assert q.q.shape == (3, 4)
-    for i in indices(equatorial_23[0].shape[:-1]):
+    for i in indices(q.shape):
         # check that Quat(equatorial).q[i] == Quat(equatorial[i]).q
         assert np.all(q.q[i] == Quat(equatorial_23[0][i]).q)
 
     q = Quat(equatorial=equatorial_23)
     assert q.q.shape == (2, 3, 4)
-    for i in indices(equatorial_23.shape[:-1]):
+    for i in indices(q.shape):
         # check that Quat(equatorial).q[i] == Quat(equatorial[i]).q
         assert np.all(q.q[i] == Quat(equatorial_23[i]).q)
 
@@ -131,7 +131,7 @@ def test_from_eq_vectorized():
     assert np.all(q.q == q0.q)
 
 
-def test_from_eq_shapes():
+def test_from_eqshapes():
     q = Quat(equatorial=equatorial_23[0, 0])
     assert q.ra.shape == ()
     assert q.dec.shape == ()
@@ -152,7 +152,7 @@ def test_from_eq_shapes():
 def test_transform_from_eq():
     q = Quat(equatorial=equatorial_23)
     assert q.transform.shape == (2, 3, 3, 3)
-    for i in indices(equatorial_23.shape[:-1]):
+    for i in indices(q.shape):
         # check that
         # Quat(equatorial).transform[i] == Quat(equatorial[i]).transform
         assert np.all(q.transform[i] == Quat(equatorial_23[i]).transform)
@@ -178,7 +178,7 @@ def test_from_transform():
 def test_from_transform_vectorized():
     q = Quat(transform=transform_23)
     assert q.q.shape == (2, 3, 4)
-    for i in indices(equatorial_23.shape[:-1]):
+    for i in indices(q.shape):
         # check that Quat(transform).q[i] == Quat(transform[i]).q
         assert np.all(q.q[i] == Quat(transform=transform_23[i]).q)
 
@@ -247,7 +247,7 @@ def test_inv_vectorized():
     assert q1.q.shape == (1, 1, 4)
     q1_inv = q1.inv()
     assert q1_inv.q.shape == q1.q.shape
-    for i in indices(q1.q.shape[:-1]):
+    for i in indices(q1.shape):
         # check that Quat(q).inv().q[i] == Quat(q[i]).inv().q
         assert np.all(q1_inv.q[i] == Quat(q=q1.q[i]).inv().q)
 
@@ -275,7 +275,7 @@ def test_dq_vectorized():
     assert dq2.q.shape == dq.q.shape
     assert np.all(dq2.q == dq.q)
 
-    for i in indices(q1.q.shape[:-1]):
+    for i in indices(q1.shape):
         # check that Quat(q1).dq(q2).q[i] == Quat(q1[i]).dq(q2[i]).q
         assert np.all(dq.q[i] == Quat(q=q1.q[i]).dq(Quat(q=q2.q[i])).q)
 
