@@ -96,11 +96,6 @@ def test_from_q():
     assert np.all(q2.q == q)
     assert np.all(q3.q == q)
 
-    # q is flipped in set_q
-    q = np.array([0.1227878,  0.69636424,  0.1227878, -0.69636424])
-    q4 = Quat(q=q)
-    assert np.all(q4.q == -q)
-
 
 def test_from_eq():
     q = Quat([ra, dec, roll])
@@ -112,6 +107,9 @@ def test_from_eq():
     assert np.allclose(q.ra0, 10)
     assert q.pitch == -q.dec
     assert q.yaw == q.ra0
+
+    q1 = Quat(equatorial=[10, 90, 30])
+    q2 = Quat(q=q1.q)
 
 
 def test_from_eq_vectorized():
@@ -163,6 +161,7 @@ def test_transform_from_eq():
         # check that
         # Quat(equatorial).transform[i] == Quat(equatorial[i]).transform
         assert np.all(q.transform[i] == Quat(equatorial_23[i]).transform)
+
 
 def test_from_transform():
     """Initialize from inverse of q0 via transform matrix"""
@@ -347,3 +346,25 @@ def test_mult_vectorized():
 def test_normalize():
     a = [[[1., 0., 0., 1.]]]
     _ = Quat(q=normalize(a))
+
+
+def test_copy():
+    # data members must be copies so they are not modified by accident
+    q = np.array(q_23[0,0])
+    q1 = Quat(q=q)
+    q[-1] = 0
+    assert q1.q[-1] != 0
+
+    # this one passes
+    t = np.array(transform_23)
+    q1 = Quat(transform=t)
+    t[-1] = 0
+    assert not np.all(q1.transform == t)
+
+    # this one passes
+    eq = np.array([10, 90, 30])
+    q1 = Quat(equatorial=eq)
+    eq[-1] = 0
+    assert not np.all(q1.equatorial == eq)
+
+

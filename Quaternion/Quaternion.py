@@ -246,7 +246,7 @@ class Quat(object):
            :param equatorial: list or array [ RA, Dec, Roll] in degrees
 
         """
-        self._equatorial = np.atleast_2d(equatorial)
+        self._equatorial = np.atleast_2d(np.array(equatorial))
 
     def _get_equatorial(self):
         """Retrieve [RA, Dec, Roll]
