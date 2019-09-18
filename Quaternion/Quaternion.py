@@ -497,11 +497,9 @@ class Quat(object):
         :rtype: numpy array
         """
 
-        transform = self.transform
-        if transform.ndim == 2:
-            transform = transform[np.newaxis]
-        # Code was copied from perl PDL code that uses backwards index ordering
-        T = transform.swapaxes(-2, -1)
+        T = self.transform
+        if T.ndim == 2:
+            T = T[np.newaxis]
         den = np.array([1.0 + T[..., 0, 0] - T[..., 1, 1] - T[..., 2, 2],
                         1.0 - T[..., 0, 0] + T[..., 1, 1] - T[..., 2, 2],
                         1.0 - T[..., 0, 0] - T[..., 1, 1] + T[..., 2, 2],
@@ -516,24 +514,24 @@ class Quat(object):
                 [half_rt_q_max,
                  (T[..., 1, 0] + T[..., 0, 1]) / denom,
                  (T[..., 2, 0] + T[..., 0, 2]) / denom,
-                 -(T[..., 2, 1] - T[..., 1, 2]) / denom]), 0, -1)
+                 (T[..., 2, 1] - T[..., 1, 2]) / denom]), 0, -1)
         poss_quat[1] = np.moveaxis(
             np.array(
                 [(T[..., 1, 0] + T[..., 0, 1]) / denom,
                  half_rt_q_max,
                  (T[..., 2, 1] + T[..., 1, 2]) / denom,
-                 -(T[..., 0, 2] - T[..., 2, 0]) / denom]), 0, -1)
+                 (T[..., 0, 2] - T[..., 2, 0]) / denom]), 0, -1)
         poss_quat[2] = np.moveaxis(
             np.array(
                 [(T[..., 2, 0] + T[..., 0, 2]) / denom,
                  (T[..., 2, 1] + T[..., 1, 2]) / denom,
                  half_rt_q_max,
-                 -(T[..., 1, 0] - T[..., 0, 1]) / denom]), 0, -1)
+                 (T[..., 1, 0] - T[..., 0, 1]) / denom]), 0, -1)
         poss_quat[3] = np.moveaxis(
             np.array(
-                [-(T[..., 2, 1] - T[..., 1, 2]) / denom,
-                 -(T[..., 0, 2] - T[..., 2, 0]) / denom,
-                 -(T[..., 1, 0] - T[..., 0, 1]) / denom,
+                [(T[..., 2, 1] - T[..., 1, 2]) / denom,
+                 (T[..., 0, 2] - T[..., 2, 0]) / denom,
+                 (T[..., 1, 0] - T[..., 0, 1]) / denom,
                  half_rt_q_max]), 0, -1)
 
         q = np.zeros(tuple(T.shape[:-2] + (4,)))
