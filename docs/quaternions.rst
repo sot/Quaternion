@@ -57,8 +57,23 @@ Some properties of rotations:
 * they are orthogonal: :math:`M^{-1} = M^T` or :math:`M^T M = M M^T = \mathbb{1}`
 * det(M) = 1
 
-In what follows we denote an *extrinsic* rotation of :math:`\alpha` around the z-axis by the symbol :math:`R_{\alpha}^z`.
-Similarly for the other cartesian axes
+In what follows we use the following elemental (right-handed) rotations of :math:`\alpha` around the axes  :math:`R_{\alpha}^z`:
+
+.. math::
+    :label: elemental_rotations
+
+    \begin{eqnarray}
+      R_{\alpha}^x &=& \left[\begin{matrix} 1 & 0 & 0 \\
+      0 & \cos\alpha & -\sin\alpha \\
+      0 & \sin\alpha & \cos\alpha \end{matrix}\right] \\
+      R_{\alpha}^y &=& \left[\begin{matrix} \cos\alpha & 0 & \sin\alpha \\
+      0 & 1 & 0 \\
+      -\sin\alpha & 0 & \cos\alpha \end{matrix}\right] \\
+      R_{\alpha}^z &=& \left[\begin{matrix} \cos\alpha & -\sin\alpha & 0 \\
+      \sin\alpha & \cos\alpha & 0 \\
+      0 & 0 & 1 \end{matrix}\right]
+    \end{eqnarray}
+
 
 Angle-axis Representation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -76,12 +91,6 @@ Any rotation can be decomposed as a sequence of three rotations around different
 That means that all rotations are in a fixed reference frame. Using the equatorial coordinates, this can be expressed as
 :math:`R_{\alpha}^z R_{\delta}^y R_{\rho}^x`, where :math:`{\rho}`, :math:`{\delta}` and
 :math:`{\alpha}` are roll, declination and right ascension respectively.
-
-NOTE:
-In a fixed right-handed system, the rotation to a given positive declination is in the negative direction,
-while RA and roll are positive: :math:`R_{\alpha}^z R_{-\delta}^y R_{\rho}^x`. However, this is not what the code does.
-The result of `Quat([ra, dec, roll]).transform` is what is written in Eq. :eq:`eq_matrix_repr`.
-Maybe a clarification is needed.
 
 Quaternion Representation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -109,7 +118,7 @@ Switching Representations
 Equatorial -> Matrix
 ^^^^^^^^^^^^^^^^^^^^
 
-Let's write :math:`M = R_{\alpha}^z R_{\delta}^y R_{\rho}^x` in matrix notation:
+Let's write :math:`M = R_{\alpha}^z R_{-\delta}^y R_{\rho}^x` in matrix notation:
 
 .. math::
     :label: eq_matrix_repr
