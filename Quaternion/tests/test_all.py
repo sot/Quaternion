@@ -10,6 +10,12 @@ def indices(t):
     for k in itertools.product(*[range(i) for i in t]):
         yield k
 
+def normalize_angles(x, xmin, xmax):
+    while np.any(x >= xmax):
+        x -= np.where(x > xmax, 360, 0)
+    while np.any(x < xmin):
+        x += np.where(x < xmin, 360, 0)
+
 
 ra = 10.
 dec = 20.
@@ -19,10 +25,10 @@ q0 = Quat([ra, dec, roll])
 
 equatorial_23 = np.array([[[10, 20, 30],
                            [10, 20, -30],
-                           [10, -90, 30]],
+                           [10, -60, 30]],
                           [[10, 20, 0],
-                           [10, 90, 30],
-                           [10, 90, -30]]])
+                           [10, 50, 30],
+                           [10, -50, -30]]], dtype=float)
 
 q_23 = np.zeros(equatorial_23[..., 0].shape+(4,))
 for _i, _j in indices(equatorial_23.shape[:-1]):
@@ -119,8 +125,12 @@ def test_from_eq_vectorized():
     q = Quat(equatorial=[ra, dec, roll])
     assert np.all(q.q == q0.q)
 
+    q = Quat(equatorial=equatorial_23)
+    assert np.all(q.q == q_23)
+    assert np.all(q.equatorial == equatorial_23)
+    assert np.all(q.transform == transform_23)
 
-def test_from_eqshapes():
+def test_from_eq_shapes():
     q = Quat(equatorial=equatorial_23[0, 0])
     assert q.ra.shape == ()
     assert q.dec.shape == ()
@@ -159,11 +169,6 @@ def test_from_transform():
     assert np.allclose(q.roll0, 30)
     assert np.allclose(q.ra0, 10)
 
-    t = [[9.25416578e-01,  -3.18795778e-01,  -2.04874129e-01],
-         [1.63175911e-01,   8.23172945e-01,  -5.43838142e-01],
-         [3.42020143e-01,   4.69846310e-01,   8.13797681e-01]]
-    _ = Quat(t)
-
 
 def test_from_transform_vectorized():
     q = Quat(transform=transform_23)
@@ -181,6 +186,15 @@ def test_from_transform_vectorized():
     q = Quat(transform=t)
     assert q.q.shape == (1, 1, 4)
 
+    q = Quat(transform=transform_23)
+    assert np.allclose(q.q, q_23)
+    # to compare roll, it has to be normalized to within a fixed angular range (0, 360).
+    eq = np.array(q.equatorial)
+    normalize_angles(eq[...,-1], 0, 360)
+    eq_23 = np.array(equatorial_23)
+    normalize_angles(eq_23[..., -1], 0, 360)
+    assert np.allclose(eq, eq_23)
+    assert np.allclose(q.transform, transform_23)
 
 def test_eq_from_transform():
     # this raises 'Unexpected negative norm' exception due to roundoff in copy/paste above
@@ -188,14 +202,9 @@ def test_eq_from_transform():
     # assert q.equatorial.shape == (2, 3, 3)
     # assert np.allclose(q.equatorial, equatorial_23)
 
-    # this one fails (quaternion -> equatorial -> quaternion is not an identity)
-    # q = [0.24184476, -0.66446302, 0.24184476, 0.66446302]
-    # assert np.allclose(q, Quat(equatorial=Quat(q=q).equatorial).q)
-
     t = np.zeros((4, 5, 3, 3))
     t[:] = q0.transform[np.newaxis][np.newaxis]
     q = Quat(transform=t)
-    print('roll', q.roll0)
     assert np.allclose(q.roll0, 30)
     assert np.allclose(q.ra0, 10)
 
@@ -204,13 +213,23 @@ def test_eq_from_transform():
 
 def test_from_q_vectorized():
     q = Quat(q=q_23)
-    assert q.q.shape == (2, 3, 4)
+    assert q.shape == (2, 3)
+    # this also tests that quaternions with negative scalar component are flipped
+    flip = np.sign(q_23[...,-1]).reshape((2,3,1))
+    assert np.allclose(q.q, q_23*flip)
+    # to compare roll, it has to be normalized to within a fixed angular range (0, 360).
+    eq = np.array(q.equatorial)
+    normalize_angles(eq[...,-1], 0, 360)
+    eq_23 = np.array(equatorial_23)
+    normalize_angles(eq_23[..., -1], 0, 360)
+    assert np.allclose(eq, eq_23, rtol=0)
+    assert np.allclose(q.transform, transform_23, rtol=0)
 
     q = Quat(q=q_23[0])
-    assert q.q.shape == (3, 4)
+    assert q.shape == (3,)
 
     q = Quat(q=q_23[:1, :1])
-    assert q.q.shape == (1, 1, 4)
+    assert q.shape == (1, 1)
 
 
 def test_inv_eq():
@@ -329,7 +348,8 @@ def test_mult_vectorized():
 
 def test_normalize():
     a = [[[1., 0., 0., 1.]]]
-    _ = Quat(q=normalize(a))
+    b = normalize(a)
+    assert np.isclose(np.sum(b**2), 1)
 
 
 def test_copy():
