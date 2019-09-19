@@ -80,16 +80,16 @@ Angle-axis Representation
 
 A 3-d rotation can be uniquely defined by a unit vector and an angle :math:`(\vec{u}, \phi)`.
 
-* the rotation axis is given by a unit eigenvector of M with eigenvalue 1.
+* there is one and only one real-valued eigenvalue: :math:`\lambda = 1`.
+* the rotation axis is given by a unit eigenvector of M with eigenvalue :math:`\lambda = 1`.
 * the rotation angle is given by the trace of M: :math:`Tr(M) = 1 + 2 \cos \phi`.
-* there are no more real-valued eigenvalues.
 
 Equatorial Representation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Any rotation can be decomposed as a sequence of three rotations around different cartesian axes.
-That means that all rotations are in a fixed reference frame. Using the equatorial coordinates, this can be expressed as
-:math:`R_{\alpha}^z R_{\delta}^y R_{\rho}^x`, where :math:`{\rho}`, :math:`{\delta}` and
+Using the equatorial coordinates related to a *fixed* intertial reference frame, this can be expressed as
+:math:`R_{\alpha}^z R_{-\delta}^y R_{\rho}^x`, where :math:`{\rho}`, :math:`{\delta}` and
 :math:`{\alpha}` are roll, declination and right ascension respectively.
 
 Quaternion Representation
@@ -108,7 +108,7 @@ The quaternion is related to the rotation axis and angle:
 .. math::
     :label: quaternion_axis_angle
 
-    \boldsymbol{q} = \cos \frac{\phi}{2} + \cos \frac{\phi}{2}\vec{u}
+    \boldsymbol{q} = \cos \frac{\phi}{2} + \sin \frac{\phi}{2}\vec{u}
 
 Switching Representations
 -------------------------
@@ -118,7 +118,7 @@ Switching Representations
 Equatorial -> Matrix
 ^^^^^^^^^^^^^^^^^^^^
 
-Let's write :math:`M = R_{\alpha}^z R_{-\delta}^y R_{\rho}^x` in matrix notation:
+Let's write :math:`M = R_{\alpha}^z R_{-\delta}^y R_{\rho}^x` in matrix form:
 
 .. math::
     :label: eq_matrix_repr
@@ -195,24 +195,24 @@ can already get the squares of the quaternion components:
     q_3^2
     \end{matrix}\right],
 
-The next step depends on which entry in :eq:`quat_matrix_den` is the largest:
+The next step depends on which entry in Eq. :eq:`quat_matrix_den` is the largest:
 
 .. math::
     :label: transform2quat
 
     \begin{eqnarray}
-    0 &\rightarrow& \left[ \sqrt{S_0}, \frac{(M_{01} + M_{10})}{4 \sqrt{S_1}},
-    \frac{(M_{02} + M_{20})}{4 \sqrt{S_1}},
-    \frac{(M_{21} - M_{12})}{4 \sqrt{S_1}} \right] \\
+    0 &\rightarrow& \left[ \sqrt{S_0}, \frac{(M_{01} + M_{10})}{4 \sqrt{S_0}},
+    \frac{(M_{02} + M_{20})}{4 \sqrt{S_0}},
+    \frac{(M_{21} - M_{12})}{4 \sqrt{S_0}} \right] \\
     1 &\rightarrow& \left[ \frac{(M_{01} + M_{10})}{4 \sqrt{S_1}}, \sqrt{S_1},
     \frac{(M_{12} + M_{21})}{4 \sqrt{S_1}},
     \frac{(M_{02} - M_{20})}{4 \sqrt{S_1}} \right] \\
-    2 &\rightarrow& \left[ \frac{(M_{20} + M_{02})}{4 \sqrt{S_1}},
-    \frac{(M_{12} + M_{21})}{4 \sqrt{S_1}}, \sqrt{S_2},
-    \frac{(M_{10} - M_{01})}{4 \sqrt{S_1}} \right] \\
-    3 &\rightarrow& \left[ \frac{(M_{21} - M_{12})}{4 \sqrt{S_1}},
-    \frac{(M_{02} - M_{20})}{4 \sqrt{S_1}},
-    \frac{(M_{10} - M_{01})}{4 \sqrt{S_1}},  \sqrt{S_3} \right]
+    2 &\rightarrow& \left[ \frac{(M_{20} + M_{02})}{4 \sqrt{S_2}},
+    \frac{(M_{12} + M_{21})}{4 \sqrt{S_2}}, \sqrt{S_2},
+    \frac{(M_{10} - M_{01})}{4 \sqrt{S_2}} \right] \\
+    3 &\rightarrow& \left[ \frac{(M_{21} - M_{12})}{4 \sqrt{S_3}},
+    \frac{(M_{02} - M_{20})}{4 \sqrt{S_3}},
+    \frac{(M_{10} - M_{01})}{4 \sqrt{S_3}},  \sqrt{S_3} \right]
     \end{eqnarray}
 
 Note that the denominator is always :math:`4 \sqrt{S_i}`, so we always choose the case with the largest denominator in
@@ -260,4 +260,5 @@ This code first transforms from equatorial to matrix, and then from matrix to qu
 Quaternion -> Equatorial
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Transform from quaternion to matrix, and then from matrix to equatorial. (more or less...)
+Transform from quaternion to matrix, and then from matrix to equatorial.
+
