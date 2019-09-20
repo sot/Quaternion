@@ -143,7 +143,7 @@ class Quat(object):
             q = attitude.q
         elif attitude is not None:
             # check to see if it is a supported shape
-            attitude = np.array(attitude)
+            attitude = np.array(attitude, dtype=float)
             if attitude.shape == (4,):
                 q = attitude
             elif attitude.shape == (3, 3):
@@ -151,8 +151,13 @@ class Quat(object):
             elif attitude.shape == (3,):
                 equatorial = attitude
             else:
+                try:
+                    shape = attitude.shape
+                    shape = f' (shape {shape})'
+                except Exception as e:
+                    shape = ''
                 raise TypeError(
-                    "attitude argument is not one of an allowed type:"
+                    f"attitude argument{shape} is not one of an allowed type:"
                     " Quat or array with shape (...,3), (...,4), or (..., 3, 3)")
 
         # checking correct shapes
@@ -613,10 +618,10 @@ class Quat(object):
         q[..., 3] *= -1
         return Quat(q=q)
 
-    def dq(self, q2):
+    def dq(self, q2=None, **kwargs):
         """
-        Return a delta quaternion ``dq`` such that ``q2 = self * dq`` where ``q2``
-        is anything that instantiates a ``Quat`` object.
+        Return a delta quaternion ``dq`` such that ``q2 = self * dq``.
+        I works with any argument that instantiates a ``Quat`` object.
 
         This method returns the delta quaternion which represents the transformation
         from the frame of this quaternion (``self``) to ``q2``.
@@ -639,8 +644,8 @@ class Quat(object):
         :rtype: numpy array
 
         """
-        if not isinstance(q2, Quat):
-            q2 = Quat(q=q2)
+        if q2 is None or not isinstance(q2, Quat):
+            q2 = Quat(q2, **kwargs)
         return self.inv() * q2
 
 

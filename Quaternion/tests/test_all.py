@@ -74,6 +74,8 @@ def test_init_exceptions():
         _ = Quat(q=np.zeros(4), transform=np.zeros((3, 3)), equatorial=np.zeros(3))
     with pytest.raises(ValueError):
         _ = Quat(q=[[[1., 0., 0., 1.]]])  # q not normalized
+    with pytest.raises(ValueError):
+        _ = Quat([0,1,'s'])  # could not convert string to float
 
 
 def test_from_q():
@@ -98,8 +100,8 @@ def test_from_eq():
     assert q.pitch == -q.dec
     assert q.yaw == q.ra0
 
-    q1 = Quat(equatorial=[10, 90, 30])
-    q2 = Quat(q=q1.q)
+    q1 = Quat(equatorial=[ra, dec, roll])
+    assert np.all(q1.q == q.q)
 
 
 def test_from_eq_vectorized():
@@ -168,6 +170,9 @@ def test_from_transform():
     q = Quat(q0.transform)
     assert np.allclose(q.roll0, 30)
     assert np.allclose(q.ra0, 10)
+
+    q1 = Quat(transform=q0.transform)
+    assert np.all(q1.q == q.q)
 
 
 def test_from_transform_vectorized():
@@ -280,13 +285,29 @@ def test_dq_vectorized():
     assert dq.q.shape == q1.q.shape  # shape (1,2,4)
 
     # same but with array argument instead of Quat
-    dq2 = q1.dq(q2.q)
+    dq2 = q1.dq(q=q2.q)
     assert dq2.q.shape == dq.q.shape
     assert np.all(dq2.q == dq.q)
 
     for i in indices(q1.shape):
         # check that Quat(q1).dq(q2).q[i] == Quat(q1[i]).dq(q2[i]).q
         assert np.all(dq.q[i] == Quat(q=q1.q[i]).dq(Quat(q=q2.q[i])).q)
+
+    # note that both quaternions have same _internal_ shape, should this fail?
+    q1 = Quat((20, 30, 0))
+    q2 = Quat(equatorial=[[20, 30.1, 1]])
+    assert np.allclose(q1.dq(q2).equatorial, [[0, 0.1, 1]])
+    assert np.allclose(q1.dq(q=q2.q).equatorial, [[0, 0.1, 1]])
+    assert np.allclose(q1.dq(equatorial=q2.equatorial).equatorial, [[0, 0.1, 1]])
+    assert np.allclose(q1.dq(transform=q2.transform).equatorial, [[0, 0.1, 1]])
+    # and the interface is the same as the constructor:
+    with pytest.raises(TypeError):
+        q1.dq(q2.q)
+    with pytest.raises(TypeError):
+        q1.dq(q2.equatorial)
+    with pytest.raises(TypeError):
+        q1.dq(q2.transform)
+
 
 def test_ra0_roll0():
     q = Quat(Quat([-1, 0, -2]).q)
