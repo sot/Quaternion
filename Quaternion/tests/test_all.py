@@ -309,6 +309,35 @@ def test_dq_vectorized():
         q1.dq(q2.transform)
 
 
+def test_vector_to_scalar_correspondence():
+    """
+    Simple test that all possible transform pathways give the same
+    answer when done in vectorized form as they do for the scalar version.
+    """
+    atol = 1e-12
+
+    # Input equatorial has roll not in 0:360, so fix that for comparisons.
+    eq_23 = equatorial_23.copy()
+    normalize_angles(eq_23[..., -1], 0, 360)
+
+    # Compare vectorized computations for all possible input/output combos
+    # with the same for the scalar calculation.
+    q = Quat(equatorial=equatorial_23)
+    assert np.all(q.q == q_23)
+    assert np.all(q.equatorial == equatorial_23)
+    assert np.all(q.transform == transform_23)
+
+    q = Quat(q=q_23)
+    assert np.all(q.q == q_23)
+    assert np.allclose(q.equatorial, eq_23, rtol=0, atol=atol)
+    assert np.allclose(q.transform, transform_23, rtol=0, atol=atol)
+
+    q = Quat(transform=transform_23)
+    assert np.allclose(q.q, q_23, rtol=0, atol=atol)
+    assert np.allclose(q.equatorial, eq_23, rtol=0, atol=atol)
+    assert np.all(q.transform == transform_23)
+
+
 def test_ra0_roll0():
     q = Quat(Quat([-1, 0, -2]).q)
     assert np.allclose(q.ra, 359)
