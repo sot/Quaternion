@@ -605,7 +605,8 @@ class Quat(object):
         mult[...,1] =  q1[...,2] * q2[...,0] + q1[...,3] * q2[...,1] - q1[...,0] * q2[...,2] + q1[...,1] * q2[...,3]
         mult[...,2] = -q1[...,1] * q2[...,0] + q1[...,0] * q2[...,1] + q1[...,3] * q2[...,2] + q1[...,2] * q2[...,3]
         mult[...,3] = -q1[...,0] * q2[...,0] - q1[...,1] * q2[...,1] - q1[...,2] * q2[...,2] + q1[...,3] * q2[...,3]
-        return Quat(q=mult)
+        shape = self.q.shape if len(self.q.shape) > len(quat2.q.shape) else quat2.q.shape
+        return Quat(q=mult.reshape(shape))
 
     def inv(self):
         """

@@ -384,9 +384,15 @@ def test_div_mult():
     q1 = Quat((1, 2, 3))
     q2 = Quat((10, 20, 30))
     q12d = q1 / q2
+    assert q1.shape == q12d.shape
+    assert q1.shape == q1.inv().shape
     q12m = q1 * q2.inv()
+    assert q1.shape == q12m.shape
     assert np.all(q12d.q == q12m.q)
 
+    q3 = Quat(equatorial=[[10, 20, 30]])
+    assert (q1*q3).shape != q1.shape
+    assert (q1*q3).shape == q3.shape
 
 def test_mult_vectorized():
     q1 = Quat(q=q_23[:1, :2])  # (shape (2,1)
