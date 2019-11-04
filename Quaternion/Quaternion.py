@@ -270,14 +270,20 @@ class Quat(object):
 
     def _get_ra(self):
         """Retrieve RA term from equatorial system in degrees"""
+        if not self.shape:
+            return float(self.equatorial[..., 0].reshape(self.shape))
         return self.equatorial[..., 0].reshape(self.shape)
 
     def _get_dec(self):
         """Retrieve Dec term from equatorial system in degrees"""
+        if not self.shape:
+            return float(self.equatorial[..., 1].reshape(self.shape))
         return self.equatorial[..., 1].reshape(self.shape)
 
     def _get_roll(self):
         """Retrieve Roll term from equatorial system in degrees"""
+        if not self.shape:
+            return float(self.equatorial[..., 2].reshape(self.shape))
         return self.equatorial[..., 2].reshape(self.shape)
 
     ra = property(_get_ra)

@@ -134,9 +134,9 @@ def test_from_eq_vectorized():
 
 def test_from_eq_shapes():
     q = Quat(equatorial=equatorial_23[0, 0])
-    assert q.ra.shape == ()
-    assert q.dec.shape == ()
-    assert q.roll.shape == ()
+    assert np.array(q.ra).shape == ()
+    assert np.array(q.dec).shape == ()
+    assert np.array(q.roll).shape == ()
     assert q.q.shape == (4, )
     assert q.equatorial.shape == (3, )
     assert q.transform.shape == (3, 3)
@@ -426,3 +426,8 @@ def test_copy():
     q1 = Quat(equatorial=eq)
     eq[-1] = 0
     assert not np.all(q1.equatorial == eq)
+
+def test_format():
+    # this is to test standard usage downstream
+    q = Quat(q_23[0, 0])
+    print(f'ra={q.ra:.5f}, dec={q.dec:.5f}, roll={q.roll:.5f}')
