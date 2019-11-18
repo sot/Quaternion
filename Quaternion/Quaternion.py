@@ -85,9 +85,9 @@ class Quat(object):
 
     Note that each step is as described in the section :ref:`Equatorial -> Matrix <equatorialmatrix>`
 
-      >>> q1 = Quat((20, 0, 0))
-      >>> q2 = Quat((0, 30, 0))
-      >>> q3 = Quat((0, 0, 40))
+      >>> q1 = Quat(equatorial=(20, 0, 0))
+      >>> q2 = Quat(equatorial=(0, 30, 0))
+      >>> q3 = Quat(equatorial=(0, 0, 40))
       >>> q1.transform, q2.transform, q3.transform
       (array([[ 0.93969262, -0.34202014,  0.        ],
               [ 0.34202014,  0.93969262, -0.        ],
