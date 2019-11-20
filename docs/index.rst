@@ -9,5 +9,7 @@ Quaternion
 .. toctree::
    :maxdepth: 2
 
+   module
+   quaternions
+
 .. automodule:: Quaternion.Quaternion
-   :members:

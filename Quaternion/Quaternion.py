@@ -2,9 +2,12 @@
 """
 Quaternion provides a class for manipulating quaternion objects.  This class provides:
 
-   - a convenient constructor to convert to/from Euler Angles (RA,Dec,Roll)
-       to/from quaternions
-   - class methods to multiply and divide quaternions
+  - convenient ways to deal with rotation representations (equatorial coordinates, matrix and quaternion):
+
+    - a constructor to initialize from rotations in various representations,
+    - conversion methods to the different representations.
+
+  - methods to multiply and divide quaternions.
 
 :Copyright: Smithsonian Astrophysical Observatory (2010)
 :Authors: - Tom Aldcroft (aldcroft@cfa.harvard.edu)
@@ -47,12 +50,12 @@ class Quat(object):
     Example usage::
 
      >>> from Quaternion import Quat
-     >>> quat = Quat((12,45,45))
+     >>> quat = Quat(equatorial=(12,45,45))
      >>> quat.ra, quat.dec, quat.roll
      (12, 45, 45)
      >>> quat.q
      array([ 0.38857298, -0.3146602 ,  0.23486498,  0.8335697 ])
-     >>> q2 = Quat(quat.q)
+     >>> q2 = Quat(q=quat.q)
      >>> q2.ra
      12.0
 
@@ -63,12 +66,12 @@ class Quat(object):
     applying the q2 transform followed by the q1 transform.  Another way to
     express this is::
 
-      q = Quat(q1.transform @ q2.transform)
+      q = Quat(transform=q1.transform @ q2.transform)
 
     Example usage::
 
-      >>> q1 = Quat((20, 30, 0))
-      >>> q2 = Quat((0, 0, 40))
+      >>> q1 = Quat(equatorial=(20, 30, 0))
+      >>> q2 = Quat(equatorial=(0, 0, 40))
       >>> (q1 * q2).equatorial
       array([20., 30., 40.])
 
@@ -80,20 +83,58 @@ class Quat(object):
       >>> (q2 * q1).equatorial
       array([ 353.37684725,   34.98868888,   47.499696  ])
 
-     Be aware that for Chandra operations the correct formalism for applying a
-     delta quaternion ``dq`` to maneuver from ``q1`` to ``q2`` is::
+    Note that each step is as described in the section :ref:`Equatorial -> Matrix <equatorialmatrix>`
 
-       >>> q2 = q1 * dq
-       >>> dq = q1.inv() * q2
+      >>> q1 = Quat(equatorial=(20, 0, 0))
+      >>> q2 = Quat(equatorial=(0, 30, 0))
+      >>> q3 = Quat(equatorial=(0, 0, 40))
+      >>> q1.transform, q2.transform, q3.transform
+      (array([[ 0.93969262, -0.34202014,  0.        ],
+              [ 0.34202014,  0.93969262, -0.        ],
+              [ 0.        ,  0.        ,  1.        ]]),
+       array([[ 0.8660254, -0.       , -0.5      ],
+              [ 0.       ,  1.       , -0.       ],
+              [ 0.5      ,  0.       ,  0.8660254]]),
+       array([[ 1.        , -0.        ,  0.        ],
+              [ 0.        ,  0.76604444, -0.64278761],
+              [ 0.        ,  0.64278761,  0.76604444]]))
 
-     The quaternion returned by ``q1 / q2`` using the divide operator represents the
-     delta quaternion in the INERTIAL FRAME, which is not what is used by the
-     spacecraft to represent maneuvers.
+    Be aware that for Chandra operations the correct formalism for applying a
+    delta quaternion ``dq`` to maneuver from ``q1`` to ``q2`` is::
 
-     Instead use the ``dq`` method (or equivalently ``q1.inv() * q2``) for computing a
-     delta quaternion to maneuver from ``q1`` to ``q2``::
+      >>> q2 = q1 * dq
+      >>> dq = q1.inv() * q2
 
-       >>> dq = q1.dq(q2)
+    The quaternion returned by ``q1 / q2`` using the divide operator represents the
+    delta quaternion in the INERTIAL FRAME, which is not what is used by the
+    spacecraft to represent maneuvers.
+
+    Instead use the ``dq`` method (or equivalently ``q1.inv() * q2``) for computing a
+    delta quaternion to maneuver from ``q1`` to ``q2``::
+
+      >>> dq = q1.dq(q2)
+
+    When dealing with a collection of quaternions, it is much faster to operate on all of them at a time::
+
+      >>> eq1 = [[ 30.000008,  39.999999,  49.999995],
+      ...        [ 30.000016,  39.999999,  49.99999 ],
+      ...        [ 30.000024,  39.999998,  49.999984],
+      ...        [ 30.000032,  39.999998,  49.999979],
+      ...        [ 30.00004 ,  39.999997,  49.999974]])
+      >>> eq2 = [[ 34.679189,  42.454957,  43.647651],
+      ...        [ 26.457503,  58.05772 ,  70.638782],
+      ...        [ 42.283086,  50.072731,  36.676534],
+      ...        [ 27.138448,  31.389365,  34.429049],
+      ...        [ 22.722112,  37.893094,  50.06074 ]]
+      >>> q1 = Quat(equatorial=eq1)
+      >>> q2 = Quat(equatorial=eq2)
+      >>> dq = q1.dq(q2)
+      >>> dq.q
+      array([[-0.02848482,  0.00774419,  0.03661687,  0.99889331],
+             [ 0.15387087, -0.09527764,  0.12624189,  0.97535066],
+             [-0.03970954, -0.01159734,  0.11488968,  0.99251651],
+             [-0.14947438,  0.04195765, -0.06544431,  0.98570483],
+             [-0.0393673 , -0.02604388, -0.045771  ,  0.99783613]])
 
     :param attitude: initialization attitude for quat
 
