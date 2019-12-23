@@ -134,9 +134,9 @@ def test_from_eq_vectorized():
 
 def test_from_eq_shapes():
     q = Quat(equatorial=equatorial_23[0, 0])
-    assert q.ra.shape == ()
-    assert q.dec.shape == ()
-    assert q.roll.shape == ()
+    assert np.array(q.ra).shape == ()
+    assert np.array(q.dec).shape == ()
+    assert np.array(q.roll).shape == ()
     assert q.q.shape == (4, )
     assert q.equatorial.shape == (3, )
     assert q.transform.shape == (3, 3)
@@ -384,9 +384,15 @@ def test_div_mult():
     q1 = Quat((1, 2, 3))
     q2 = Quat((10, 20, 30))
     q12d = q1 / q2
+    assert q1.shape == q12d.shape
+    assert q1.shape == q1.inv().shape
     q12m = q1 * q2.inv()
+    assert q1.shape == q12m.shape
     assert np.all(q12d.q == q12m.q)
 
+    q3 = Quat(equatorial=[[10, 20, 30]])
+    assert (q1*q3).shape != q1.shape
+    assert (q1*q3).shape == q3.shape
 
 def test_mult_vectorized():
     q1 = Quat(q=q_23[:1, :2])  # (shape (2,1)
@@ -420,3 +426,8 @@ def test_copy():
     q1 = Quat(equatorial=eq)
     eq[-1] = 0
     assert not np.all(q1.equatorial == eq)
+
+def test_format():
+    # this is to test standard usage downstream
+    q = Quat(q_23[0, 0])
+    print(f'ra={q.ra:.5f}, dec={q.dec:.5f}, roll={q.roll:.5f}')

@@ -311,14 +311,20 @@ class Quat(object):
 
     def _get_ra(self):
         """Retrieve RA term from equatorial system in degrees"""
+        if not self.shape:
+            return float(self.equatorial[..., 0].reshape(self.shape))
         return self.equatorial[..., 0].reshape(self.shape)
 
     def _get_dec(self):
         """Retrieve Dec term from equatorial system in degrees"""
+        if not self.shape:
+            return float(self.equatorial[..., 1].reshape(self.shape))
         return self.equatorial[..., 1].reshape(self.shape)
 
     def _get_roll(self):
         """Retrieve Roll term from equatorial system in degrees"""
+        if not self.shape:
+            return float(self.equatorial[..., 2].reshape(self.shape))
         return self.equatorial[..., 2].reshape(self.shape)
 
     ra = property(_get_ra)
@@ -646,7 +652,8 @@ class Quat(object):
         mult[...,1] =  q1[...,2] * q2[...,0] + q1[...,3] * q2[...,1] - q1[...,0] * q2[...,2] + q1[...,1] * q2[...,3]
         mult[...,2] = -q1[...,1] * q2[...,0] + q1[...,0] * q2[...,1] + q1[...,3] * q2[...,2] + q1[...,2] * q2[...,3]
         mult[...,3] = -q1[...,0] * q2[...,0] - q1[...,1] * q2[...,1] - q1[...,2] * q2[...,2] + q1[...,3] * q2[...,3]
-        return Quat(q=mult)
+        shape = self.q.shape if len(self.q.shape) > len(quat2.q.shape) else quat2.q.shape
+        return Quat(q=mult.reshape(shape))
 
     def inv(self):
         """
