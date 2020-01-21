@@ -135,8 +135,11 @@ def test_from_eq_vectorized():
 def test_from_eq_shapes():
     q = Quat(equatorial=equatorial_23[0, 0])
     assert np.array(q.ra).shape == ()
+    assert np.array(q.yaw).shape == ()
+    assert np.array(q.pitch).shape == ()
     assert np.array(q.dec).shape == ()
     assert np.array(q.roll).shape == ()
+    assert np.array(q.ra0).shape == ()
     assert q.q.shape == (4, )
     assert q.equatorial.shape == (3, )
     assert q.transform.shape == (3, 3)
