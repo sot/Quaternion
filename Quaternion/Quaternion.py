@@ -336,10 +336,11 @@ class Quat(object):
         """
         Return a version of val that is between -180 <= val < 180
         """
+        shape = np.array(val).shape
         val = np.atleast_1d(val)
         val = val % 360
         val[val >= 180] -= 360
-        return val
+        return val.reshape(shape)
 
     @property
     def ra0(self):
