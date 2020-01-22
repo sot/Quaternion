@@ -133,7 +133,7 @@ def test_from_eq_vectorized():
     assert np.all(q.transform == transform_23)
 
 def test_from_eq_shapes():
-    q = Quat(equatorial=equatorial_23[0, 0])
+    q = Quat(equatorial=[ 10., 20., 30.])
     assert np.array(q.ra0).shape == ()
     assert np.array(q.roll0).shape == ()
     assert np.array(q.ra).shape == ()
