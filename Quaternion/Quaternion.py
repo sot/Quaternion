@@ -184,7 +184,7 @@ class Quat(object):
             q = attitude.q
         elif attitude is not None:
             # check to see if it is a supported shape
-            attitude = np.array(attitude, dtype=float)
+            attitude = np.array(attitude, dtype=np.float64)
             if attitude.shape == (4,):
                 q = attitude
             elif attitude.shape == (3, 3):
@@ -312,19 +312,19 @@ class Quat(object):
     def _get_ra(self):
         """Retrieve RA term from equatorial system in degrees"""
         if not self.shape:
-            return float(self.equatorial[..., 0].reshape(self.shape))
+            return np.float64(self.equatorial[..., 0].reshape(self.shape))
         return self.equatorial[..., 0].reshape(self.shape)
 
     def _get_dec(self):
         """Retrieve Dec term from equatorial system in degrees"""
         if not self.shape:
-            return float(self.equatorial[..., 1].reshape(self.shape))
+            return np.float64(self.equatorial[..., 1].reshape(self.shape))
         return self.equatorial[..., 1].reshape(self.shape)
 
     def _get_roll(self):
         """Retrieve Roll term from equatorial system in degrees"""
         if not self.shape:
-            return float(self.equatorial[..., 2].reshape(self.shape))
+            return np.float64(self.equatorial[..., 2].reshape(self.shape))
         return self.equatorial[..., 2].reshape(self.shape)
 
     ra = property(_get_ra)
@@ -340,7 +340,7 @@ class Quat(object):
         val = np.atleast_1d(val)
         val = val % 360
         val[val >= 180] -= 360
-        return val.reshape(shape)
+        return val if shape else val[0]
 
     @property
     def ra0(self):
@@ -496,7 +496,7 @@ class Quat(object):
         yz2 = y * z * 2.
         wx2 = w * x * 2.
 
-        t = np.empty(tuple(q.shape[:-1] + (3, 3)), float)
+        t = np.empty(tuple(q.shape[:-1] + (3, 3)), np.float64)
         t[..., 0, 0] = 1. - yy2 - zz2
         t[..., 0, 1] = xy2 - wz2
         t[..., 0, 2] = zx2 + wy2
