@@ -311,21 +311,15 @@ class Quat(object):
 
     def _get_ra(self):
         """Retrieve RA term from equatorial system in degrees"""
-        if not self.shape:
-            return np.float64(self.equatorial[..., 0].reshape(self.shape))
-        return self.equatorial[..., 0].reshape(self.shape)
+        return self.equatorial[..., 0].reshape(self.shape)[()]
 
     def _get_dec(self):
         """Retrieve Dec term from equatorial system in degrees"""
-        if not self.shape:
-            return np.float64(self.equatorial[..., 1].reshape(self.shape))
-        return self.equatorial[..., 1].reshape(self.shape)
+        return self.equatorial[..., 1].reshape(self.shape)[()]
 
     def _get_roll(self):
         """Retrieve Roll term from equatorial system in degrees"""
-        if not self.shape:
-            return np.float64(self.equatorial[..., 2].reshape(self.shape))
-        return self.equatorial[..., 2].reshape(self.shape)
+        return self.equatorial[..., 2].reshape(self.shape)[()]
 
     ra = property(_get_ra)
     dec = property(_get_dec)
@@ -340,7 +334,7 @@ class Quat(object):
         val = np.atleast_1d(val)
         val = val % 360
         val[val >= 180] -= 360
-        return val if shape else val[0]
+        return val.reshape(shape)[()]
 
     @property
     def ra0(self):
