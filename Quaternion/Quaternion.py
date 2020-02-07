@@ -203,21 +203,21 @@ class Quat(object):
 
         # checking correct shapes
         if q is not None:
-            q = np.atleast_1d(q)
+            q = np.atleast_1d(q).astype(np.float64)
             self._shape = q.shape[:-1]
             if q.shape[-1:] != (4,):
                 raise TypeError("Creating a Quaternion from quaternion(s) "
                                 "requires shape (..., 4), not {}".format(q.shape))
             self._set_q(q)
         elif transform is not None:
-            transform = np.atleast_2d(transform)
+            transform = np.atleast_2d(transform).astype(np.float64)
             self._shape = transform.shape[:-2]
             if transform.shape[-2:] != (3, 3):
                 raise TypeError("Creating a Quaternion from quaternion(s) "
                                 "requires shape (..., 3, 3), not {}".format(transform.shape))
             self._set_transform(transform)
         elif equatorial is not None:
-            equatorial = np.atleast_1d(equatorial)
+            equatorial = np.atleast_1d(equatorial).astype(np.float64)
             self._shape = equatorial.shape[:-1]
             if equatorial.shape[-1:] != (3,):
                 raise TypeError("Creating a Quaternion from ra, dec, roll "
