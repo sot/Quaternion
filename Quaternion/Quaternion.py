@@ -184,7 +184,7 @@ class Quat(object):
             q = attitude.q
         elif attitude is not None:
             # check to see if it is a supported shape
-            attitude = np.array(attitude, dtype=float)
+            attitude = np.array(attitude, dtype=np.float64)
             if attitude.shape == (4,):
                 q = attitude
             elif attitude.shape == (3, 3):
@@ -203,21 +203,21 @@ class Quat(object):
 
         # checking correct shapes
         if q is not None:
-            q = np.atleast_1d(q)
+            q = np.atleast_1d(q).astype(np.float64)
             self._shape = q.shape[:-1]
             if q.shape[-1:] != (4,):
                 raise TypeError("Creating a Quaternion from quaternion(s) "
                                 "requires shape (..., 4), not {}".format(q.shape))
             self._set_q(q)
         elif transform is not None:
-            transform = np.atleast_2d(transform)
+            transform = np.atleast_2d(transform).astype(np.float64)
             self._shape = transform.shape[:-2]
             if transform.shape[-2:] != (3, 3):
                 raise TypeError("Creating a Quaternion from quaternion(s) "
                                 "requires shape (..., 3, 3), not {}".format(transform.shape))
             self._set_transform(transform)
         elif equatorial is not None:
-            equatorial = np.atleast_1d(equatorial)
+            equatorial = np.atleast_1d(equatorial).astype(np.float64)
             self._shape = equatorial.shape[:-1]
             if equatorial.shape[-1:] != (3,):
                 raise TypeError("Creating a Quaternion from ra, dec, roll "
@@ -311,21 +311,15 @@ class Quat(object):
 
     def _get_ra(self):
         """Retrieve RA term from equatorial system in degrees"""
-        if not self.shape:
-            return float(self.equatorial[..., 0].reshape(self.shape))
-        return self.equatorial[..., 0].reshape(self.shape)
+        return self.equatorial[..., 0].reshape(self.shape)[()]
 
     def _get_dec(self):
         """Retrieve Dec term from equatorial system in degrees"""
-        if not self.shape:
-            return float(self.equatorial[..., 1].reshape(self.shape))
-        return self.equatorial[..., 1].reshape(self.shape)
+        return self.equatorial[..., 1].reshape(self.shape)[()]
 
     def _get_roll(self):
         """Retrieve Roll term from equatorial system in degrees"""
-        if not self.shape:
-            return float(self.equatorial[..., 2].reshape(self.shape))
-        return self.equatorial[..., 2].reshape(self.shape)
+        return self.equatorial[..., 2].reshape(self.shape)[()]
 
     ra = property(_get_ra)
     dec = property(_get_dec)
@@ -336,10 +330,11 @@ class Quat(object):
         """
         Return a version of val that is between -180 <= val < 180
         """
+        shape = np.array(val).shape
         val = np.atleast_1d(val)
         val = val % 360
         val[val >= 180] -= 360
-        return val
+        return val.reshape(shape)[()]
 
     @property
     def ra0(self):
@@ -495,7 +490,7 @@ class Quat(object):
         yz2 = y * z * 2.
         wx2 = w * x * 2.
 
-        t = np.empty(tuple(q.shape[:-1] + (3, 3)), float)
+        t = np.empty(tuple(q.shape[:-1] + (3, 3)), np.float64)
         t[..., 0, 0] = 1. - yy2 - zz2
         t[..., 0, 1] = xy2 - wz2
         t[..., 0, 2] = zx2 + wy2

@@ -133,18 +133,26 @@ def test_from_eq_vectorized():
     assert np.all(q.transform == transform_23)
 
 def test_from_eq_shapes():
-    q = Quat(equatorial=equatorial_23[0, 0])
+    q = Quat(equatorial=[ 10., 20., 30.])
+    assert np.array(q.ra0).shape == ()
+    assert np.array(q.roll0).shape == ()
     assert np.array(q.ra).shape == ()
     assert np.array(q.dec).shape == ()
     assert np.array(q.roll).shape == ()
+    assert np.array(q.yaw).shape == ()
+    assert np.array(q.pitch).shape == ()
     assert q.q.shape == (4, )
     assert q.equatorial.shape == (3, )
     assert q.transform.shape == (3, 3)
 
     q = Quat(equatorial=equatorial_23[:1, :1])
+    assert q.ra0.shape == (1, 1)
+    assert q.roll0.shape == (1, 1)
     assert q.ra.shape == (1, 1)
     assert q.dec.shape == (1, 1)
     assert q.roll.shape == (1, 1)
+    assert q.yaw.shape == (1, 1)
+    assert q.pitch.shape == (1, 1)
     assert q.q.shape == (1, 1, 4)
     assert q.equatorial.shape == (1, 1, 3)
     assert q.transform.shape == (1, 1, 3, 3)
@@ -427,7 +435,47 @@ def test_copy():
     eq[-1] = 0
     assert not np.all(q1.equatorial == eq)
 
+
 def test_format():
     # this is to test standard usage downstream
     q = Quat(q_23[0, 0])
     print(f'ra={q.ra:.5f}, dec={q.dec:.5f}, roll={q.roll:.5f}')
+
+
+def test_scalar_attribute_types():
+    q = Quat(equatorial=[10, 20, 30])
+    attrs = ['ra', 'dec', 'roll', 'ra0', 'roll0', 'pitch', 'yaw', 'transform', 'q']
+    types = [np.float64] * 7 + [np.ndarray] * 2
+
+    # All returned as scalars
+    for attr, typ in zip(attrs, types):
+        assert type(getattr(q, attr)) is typ
+
+    q2 = Quat(transform=q.transform.astype(np.float32))
+    for attr, typ in zip(attrs, types):
+        assert type(getattr(q2, attr)) is typ
+
+    q2 = Quat(q=q.q.astype(np.float32))
+    for attr, typ in zip(attrs, types):
+        assert type(getattr(q, attr)) is typ
+
+
+def test_array_attribute_types():
+    q = Quat(equatorial=[[10, 20, 30]])  # 1-d
+    attrs = ['ra', 'dec', 'roll', 'ra0', 'roll0', 'pitch', 'yaw', 'transform', 'q']
+    shapes = [(1,), (1,), (1,), (1,), (1,), (1,), (1,), (1, 3, 3), (1, 4)]
+
+    # All returned as shape (1,) array
+    for attr, shape in zip(attrs, shapes):
+        assert type(getattr(q, attr)) is np.ndarray
+        assert getattr(q, attr).shape == shape
+
+    q2 = Quat(transform=q.transform.astype(np.float32))
+    for attr, shape in zip(attrs, shapes):
+        assert type(getattr(q2, attr)) is np.ndarray
+        assert getattr(q, attr).shape == shape
+
+    q2 = Quat(q=q.q.astype(np.float32))
+    for attr, shape in zip(attrs, shapes):
+        assert type(getattr(q, attr)) is np.ndarray
+        assert getattr(q, attr).shape == shape
