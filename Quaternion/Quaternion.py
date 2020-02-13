@@ -39,7 +39,12 @@ Quaternion provides a class for manipulating quaternion objects.  This class pro
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import warnings
+
 import numpy as np
+
+# Some transforms unstable above this dec. See issue #10 for more.
+MAX_DEC_FOR_STABILITY = 89.99999
 
 
 class Quat(object):
@@ -284,6 +289,11 @@ class Quat(object):
                     .format(self.__class__.__name__, q[0], q[1], q[2], q[3]))
         return '{}({})'.format(self.__class__.__name__, repr(q))
 
+    def _check_dec_for_stability(self, dec):
+        if np.any(np.abs(dec) > MAX_DEC_FOR_STABILITY):
+            warnings.warn(f'Declination abs(value) > {MAX_DEC_FOR_STABILITY}'
+                          f', numerical problems possible')
+
     def _set_equatorial(self, equatorial):
         """Set the value of the 3 element equatorial coordinate list [RA,Dec,Roll]
            expects values in degrees
@@ -293,6 +303,7 @@ class Quat(object):
 
         """
         self._equatorial = np.atleast_2d(np.array(equatorial))
+        self._check_dec_for_stability(self.dec)
 
     def _get_equatorial(self):
         """Retrieve [RA, Dec, Roll]
@@ -305,6 +316,7 @@ class Quat(object):
             elif self._T is not None:
                 self._q = self._transform2quat()
                 self._equatorial = self._quat2equatorial()
+
         return self._equatorial.reshape(self.shape+(3,))
 
     equatorial = property(_get_equatorial, _set_equatorial)
@@ -426,6 +438,10 @@ class Quat(object):
         ra = np.degrees(np.arctan2(xb, xa))
         dec = np.degrees(np.arctan2(xn, np.sqrt(one_minus_xn2)))
         roll = np.degrees(np.arctan2(yn, zn))
+
+        # Make sure dec is OK
+        self._check_dec_for_stability(dec)
+
         # all negative angles are incremented by 360,
         # the output is in the (0,360) interval instead of in (-180, 180)
         ra[ra < 0] = ra[ra < 0] + 360
