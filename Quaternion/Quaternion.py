@@ -691,6 +691,20 @@ class Quat(object):
             q2 = Quat(q2, **kwargs)
         return self.inv() * q2
 
+    def __setstate__(self, state):
+        state['_q'] = None if state['_q'] is None else np.atleast_2d(state['_q'])
+        state['_equatorial'] = None if state['_equatorial'] is None else np.atleast_2d(
+            state['_equatorial'])
+        state['_T'] = None if state['_T'] is None else np.atleast_3d(state['_T'])
+        if '_shape' not in state:
+            if state['_q'] is not None:
+                state['_shape'] = state['_q'].shape[:-1]
+            elif state['_T'] is not None:
+                state['_shape'] = state['_T'].shape[:-2]
+            elif state['_equatorial'] is not None:
+                state['_shape'] = state['_equatorial'].shape[:-1]
+        self.__dict__.update(state)
+
 
 def normalize(array):
     """
