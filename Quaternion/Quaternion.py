@@ -698,15 +698,8 @@ class Quat(object):
         # the class.
         if '_shape' not in state:
             # if _shape is not there, it means this is a non-vectorized Quat
-            # non-vectorized quaternions were basically scalars with shape (),
-            # and their data members q, equatorial and T had shapes (4,) (3,) (3, 3) respectively.
-            # Now they have shapes (4, n), (3, n) and (3, 3, n) respectively, so they need
-            # to be reshaped.
+            # non-vectorized quaternions were basically scalars, with shape ().
             state['_shape'] = ()
-            state['_q'] = None if state['_q'] is None else np.atleast_2d(state['_q'])
-            state['_equatorial'] = \
-                None if state['_equatorial'] is None else np.atleast_2d(state['_equatorial'])
-            state['_T'] = None if state['_T'] is None else np.atleast_3d(state['_T'])
 
         self.__dict__.update(state)
 
