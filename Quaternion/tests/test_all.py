@@ -482,13 +482,15 @@ def test_array_attribute_types():
         assert type(getattr(q, attr)) is np.ndarray
         assert getattr(q, attr).shape == shape
 
+
 def test_pickle():
     # testing we can unpickle older versions
     filename = os.path.join(os.path.dirname(__file__), 'data', 'quaternion-v3.4.1.pkl')
     with open(filename, 'rb') as f:
-        q = pickle.load(f)
-    assert np.all(np.isclose(q.q, [0.26853582, -0.14487813, 0.12767944, 0.94371436]))
-    assert np.all(np.isclose(q.equatorial, [ 10.,  20.,  30.]))
-    assert np.all(np.isclose(q.transform, [[ 0.92541658, -0.31879578, -0.20487413],
-                                           [ 0.16317591,  0.82317294, -0.54383814],
-                                           [ 0.34202014,  0.46984631,  0.81379768]]))
+        quaternions = pickle.load(f)
+    for q in quaternions:
+        assert np.all(np.isclose(q.q, [0.26853582, -0.14487813, 0.12767944, 0.94371436]))
+        assert np.all(np.isclose(q.equatorial, [ 10.,  20.,  30.]))
+        assert np.all(np.isclose(q.transform, [[ 0.92541658, -0.31879578, -0.20487413],
+                                               [ 0.16317591,  0.82317294, -0.54383814],
+                                               [ 0.34202014,  0.46984631,  0.81379768]]))
