@@ -692,17 +692,22 @@ class Quat(object):
         return self.inv() * q2
 
     def __setstate__(self, state):
-        state['_q'] = None if state['_q'] is None else np.atleast_2d(state['_q'])
-        state['_equatorial'] = None if state['_equatorial'] is None else np.atleast_2d(
-            state['_equatorial'])
-        state['_T'] = None if state['_T'] is None else np.atleast_3d(state['_T'])
+        # this method is called by the pickle module when unpickling an instance of this class.
+        # It receives the dictionary of the unpickled state and must update the __dict__ of this
+        # instance. This is the place where we "upgrade" pickled instances of older versions of
+        # the class.
         if '_shape' not in state:
-            if state['_q'] is not None:
-                state['_shape'] = state['_q'].shape[:-1]
-            elif state['_T'] is not None:
-                state['_shape'] = state['_T'].shape[:-2]
-            elif state['_equatorial'] is not None:
-                state['_shape'] = state['_equatorial'].shape[:-1]
+            # if _shape is not there, it means this is a non-vectorized Quat
+            # non-vectorized quaternions were basically scalars with shape (),
+            # and their data members q, equatorial and T had shapes (4,) (3,) (3, 3) respectively.
+            # Now they have shapes (4, n), (3, n) and (3, 3, n) respectively, so they need
+            # to be reshaped.
+            state['_shape'] = ()
+            state['_q'] = None if state['_q'] is None else np.atleast_2d(state['_q'])
+            state['_equatorial'] = \
+                None if state['_equatorial'] is None else np.atleast_2d(state['_equatorial'])
+            state['_T'] = None if state['_T'] is None else np.atleast_3d(state['_T'])
+
         self.__dict__.update(state)
 
 
