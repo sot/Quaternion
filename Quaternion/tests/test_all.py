@@ -484,6 +484,17 @@ def test_array_attribute_types():
 
 
 def test_pickle():
+    """
+    Pickle file generated using Quaternion v3.4.1:
+
+        from Quaternion import Quat
+        import pickle
+        q = Quat([10., 20., 30.])
+        quats = [Quat(q.q), Quat(q.transform), Quat(q.equatorial)]
+        quats.append(q)
+        with open('quaternion-v3.4.1.pkl', 'wb') as f:
+            pickle.dump(quats, f)
+    """
     # testing we can unpickle older versions
     filename = os.path.join(os.path.dirname(__file__), 'data', 'quaternion-v3.4.1.pkl')
     with open(filename, 'rb') as f:
