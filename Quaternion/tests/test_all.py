@@ -1,6 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import numpy as np
 import pytest
+import pickle
+import os
 
 from .. import Quat, normalize
 
@@ -479,3 +481,27 @@ def test_array_attribute_types():
     for attr, shape in zip(attrs, shapes):
         assert type(getattr(q, attr)) is np.ndarray
         assert getattr(q, attr).shape == shape
+
+
+def test_pickle():
+    """
+    Pickle file generated using Quaternion v3.4.1:
+
+        from Quaternion import Quat
+        import pickle
+        q = Quat([10., 20., 30.])
+        quats = [Quat(q.q), Quat(q.transform), Quat(q.equatorial)]
+        quats.append(q)
+        with open('quaternion-v3.4.1.pkl', 'wb') as f:
+            pickle.dump(quats, f)
+    """
+    # testing we can unpickle older versions
+    filename = os.path.join(os.path.dirname(__file__), 'data', 'quaternion-v3.4.1.pkl')
+    with open(filename, 'rb') as f:
+        quaternions = pickle.load(f)
+    for q in quaternions:
+        assert np.all(np.isclose(q.q, [0.26853582, -0.14487813, 0.12767944, 0.94371436]))
+        assert np.all(np.isclose(q.equatorial, [ 10.,  20.,  30.]))
+        assert np.all(np.isclose(q.transform, [[ 0.92541658, -0.31879578, -0.20487413],
+                                               [ 0.16317591,  0.82317294, -0.54383814],
+                                               [ 0.34202014,  0.46984631,  0.81379768]]))

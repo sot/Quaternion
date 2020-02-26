@@ -691,6 +691,18 @@ class Quat(object):
             q2 = Quat(q2, **kwargs)
         return self.inv() * q2
 
+    def __setstate__(self, state):
+        # this method is called by the pickle module when unpickling an instance of this class.
+        # It receives the dictionary of the unpickled state and must update the __dict__ of this
+        # instance. This is the place where we "upgrade" pickled instances of earlier versions of
+        # the class.
+        if '_shape' not in state:
+            # if _shape is not there, then this is a non-vectorized Quat (versions before 3.5.0).
+            # Non-vectorized quaternions were basically scalars, with shape ().
+            state['_shape'] = ()
+
+        self.__dict__.update(state)
+
 
 def normalize(array):
     """
