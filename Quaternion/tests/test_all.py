@@ -503,5 +503,40 @@ def test_pickle():
         assert np.all(np.isclose(q.q, [0.26853582, -0.14487813, 0.12767944, 0.94371436]))
         assert np.all(np.isclose(q.equatorial, [ 10.,  20.,  30.]))
         assert np.all(np.isclose(q.transform, [[ 0.92541658, -0.31879578, -0.20487413],
-                                               [ 0.16317591,  0.82317294, -0.54383814],
-                                               [ 0.34202014,  0.46984631,  0.81379768]]))
+                                               [0.16317591, 0.82317294, -0.54383814],
+                                               [0.34202014, 0.46984631, 0.81379768]]))
+
+
+def test_rotate_x_to_vec_regress():
+    """Note that truth values are just results from original code in Ska.quatutil.
+    They have not been independently validated"""
+    vec = [1, 2, 3]
+    q = Quat.rotate_x_to_vec(vec)  # method='radec', default
+    assert np.allclose(q.q, [0.2358142, -0.38155539, 0.4698775, 0.76027777])
+
+    q = Quat.rotate_x_to_vec(vec, method='shortest')
+    assert np.allclose(q.q, [0., -0.50362718, 0.33575146, 0.79600918])
+
+    q = Quat.rotate_x_to_vec(vec, method='keep_z')
+    assert np.allclose(q.q, [-0.16269544, -0.56161937, 0.22572786, 0.77920525])
+
+
+@pytest.mark.parametrize('method', ('keep_z', 'shortest', 'radec'))
+def test_rotate_x_to_vec_functional(method):
+    vecs = np.random.random((100, 3)) - 0.5
+    for vec in vecs:
+        vec = vec / np.sqrt(np.sum(vec ** 2))
+        q = Quat.rotate_x_to_vec(vec, method)
+        vec1 = np.dot(q.transform, [1.0, 0, 0])
+        assert np.allclose(vec, vec1)
+
+        if method == 'radec':
+            assert np.isclose(q.roll, 0.0)
+        elif method == 'keep_z':
+            vec1 = np.dot(q.transform, [0, 0, 1.0])
+            assert np.isclose(vec1[1], 0.0)
+
+
+def test_rotate_x_to_vec_bad_method():
+    with pytest.raises(ValueError, match='method must be one of'):
+        Quat.rotate_x_to_vec([1, 2, 3], 'not-a-method')
