@@ -13,3 +13,4 @@ Quaternion
    quaternions
 
 .. automodule:: Quaternion.Quaternion
+   :noindex:

@@ -114,12 +114,19 @@ todo_include_todos = False
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-# html_theme = 'classic'
+html_theme = 'bootstrap-ska'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+html_theme_options = {
+    'logotext1': 'Ska! ',  # white,  semi-bold
+    'logotext2': 'Quaternion',  # orange, light
+    'logotext3': '',   # white,  light
+    'homepage_url': 'https://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc',
+    'homepage_text': 'ska',
+    'homepage_text_2': 'tools'
+    }
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
