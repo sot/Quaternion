@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quaternion.Quaternion &#8212; Quaternion 3.5.3.dev6+g31daf92 documentation</title>
+    <title>Quaternion.Quaternion &#8212; Quaternion 3.6.0 documentation</title>
     <link rel="stylesheet" href="../../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
@@ -48,7 +48,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Quaternion 3.5.3.dev6+g31daf92 documentation</a>
+	<a href="../../index.html">Quaternion 3.6.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -767,7 +767,65 @@
             <span class="c1"># Non-vectorized quaternions were basically scalars, with shape ().</span>
             <span class="n">state</span><span class="p">[</span><span class="s1">&#39;_shape&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Quat.rotate_x_to_vec"><a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.Quat.rotate_x_to_vec">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">rotate_x_to_vec</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">vec</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;radec&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generate quaternion that rotates X-axis into ``vec``.</span>
+
+<span class="sd">        The ``method`` parameter can take one of three values: &quot;shortest&quot;,</span>
+<span class="sd">        &quot;keep_z&quot;, or &quot;radec&quot; (default).  The &quot;shortest&quot; method takes the shortest</span>
+<span class="sd">        path between the two vectors.  The &quot;radec&quot; method does the transformation</span>
+<span class="sd">        as the corresponding (RA, Dec, Roll=0) attitude.  The &quot;keep_z&quot; method does</span>
+<span class="sd">        a roll about X-axis (followed by the &quot;shortest&quot; path) such that the</span>
+<span class="sd">        transformed Z-axis is in the original X-Z plane.  In equations::</span>
+
+<span class="sd">        T: &quot;shortest&quot; quaternion taking X-axis to vec</span>
+<span class="sd">        Rx(theta): Rotation by theta about X-axis = [[1,0,0], [0,c,s], [0,-s,c]]</span>
+<span class="sd">        Z: Z-axis [0,0,1]</span>
+
+<span class="sd">        [T * Rx(theta) * Z]_y = 0</span>
+<span class="sd">        T[1,1] * sin(theta) + T[1,2]*cos(theta) = 0</span>
+<span class="sd">        theta = atan2(T[1,2], T[1,1])</span>
+
+<span class="sd">        :param vec: Input 3-vector</span>
+<span class="sd">        :param method: method for determining path (shortest|keep_z|radec)</span>
+<span class="sd">        :returns: Quaternion object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vec</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;vec must be a single 3-vector&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;shortest&quot;</span><span class="p">,</span> <span class="s2">&quot;keep_z&quot;</span><span class="p">):</span>
+            <span class="n">dot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">vec</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dot</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">-</span> <span class="mf">1e-8</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1e-7</span><span class="p">]))</span>
+                <span class="n">dot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+            <span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">dot</span><span class="p">)</span>
+            <span class="n">axis</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">vec</span><span class="p">))</span>
+            <span class="n">sin_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">cos_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">([</span><span class="n">axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">sin_a</span><span class="p">,</span>
+                     <span class="n">axis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">sin_a</span><span class="p">,</span>
+                     <span class="n">axis</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">sin_a</span><span class="p">,</span>
+                     <span class="n">cos_a</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;keep_z&quot;</span><span class="p">:</span>
+                <span class="n">T</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">transform</span>
+                <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">T</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="n">qroll</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">theta</span><span class="p">)])</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="n">q</span> <span class="o">*</span> <span class="n">qroll</span>
+
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;radec&quot;</span><span class="p">:</span>
+            <span class="n">ra</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">vec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">vec</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">dec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="n">vec</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">([</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;method must be one of &quot;shortest&quot;, &quot;keep_z&quot; or &quot;radec&quot;&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">q</span></div></div>
 
 
 <div class="viewcode-block" id="normalize"><a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.normalize">[docs]</a><span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>

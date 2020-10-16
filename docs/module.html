@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quaternion Class (Quat) &#8212; Quaternion 3.5.3.dev6+g31daf92 documentation</title>
+    <title>Quaternion Class (Quat) &#8212; Quaternion 3.6.0 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -61,7 +61,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Quaternion 3.5.3.dev6+g31daf92 documentation</a>
+	<a href="index.html">Quaternion 3.6.0 documentation</a>
 	 &#187;
       </li>
       
@@ -335,6 +335,35 @@ or N x 4-vector if N &gt; 1.</p>
 <dt id="Quaternion.Quaternion.Quat.roll0">
 <em class="property">property </em><code class="sig-name descname">roll0</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.roll0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return quaternion roll in the range -180 &lt;= roll &lt; 180.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Quaternion.Quaternion.Quat.rotate_x_to_vec">
+<em class="property">classmethod </em><code class="sig-name descname">rotate_x_to_vec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vec</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'radec'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#Quat.rotate_x_to_vec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Quaternion.Quaternion.Quat.rotate_x_to_vec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate quaternion that rotates X-axis into <code class="docutils literal notranslate"><span class="pre">vec</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">method</span></code> parameter can take one of three values: “shortest”,
+“keep_z”, or “radec” (default).  The “shortest” method takes the shortest
+path between the two vectors.  The “radec” method does the transformation
+as the corresponding (RA, Dec, Roll=0) attitude.  The “keep_z” method does
+a roll about X-axis (followed by the “shortest” path) such that the
+transformed Z-axis is in the original X-Z plane.  In equations:</p>
+<p>T: “shortest” quaternion taking X-axis to vec
+Rx(theta): Rotation by theta about X-axis = [[1,0,0], [0,c,s], [0,-s,c]]
+Z: Z-axis [0,0,1]</p>
+<p>[T * Rx(theta) * Z]_y = 0
+T[1,1] * sin(theta) + T[1,2]*cos(theta) = 0
+theta = atan2(T[1,2], T[1,1])</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec</strong> – Input 3-vector</p></li>
+<li><p><strong>method</strong> – method for determining path (shortest|keep_z|radec)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Quaternion object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
