@@ -5,6 +5,9 @@ Quaternion Quick Facts
 This is not meant to be a treatise on quaternions, but a summary relevant for the code implementation. It also assumes
 familiarity with linear algebra.
 
+See also the `Matrix and Quaternions FAQ <https://cxc.cfa.harvard.edu/mta/ASPECT/matrix_quat_faq/>`_ for a practical
+compendium of equations for implementing matrix and quaternion operations.
+
 Quaternions
 -----------
 
