@@ -770,8 +770,21 @@ class Quat(object):
             Angle to rotate by in degrees
 
         :returns: Quat
-            Rotated attitude(s)
+            Rotated attitude
         """
+        # TODO: fix these limitations on shapes, starting with quat multiplication
+        if self.shape != ():
+            raise ValueError('quaternion must be a scalar')
+
+        vec = np.asarray(vec)
+        if vec.shape != (3,):
+            raise ValueError('vec must be a single 3-vector')
+        vec = vec / np.linalg.norm(vec)
+
+        alpha = np.asarray(alpha)
+        if alpha.shape != ():
+            raise ValueError('alpha must be a scalar')
+
         alpha = np.deg2rad(alpha)
         sin_alpha = np.sin(alpha / 2.0)
         cos_alpha = np.cos(alpha / 2.0)

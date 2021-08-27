@@ -540,3 +540,26 @@ def test_rotate_x_to_vec_functional(method):
 def test_rotate_x_to_vec_bad_method():
     with pytest.raises(ValueError, match='method must be one of'):
         Quat.rotate_x_to_vec([1, 2, 3], 'not-a-method')
+
+
+def test_rotate_about_vec():
+    q = Quat([10, 20, 30])
+    q2 = q.rotate_about_vec([0, 0, 10], 25)
+    assert np.allclose(q2.equatorial, [10 + 25, 20, 30])
+
+    q2 = q.rotate_about_vec([-10, 0, 0], 180)
+    assert np.allclose(q2.equatorial, [350., -20., 210.])
+
+
+def test_rotate_about_vec_exceptions():
+    q1 = Quat([10, 20, 30])
+    q2 = Quat(equatorial=[[10, 20, 30], [1, 2, 3]])
+    with pytest.raises(ValueError, match='vec must be a single 3-vector'):
+        q1.rotate_about_vec([[1, 2, 3], [4, 5, 6]], 25)
+
+    with pytest.raises(ValueError, match='alpha must be a scalar'):
+        q1.rotate_about_vec([1, 2, 3], [25, 50])
+
+    with pytest.raises(ValueError, match='quaternion must be a scalar'):
+        q2.rotate_about_vec([1, 2, 3], 25)
+
