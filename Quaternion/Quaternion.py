@@ -451,15 +451,17 @@ class Quat(ShapedLikeNDArray):
 
         q = self.q
         if apply_method:
-            q0 = apply_method(q[..., 0])
-            q1 = apply_method(q[..., 1])
-            q2 = apply_method(q[..., 2])
-            q3 = apply_method(q[..., 3])
-            q = np.stack([q0, q1, q2, q3], axis=-1)
+            # Use a trick to temporarily make q into a stuctured array with 4
+            # floats so that the shape applies to the 4-float item rather than
+            # the full array (essentially removing the last dimension).
+            qsa = self.q.view(np.dtype([('quat', '4f8')]))
+            # view() always leaves a single dimension at end so squeeze it.
+            qsa = qsa.squeeze(axis=-1)
+            q = apply_method(qsa)['quat']
 
         # Get a new instance of our class and set its attributes directly.
         out = super().__new__(cls or self.__class__)
-        out._q = q
+        out._q = np.atleast_2d(q)
         out._shape = q.shape[:-1]
         return out
 
