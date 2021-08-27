@@ -40,10 +40,12 @@ Quaternion provides a class for manipulating quaternion objects.  This class pro
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import operator
 import numpy as np
+from astropy.utils import ShapedLikeNDArray
 
 
-class Quat(object):
+class Quat(ShapedLikeNDArray):
 
     """
     Quaternion class
@@ -166,6 +168,18 @@ class Quat(object):
     For example: (3, 2, 3, 3) corresponds to a (3, 2) array of quaternions.
     """
 
+    def __new__(cls, attitude=None, transform=None, q=None, equatorial=None):
+        self = super().__new__(cls)
+
+        self._shape = None
+        self._q = None
+        self._equatorial = None
+        self._T = None
+        # other data members that are set lazily.
+        self._ra0 = None
+        self._roll0 = None
+        return self
+
     def __init__(self, attitude=None, transform=None, q=None, equatorial=None):
         npar = (int(attitude is not None) + int(transform is not None) +
                 int(q is not None) + int(equatorial is not None))
@@ -174,13 +188,6 @@ class Quat(object):
                 f'{npar} arguments passed to constructor that takes only one of'
                 ' attitude, transform, quaternion, equatorial.'
             )
-        self._q = None
-        self._equatorial = None
-        self._T = None
-
-        # other data members that are set lazily.
-        self._ra0 = None
-        self._roll0 = None
 
         # checks to see if we've been passed a Quat
         if isinstance(attitude, Quat):
@@ -250,11 +257,16 @@ class Quat(object):
 
         :param q: list or array of normalized quaternion elements
         """
-        q = np.atleast_2d(np.array(q))
+        q = np.atleast_2d(np.array(q))  # asarray() to use a ref???
         if np.any((np.sum(q ** 2, axis=-1, keepdims=True) - 1.0) > 1e-6):
             raise ValueError(
                 'Quaternions must be normalized so sum(q**2) == 1; use Quaternion.normalize')
-        self._q = q
+
+        if self._q is None:
+            self._q = q
+        else:
+            # Set in-place if already set.
+            self._q[...] = q
         flip_q = q[..., 3] < 0
         self._q[flip_q] = -1 * q[flip_q]
         # Erase internal values of other representations
@@ -402,6 +414,65 @@ class Quat(object):
         return self._T.reshape(self.shape + (3, 3))
 
     transform = property(_get_transform, _set_transform)
+
+    def _apply(self, method, *args, format=None, cls=None, **kwargs):
+        """Create a new Quat object, possibly applying a method to self.q.
+
+        Parameters
+        ----------
+        method : str or callable
+            If string, can be 'replicate'  or the name of a relevant
+            `~numpy.ndarray` method. In the former case, a new Quat instance
+            with unchanged internal data is created, while in the latter the
+            method is applied to self.q.
+            If a callable, it is directly applied to the above arrays.
+            Examples: 'copy', '__getitem__', 'reshape', `~numpy.broadcast_to`.
+        args : tuple
+            Any positional arguments for ``method``.
+        kwargs : dict
+            Any keyword arguments for ``method``.  If the ``format`` keyword
+            argument is present, this will be used as the Time format of the
+            replica.
+
+        Examples
+        --------
+        ::
+
+            copy : ``_apply('copy')``
+            replicate : ``_apply('replicate')``
+            reshape : ``_apply('reshape', new_shape)``
+            index or slice : ``_apply('__getitem__', item)``
+            broadcast : ``_apply(np.broadcast, shape=new_shape)``
+        """
+        if callable(method):
+            apply_method = lambda array: method(array, *args, **kwargs)
+        else:
+            apply_method = operator.methodcaller(method, *args, **kwargs)
+
+        q = self.q
+        if apply_method:
+            q0 = apply_method(q[..., 0])
+            q1 = apply_method(q[..., 1])
+            q2 = apply_method(q[..., 2])
+            q3 = apply_method(q[..., 3])
+            q = np.stack([q0, q1, q2, q3], axis=-1)
+
+        # Get a new instance of our class and set its attributes directly.
+        out = super().__new__(cls or self.__class__)
+        out._q = q
+        out._shape = q.shape[:-1]
+        return out
+
+    def __getitem__(self, item):
+        if isinstance(item, tuple) and len(item) > self.ndim:
+            raise IndexError('too many indices for array')
+
+        out = super().__new__(self.__class__)
+        q = self.q[item]
+        out._q = np.atleast_2d(q)
+        out._shape = q.shape[:-1]
+
+        return out
 
     def _quat2equatorial(self):
         """
