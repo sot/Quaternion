@@ -2,7 +2,8 @@
 """
 Quaternion provides a class for manipulating quaternion objects.  This class provides:
 
-  - convenient ways to deal with rotation representations (equatorial coordinates, matrix and quaternion):
+  - convenient ways to deal with rotation representations (equatorial
+    coordinates, matrix and quaternion):
 
     - a constructor to initialize from rotations in various representations,
     - conversion methods to the different representations.
@@ -83,7 +84,8 @@ class Quat(object):
       >>> (q2 * q1).equatorial
       array([ 353.37684725,   34.98868888,   47.499696  ])
 
-    Note that each step is as described in the section :ref:`Equatorial -> Matrix <equatorialmatrix>`
+    Note that each step is as described in the section
+    :ref:`Equatorial -> Matrix <equatorialmatrix>`
 
       >>> q1 = Quat(equatorial=(20, 0, 0))
       >>> q2 = Quat(equatorial=(0, 30, 0))
@@ -114,7 +116,8 @@ class Quat(object):
 
       >>> dq = q1.dq(q2)
 
-    When dealing with a collection of quaternions, it is much faster to operate on all of them at a time::
+    When dealing with a collection of quaternions, it is much faster to operate
+    on all of them at a time::
 
       >>> eq1 = [[ 30.000008,  39.999999,  49.999995],
       ...        [ 30.000016,  39.999999,  49.99999 ],
@@ -195,7 +198,7 @@ class Quat(object):
                 try:
                     shape = attitude.shape
                     shape = f' (shape {shape})'
-                except Exception as e:
+                except Exception:
                     shape = ''
                 raise TypeError(
                     f"attitude argument{shape} is not one of an allowed type:"
@@ -272,7 +275,7 @@ class Quat(object):
                 self._q = self._equatorial2quat()
             elif self._T is not None:
                 self._q = self._transform2quat()
-        return self._q.reshape(self.shape+(4,))
+        return self._q.reshape(self.shape + (4,))
 
     # use property to make this get/set automatic
     q = property(_get_q, _set_q)
@@ -307,7 +310,7 @@ class Quat(object):
             elif self._T is not None:
                 self._q = self._transform2quat()
                 self._equatorial = self._quat2equatorial()
-        return self._equatorial.reshape(self.shape+(3,))
+        return self._equatorial.reshape(self.shape + (3,))
 
     equatorial = property(_get_equatorial, _set_equatorial)
 
@@ -396,7 +399,7 @@ class Quat(object):
                 self._T = self._quat2transform()
             elif self._equatorial is not None:
                 self._T = self._equatorial2transform()
-        return self._T.reshape(self.shape+(3, 3))
+        return self._T.reshape(self.shape + (3, 3))
 
     transform = property(_get_transform, _set_transform)
 
@@ -438,7 +441,6 @@ class Quat(object):
         # from shape (3, N) to (N, 3), where N can be an arbitrary tuple
         # e.g. (3, 2, 5) -> (2, 5, 3) (np.transpose would give (2, 3, 5))
         return np.moveaxis(np.array([ra, dec, roll]), 0, -1)
-
 
 #  _quat2transform is largely from Enthought's quaternion.rotmat, though this math is
 #  probably from Hamilton.
@@ -535,9 +537,9 @@ class Quat(object):
 
         # This is the transpose of the transformation matrix (related to translation
         # of original perl code
-        rmat = np.array([[ca * cd,                    sa * cd,                  sd],
-                         [-ca * sd * sr - sa * cr,   -sa * sd * sr + ca * cr,   cd * sr],
-                         [-ca * sd * cr + sa * sr,   -sa * sd * cr - ca * sr,   cd * cr]])
+        rmat = np.array([[ca * cd,                    sa * cd,                  sd],  # noqa
+                         [-ca * sd * sr - sa * cr,   -sa * sd * sr + ca * cr,   cd * sr],  # noqa
+                         [-ca * sd * cr + sa * sr,   -sa * sd * cr - ca * sr,   cd * cr]])  # noqa
 
         return np.moveaxis(np.moveaxis(rmat, 0, -1), 0, -2)
 
@@ -647,10 +649,10 @@ class Quat(object):
         q2 = np.atleast_2d(quat2.q)
         assert q1.shape == q2.shape
         mult = np.zeros(q1.shape)
-        mult[...,0] =  q1[...,3] * q2[...,0] - q1[...,2] * q2[...,1] + q1[...,1] * q2[...,2] + q1[...,0] * q2[...,3]
-        mult[...,1] =  q1[...,2] * q2[...,0] + q1[...,3] * q2[...,1] - q1[...,0] * q2[...,2] + q1[...,1] * q2[...,3]
-        mult[...,2] = -q1[...,1] * q2[...,0] + q1[...,0] * q2[...,1] + q1[...,3] * q2[...,2] + q1[...,2] * q2[...,3]
-        mult[...,3] = -q1[...,0] * q2[...,0] - q1[...,1] * q2[...,1] - q1[...,2] * q2[...,2] + q1[...,3] * q2[...,3]
+        mult[...,0] =  q1[...,3] * q2[...,0] - q1[...,2] * q2[...,1] + q1[...,1] * q2[...,2] + q1[...,0] * q2[...,3]  # noqa
+        mult[...,1] =  q1[...,2] * q2[...,0] + q1[...,3] * q2[...,1] - q1[...,0] * q2[...,2] + q1[...,1] * q2[...,3]  # noqa
+        mult[...,2] = -q1[...,1] * q2[...,0] + q1[...,0] * q2[...,1] + q1[...,3] * q2[...,2] + q1[...,2] * q2[...,3]  # noqa
+        mult[...,3] = -q1[...,0] * q2[...,0] - q1[...,1] * q2[...,1] - q1[...,2] * q2[...,2] + q1[...,3] * q2[...,3]  # noqa
         shape = self.q.shape if len(self.q.shape) > len(quat2.q.shape) else quat2.q.shape
         return Quat(q=mult.reshape(shape))
 
@@ -808,4 +810,4 @@ def normalize(array):
 
     """
     quat = np.array(array)
-    return np.squeeze(quat/np.sqrt(np.sum(quat * quat, axis=-1, keepdims=True)))
+    return np.squeeze(quat / np.sqrt(np.sum(quat * quat, axis=-1, keepdims=True)))
