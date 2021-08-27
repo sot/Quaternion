@@ -181,8 +181,8 @@ class Quat(ShapedLikeNDArray):
         return self
 
     def __init__(self, attitude=None, transform=None, q=None, equatorial=None):
-        npar = (int(attitude is not None) + int(transform is not None) +
-                int(q is not None) + int(equatorial is not None))
+        npar = (int(attitude is not None) + int(transform is not None)
+                + int(q is not None) + int(equatorial is not None))
         if npar != 1:
             raise ValueError(
                 f'{npar} arguments passed to constructor that takes only one of'
@@ -445,7 +445,7 @@ class Quat(ShapedLikeNDArray):
             broadcast : ``_apply(np.broadcast, shape=new_shape)``
         """
         if callable(method):
-            apply_method = lambda array: method(array, *args, **kwargs)
+            apply_method = lambda array: method(array, *args, **kwargs)  # noqa
         else:
             apply_method = operator.methodcaller(method, *args, **kwargs)
 
