@@ -467,6 +467,37 @@ def test_scalar_attribute_types():
         assert type(getattr(q, attr)) is typ
 
 
+def test_mult_and_dq_broadcasted():
+    """Test mult and delta quat of Quats with different but broadcastable shapes.
+    """
+    q2 = Quat(equatorial=np.arange(18).reshape(3, 2, 3))
+    q1 = Quat(equatorial=[[10, 20, 30], [40, 50, 60]])
+    q0 = Quat(equatorial=[10, 20, 30])
+    # (3,2) * () = (3,2)
+    q20 = q2 * q0
+    dq20 = q2.dq(q0)
+    assert q20.shape == (3, 2)
+    assert dq20.shape == (3, 2)
+    for ii in range(3):
+        for jj in range(2):
+            qq = q2[ii, jj] * q0
+            dq = q2[ii, jj].dq(q0)
+            assert np.allclose(qq.q, q20.q[ii, jj])
+            assert np.allclose(dq.q, dq20.q[ii, jj])
+
+    # (3,2) * (2,) = (3,2)
+    q21 = q2 * q1
+    dq21 = q2.dq(q1)
+    assert q21.shape == (3, 2)
+    assert dq21.shape == (3, 2)
+    for ii in range(3):
+        for jj in range(2):
+            qq = q2[ii, jj] * q1[jj]
+            dq = q2[ii, jj].dq(q1[jj])
+            assert np.allclose(qq.q, q21.q[ii, jj])
+            assert np.allclose(dq.q, dq21.q[ii, jj])
+
+
 def test_array_attribute_types():
     q = Quat(equatorial=[[10, 20, 30]])  # 1-d
     attrs = ['ra', 'dec', 'roll', 'ra0', 'roll0', 'pitch', 'yaw', 'transform', 'q']

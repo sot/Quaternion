@@ -720,7 +720,8 @@ class Quat(ShapedLikeNDArray):
         """
         q1 = np.atleast_2d(self.q)
         q2 = np.atleast_2d(quat2.q)
-        assert q1.shape == q2.shape
+        if q1.shape != q2.shape:
+            q1, q2 = np.broadcast_arrays(q1, q2)
         mult = np.zeros(q1.shape)
         mult[...,0] =  q1[...,3] * q2[...,0] - q1[...,2] * q2[...,1] + q1[...,1] * q2[...,2] + q1[...,0] * q2[...,3]  # noqa
         mult[...,1] =  q1[...,2] * q2[...,0] + q1[...,3] * q2[...,1] - q1[...,0] * q2[...,2] + q1[...,1] * q2[...,3]  # noqa
