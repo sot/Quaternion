@@ -293,6 +293,8 @@ class Quat(object):
 
         """
         self._equatorial = np.atleast_2d(np.array(equatorial))
+        self._q = None
+        self._transform = None
 
     def _get_equatorial(self):
         """Retrieve [RA, Dec, Roll]
@@ -378,6 +380,8 @@ class Quat(object):
         if transform.ndim == 2:
             transform = transform[np.newaxis]
         self._T = transform
+        self._q = None
+        self._equatorial = None
 
     def _get_transform(self):
         """
