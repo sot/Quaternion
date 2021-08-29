@@ -46,6 +46,11 @@ from astropy.utils import ShapedLikeNDArray
 
 
 class Quat(ShapedLikeNDArray):
+    # None of the base class method functions are defined for quaternions.
+    # These include things like min, max, round, all, etc. Calling these numpy
+    # functions on Quat just goes to the numpy function, which may or may not
+    # do something or else give an exception.
+    _METHOD_FUNCTIONS = {}
 
     """
     Quaternion class
@@ -460,16 +465,18 @@ class Quat(ShapedLikeNDArray):
             q = apply_method(qsa)['quat']
 
         # Get a new instance of our class and set its attributes directly.
-        out = super().__new__(cls or self.__class__)
+        cls = cls or self.__class__
+        out = cls.__new__(cls)
         out._q = np.atleast_2d(q)
         out._shape = q.shape[:-1]
+
         return out
 
     def __getitem__(self, item):
         if isinstance(item, tuple) and len(item) > self.ndim:
             raise IndexError('too many indices for array')
 
-        out = super().__new__(self.__class__)
+        out = self.__class__.__new__(self.__class__)
         q = self.q[item]
         out._q = np.atleast_2d(q)
         out._shape = q.shape[:-1]
