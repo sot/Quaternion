@@ -1,5 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-"""The ShapedLikeNDArray mixin class and shape-related functions."""
+"""The ShapedLikeNDArray mixin class and shape-related functions.
+
+This file was copied from astropy main @ 046896855e (5.0-dev
+astropy/utils/shapes.py).
+"""
 
 import abc
 from itertools import zip_longest
