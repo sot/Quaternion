@@ -12,6 +12,7 @@ def indices(t):
     for k in itertools.product(*[range(i) for i in t]):
         yield k
 
+
 def normalize_angles(x, xmin, xmax):
     while np.any(x >= xmax):
         x -= np.where(x > xmax, 360, 0)
@@ -32,11 +33,11 @@ equatorial_23 = np.array([[[10, 20, 30],
                            [10, 50, 30],
                            [10, -50, -30]]], dtype=float)
 
-q_23 = np.zeros(equatorial_23[..., 0].shape+(4,))
+q_23 = np.zeros(equatorial_23[..., 0].shape + (4,))
 for _i, _j in indices(equatorial_23.shape[:-1]):
     q_23[_i, _j] = Quat(equatorial_23[_i, _j]).q
 
-transform_23 = np.zeros(equatorial_23[..., 0].shape+(3, 3))
+transform_23 = np.zeros(equatorial_23[..., 0].shape + (3, 3))
 for _i, _j in indices(transform_23.shape[:-2]):
     transform_23[_i, _j] = Quat(equatorial_23[_i, _j]).transform
 
@@ -77,11 +78,11 @@ def test_init_exceptions():
     with pytest.raises(ValueError):
         _ = Quat(q=[[[1., 0., 0., 1.]]])  # q not normalized
     with pytest.raises(ValueError):
-        _ = Quat([0,1,'s'])  # could not convert string to float
+        _ = Quat([0, 1, 's'])  # could not convert string to float
 
 
 def test_from_q():
-    q = [0.26853582, -0.14487813,  0.12767944,  0.94371436]
+    q = [0.26853582, -0.14487813, 0.12767944, 0.94371436]
     q1 = Quat(q)
     q2 = Quat(q=q)
     q3 = Quat(q1)
@@ -95,8 +96,8 @@ def test_from_eq():
     q = Quat([ra, dec, roll])
     assert np.allclose(q.q[0], 0.26853582)
     assert np.allclose(q.q[1], -0.14487813)
-    assert np.allclose(q.q[2],  0.12767944)
-    assert np.allclose(q.q[3],  0.94371436)
+    assert np.allclose(q.q[2], 0.12767944)
+    assert np.allclose(q.q[3], 0.94371436)
     assert np.allclose(q.roll0, 30)
     assert np.allclose(q.ra0, 10)
     assert q.pitch == -q.dec
@@ -134,8 +135,9 @@ def test_from_eq_vectorized():
     assert np.all(q.equatorial == equatorial_23)
     assert np.all(q.transform == transform_23)
 
+
 def test_from_eq_shapes():
-    q = Quat(equatorial=[ 10., 20., 30.])
+    q = Quat(equatorial=[10., 20., 30.])
     assert np.array(q.ra0).shape == ()
     assert np.array(q.roll0).shape == ()
     assert np.array(q.ra).shape == ()
@@ -175,7 +177,7 @@ def test_from_transform():
     assert np.allclose(q.q[0], -0.26853582)
     assert np.allclose(q.q[1], 0.14487813)
     assert np.allclose(q.q[2], -0.12767944)
-    assert np.allclose(q.q[3],  0.94371436)
+    assert np.allclose(q.q[3], 0.94371436)
 
     q = Quat(q0.transform)
     assert np.allclose(q.roll0, 30)
@@ -205,11 +207,12 @@ def test_from_transform_vectorized():
     assert np.allclose(q.q, q_23)
     # to compare roll, it has to be normalized to within a fixed angular range (0, 360).
     eq = np.array(q.equatorial)
-    normalize_angles(eq[...,-1], 0, 360)
+    normalize_angles(eq[..., -1], 0, 360)
     eq_23 = np.array(equatorial_23)
     normalize_angles(eq_23[..., -1], 0, 360)
     assert np.allclose(eq, eq_23)
     assert np.allclose(q.transform, transform_23)
+
 
 def test_eq_from_transform():
     # this raises 'Unexpected negative norm' exception due to roundoff in copy/paste above
@@ -230,11 +233,11 @@ def test_from_q_vectorized():
     q = Quat(q=q_23)
     assert q.shape == (2, 3)
     # this also tests that quaternions with negative scalar component are flipped
-    flip = np.sign(q_23[...,-1]).reshape((2,3,1))
-    assert np.allclose(q.q, q_23*flip)
+    flip = np.sign(q_23[..., -1]).reshape((2, 3, 1))
+    assert np.allclose(q.q, q_23 * flip)
     # to compare roll, it has to be normalized to within a fixed angular range (0, 360).
     eq = np.array(q.equatorial)
-    normalize_angles(eq[...,-1], 0, 360)
+    normalize_angles(eq[..., -1], 0, 360)
     eq_23 = np.array(equatorial_23)
     normalize_angles(eq_23[..., -1], 0, 360)
     assert np.allclose(eq, eq_23, rtol=0)
@@ -274,6 +277,7 @@ def test_inv_vectorized():
     for i in indices(q1.shape):
         # check that Quat(q).inv().q[i] == Quat(q[i]).inv().q
         assert np.all(q1_inv.q[i] == Quat(q=q1.q[i]).inv().q)
+
 
 def test_dq():
     q1 = Quat((20, 30, 0))
@@ -401,14 +405,15 @@ def test_div_mult():
     assert np.all(q12d.q == q12m.q)
 
     q3 = Quat(equatorial=[[10, 20, 30]])
-    assert (q1*q3).shape != q1.shape
-    assert (q1*q3).shape == q3.shape
+    assert (q1 * q3).shape != q1.shape
+    assert (q1 * q3).shape == q3.shape
+
 
 def test_mult_vectorized():
     q1 = Quat(q=q_23[:1, :2])  # (shape (2,1)
     q2 = Quat(q=q_23[1:, 1:])  # (shape (2,1)
     assert q1.q.shape == q2.q.shape
-    q12 = q1*q2
+    q12 = q1 * q2
     assert q12.q.shape == q1.q.shape
 
 
@@ -420,7 +425,7 @@ def test_normalize():
 
 def test_copy():
     # data members must be copies so they are not modified by accident
-    q = np.array(q_23[0,0])
+    q = np.array(q_23[0, 0])
     q1 = Quat(q=q)
     q[-1] = 0
     assert q1.q[-1] != 0
@@ -462,6 +467,37 @@ def test_scalar_attribute_types():
         assert type(getattr(q, attr)) is typ
 
 
+def test_mult_and_dq_broadcasted():
+    """Test mult and delta quat of Quats with different but broadcastable shapes.
+    """
+    q2 = Quat(equatorial=np.arange(18).reshape(3, 2, 3))
+    q1 = Quat(equatorial=[[10, 20, 30], [40, 50, 60]])
+    q0 = Quat(equatorial=[10, 20, 30])
+    # (3,2) * () = (3,2)
+    q20 = q2 * q0
+    dq20 = q2.dq(q0)
+    assert q20.shape == (3, 2)
+    assert dq20.shape == (3, 2)
+    for ii in range(3):
+        for jj in range(2):
+            qq = q2[ii, jj] * q0
+            dq = q2[ii, jj].dq(q0)
+            assert np.allclose(qq.q, q20.q[ii, jj])
+            assert np.allclose(dq.q, dq20.q[ii, jj])
+
+    # (3,2) * (2,) = (3,2)
+    q21 = q2 * q1
+    dq21 = q2.dq(q1)
+    assert q21.shape == (3, 2)
+    assert dq21.shape == (3, 2)
+    for ii in range(3):
+        for jj in range(2):
+            qq = q2[ii, jj] * q1[jj]
+            dq = q2[ii, jj].dq(q1[jj])
+            assert np.allclose(qq.q, q21.q[ii, jj])
+            assert np.allclose(dq.q, dq21.q[ii, jj])
+
+
 def test_array_attribute_types():
     q = Quat(equatorial=[[10, 20, 30]])  # 1-d
     attrs = ['ra', 'dec', 'roll', 'ra0', 'roll0', 'pitch', 'yaw', 'transform', 'q']
@@ -501,8 +537,8 @@ def test_pickle():
         quaternions = pickle.load(f)
     for q in quaternions:
         assert np.all(np.isclose(q.q, [0.26853582, -0.14487813, 0.12767944, 0.94371436]))
-        assert np.all(np.isclose(q.equatorial, [ 10.,  20.,  30.]))
-        assert np.all(np.isclose(q.transform, [[ 0.92541658, -0.31879578, -0.20487413],
+        assert np.all(np.isclose(q.equatorial, [10., 20., 30.]))
+        assert np.all(np.isclose(q.transform, [[0.92541658, -0.31879578, -0.20487413],
                                                [0.16317591, 0.82317294, -0.54383814],
                                                [0.34202014, 0.46984631, 0.81379768]]))
 
@@ -563,3 +599,14 @@ def test_rotate_about_vec_exceptions():
     with pytest.raises(ValueError, match='quaternion must be a scalar'):
         q2.rotate_about_vec([1, 2, 3], 25)
 
+
+@pytest.mark.parametrize('attr', ['q', 'equatorial', 'transform'])
+def test_setting_different_shape(attr):
+    q0 = Quat([1, 2, 3])
+    q1 = Quat(equatorial=[[3, 1, 2],
+                          [4, 5, 6]])
+    assert q1.shape == (2,)
+    val = getattr(q1, attr)
+    setattr(q0, attr, val)
+    assert q0.shape == q1.shape
+    assert np.all(getattr(q0, attr) == getattr(q1, attr))
