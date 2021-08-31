@@ -42,7 +42,7 @@ Quaternion provides a class for manipulating quaternion objects.  This class pro
 
 import operator
 import numpy as np
-from astropy.utils import ShapedLikeNDArray
+from .shapes import ShapedLikeNDArray
 
 
 class Quat(ShapedLikeNDArray):
