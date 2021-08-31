@@ -281,7 +281,7 @@ class Quat(ShapedLikeNDArray):
         :param q: list or array of normalized quaternion elements
         """
         q = np.array(q)
-        shape = q.shape[:-1]
+        shape = q.shape[:-1]  # Capture input shape sans 4-vector dimension
         q = np.atleast_2d(q)
         if np.any((np.sum(q ** 2, axis=-1, keepdims=True) - 1.0) > 1e-6):
             raise ValueError(
@@ -326,10 +326,11 @@ class Quat(ShapedLikeNDArray):
 
         """
         equatorial = np.array(equatorial)
+        shape = equatorial.shape[:-1]  # Capture input shape sans 3-vector dimension
         self._equatorial = np.atleast_2d(equatorial)
         self._q = None
         self._transform = None
-        self._shape = equatorial.shape[:-1]
+        self._shape = shape
 
     @property
     def ra(self):
@@ -413,10 +414,11 @@ class Quat(ShapedLikeNDArray):
         :param t: 3x3 array/numpy array
         """
         transform = np.array(t)
+        shape = transform.shape[:-2]  # Capture input shape sans matrix dimensions
         self._T = np.atleast_3d(transform)
         self._q = None
         self._equatorial = None
-        self._shape = transform.shape[:-2]
+        self._shape = shape
 
     def _apply(self, method, *args, **kwargs):
         """Create a new Quat object, possibly applying a method to self.q.
