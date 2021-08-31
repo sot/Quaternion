@@ -418,7 +418,7 @@ class Quat(ShapedLikeNDArray):
         self._equatorial = None
         self._shape = transform.shape[:-2]
 
-    def _apply(self, method, *args, format=None, cls=None, **kwargs):
+    def _apply(self, method, *args, **kwargs):
         """Create a new Quat object, possibly applying a method to self.q.
 
         Parameters
@@ -433,38 +433,31 @@ class Quat(ShapedLikeNDArray):
         args : tuple
             Any positional arguments for ``method``.
         kwargs : dict
-            Any keyword arguments for ``method``.  If the ``format`` keyword
-            argument is present, this will be used as the Time format of the
-            replica.
+            Any keyword arguments for ``method``.
+
 
         Examples
         --------
         ::
 
             copy : ``_apply('copy')``
-            replicate : ``_apply('replicate')``
             reshape : ``_apply('reshape', new_shape)``
-            index or slice : ``_apply('__getitem__', item)``
-            broadcast : ``_apply(np.broadcast, shape=new_shape)``
         """
         if callable(method):
             apply_method = lambda array: method(array, *args, **kwargs)  # noqa
         else:
             apply_method = operator.methodcaller(method, *args, **kwargs)
 
-        q = self.q
-        if apply_method:
-            # Use a trick to temporarily make q into a stuctured array with 4
-            # floats so that the shape applies to the 4-float item rather than
-            # the full array (essentially removing the last dimension).
-            qsa = self.q.view(np.dtype([('quat', '4f8')]))
-            # view() always leaves a single dimension at end so squeeze it.
-            qsa = qsa.squeeze(axis=-1)
-            q = apply_method(qsa)['quat']
+        # Use a trick to temporarily make q into a stuctured array with 4
+        # floats so that the shape applies to the 4-float item rather than
+        # the full array (essentially removing the last dimension).
+        qsa = self.q.view(np.dtype([('quat', '4f8')]))
+        # view() always leaves a single dimension at end so squeeze it.
+        qsa = qsa.squeeze(axis=-1)
+        q = apply_method(qsa)['quat']
 
         # Get a new instance of our class and set its attributes directly.
-        cls = cls or self.__class__
-        out = cls.__new__(cls)
+        out = self.__class__.__new__(self.__class__)
         out._q = np.atleast_2d(q)
         out._shape = q.shape[:-1]
 
