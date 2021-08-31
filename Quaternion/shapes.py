@@ -248,7 +248,7 @@ class ShapedLikeNDArray(NDArrayShapeMethods, metaclass=abc.ABCMeta):
         np.atleast_1d, np.atleast_2d, np.atleast_3d, np.expand_dims,
         np.broadcast_to, np.flip, np.fliplr, np.flipud, np.rot90,
         np.roll, np.delete,
-        }
+    }
 
     # Functions that themselves defer to a method. Those are all
     # defined in np.core.fromnumeric, but exclude alen as well as
