@@ -223,21 +223,21 @@ class Quat(ShapedLikeNDArray):
             if q.shape[-1:] != (4,):
                 raise TypeError("Creating a Quaternion from quaternion(s) "
                                 "requires shape (..., 4), not {}".format(q.shape))
-            self._set_q(q)
+            self.q = q
         elif transform is not None:
             transform = np.atleast_2d(transform).astype(np.float64)
             self._shape = transform.shape[:-2]
             if transform.shape[-2:] != (3, 3):
                 raise TypeError("Creating a Quaternion from quaternion(s) "
                                 "requires shape (..., 3, 3), not {}".format(transform.shape))
-            self._set_transform(transform)
+            self.transform = transform
         elif equatorial is not None:
             equatorial = np.atleast_1d(equatorial).astype(np.float64)
             self._shape = equatorial.shape[:-1]
             if equatorial.shape[-1:] != (3,):
                 raise TypeError("Creating a Quaternion from ra, dec, roll "
                                 "requires shape (..., 3), not {}".format(equatorial.shape))
-            self._set_equatorial(equatorial)
+            self.equatorial = equatorial
         assert self._shape is not None
 
     @property
@@ -254,31 +254,8 @@ class Quat(ShapedLikeNDArray):
         """
         return self._shape
 
-    def _set_q(self, q):
-        """
-        Set the value of the 4 element quaternion vector
-        May be 4 element list or array or N x 4 element array,
-        where N can be an arbitrary shape. E.g.: (3,2,4) is allowed.
-
-        :param q: list or array of normalized quaternion elements
-        """
-        q = np.atleast_2d(np.array(q))  # asarray() to use a ref???
-        if np.any((np.sum(q ** 2, axis=-1, keepdims=True) - 1.0) > 1e-6):
-            raise ValueError(
-                'Quaternions must be normalized so sum(q**2) == 1; use Quaternion.normalize')
-
-        if self._q is None:
-            self._q = q
-        else:
-            # Set in-place if already set.
-            self._q[...] = q
-        flip_q = q[..., 3] < 0
-        self._q[flip_q] = -1 * q[flip_q]
-        # Erase internal values of other representations
-        self._equatorial = None
-        self._T = None
-
-    def _get_q(self):
+    @property
+    def q(self):
         """
         Retrieve 4-vector of quaternion elements in [x, y, z, w] form
         or N x 4-vector if N > 1.
@@ -294,8 +271,29 @@ class Quat(ShapedLikeNDArray):
                 self._q = self._transform2quat()
         return self._q.reshape(self.shape + (4,))
 
-    # use property to make this get/set automatic
-    q = property(_get_q, _set_q)
+    @q.setter
+    def q(self, q):
+        """
+        Set the value of the 4 element quaternion vector
+        May be 4 element list or array or N x 4 element array,
+        where N can be an arbitrary shape. E.g.: (3,2,4) is allowed.
+
+        :param q: list or array of normalized quaternion elements
+        """
+        q = np.array(q)
+        shape = q.shape[:-1]
+        q = np.atleast_2d(q)
+        if np.any((np.sum(q ** 2, axis=-1, keepdims=True) - 1.0) > 1e-6):
+            raise ValueError(
+                'Quaternions must be normalized so sum(q**2) == 1; use Quaternion.normalize')
+
+        self._q = q
+        flip_q = q[..., 3] < 0
+        self._q[flip_q] = -1 * q[flip_q]
+        # Erase internal values of other representations
+        self._equatorial = None
+        self._T = None
+        self._shape = shape
 
     def __repr__(self):
         q = self.q
@@ -304,19 +302,8 @@ class Quat(ShapedLikeNDArray):
                     .format(self.__class__.__name__, q[0], q[1], q[2], q[3]))
         return '{}({})'.format(self.__class__.__name__, repr(q))
 
-    def _set_equatorial(self, equatorial):
-        """Set the value of the 3 element equatorial coordinate list [RA,Dec,Roll]
-           expects values in degrees
-           bounds are not checked
-
-           :param equatorial: list or array [ RA, Dec, Roll] in degrees
-
-        """
-        self._equatorial = np.atleast_2d(np.array(equatorial))
-        self._q = None
-        self._transform = None
-
-    def _get_equatorial(self):
+    @property
+    def equatorial(self):
         """Retrieve [RA, Dec, Roll]
 
         :rtype: numpy array
@@ -329,23 +316,35 @@ class Quat(ShapedLikeNDArray):
                 self._equatorial = self._quat2equatorial()
         return self._equatorial.reshape(self.shape + (3,))
 
-    equatorial = property(_get_equatorial, _set_equatorial)
+    @equatorial.setter
+    def equatorial(self, equatorial):
+        """Set the value of the 3 element equatorial coordinate list [RA,Dec,Roll]
+           expects values in degrees
+           bounds are not checked
 
-    def _get_ra(self):
+           :param equatorial: list or array [ RA, Dec, Roll] in degrees
+
+        """
+        equatorial = np.array(equatorial)
+        self._equatorial = np.atleast_2d(equatorial)
+        self._q = None
+        self._transform = None
+        self._shape = equatorial.shape[:-1]
+
+    @property
+    def ra(self):
         """Retrieve RA term from equatorial system in degrees"""
         return self.equatorial[..., 0].reshape(self.shape)[()]
 
-    def _get_dec(self):
+    @property
+    def dec(self):
         """Retrieve Dec term from equatorial system in degrees"""
         return self.equatorial[..., 1].reshape(self.shape)[()]
 
-    def _get_roll(self):
+    @property
+    def roll(self):
         """Retrieve Roll term from equatorial system in degrees"""
         return self.equatorial[..., 2].reshape(self.shape)[()]
-
-    ra = property(_get_ra)
-    dec = property(_get_dec)
-    roll = property(_get_roll)
 
     @staticmethod
     def _get_zero(val):
@@ -390,20 +389,8 @@ class Quat(ShapedLikeNDArray):
         """
         return self.ra0
 
-    def _set_transform(self, t):
-        """
-        Set the value of the 3x3 rotation/transform matrix
-
-        :param t: 3x3 array/numpy array
-        """
-        transform = np.array(t)
-        if transform.ndim == 2:
-            transform = transform[np.newaxis]
-        self._T = transform
-        self._q = None
-        self._equatorial = None
-
-    def _get_transform(self):
+    @property
+    def transform(self):
         """
         Retrieve the value of the 3x3 rotation/transform matrix
 
@@ -418,7 +405,18 @@ class Quat(ShapedLikeNDArray):
                 self._T = self._equatorial2transform()
         return self._T.reshape(self.shape + (3, 3))
 
-    transform = property(_get_transform, _set_transform)
+    @transform.setter
+    def transform(self, t):
+        """
+        Set the value of the 3x3 rotation/transform matrix
+
+        :param t: 3x3 array/numpy array
+        """
+        transform = np.array(t)
+        self._T = np.atleast_3d(transform)
+        self._q = None
+        self._equatorial = None
+        self._shape = transform.shape[:-2]
 
     def _apply(self, method, *args, format=None, cls=None, **kwargs):
         """Create a new Quat object, possibly applying a method to self.q.
@@ -605,9 +603,9 @@ class Quat(ShapedLikeNDArray):
         :rtype: Nx3x3 numpy array
 
         """
-        ra = np.radians(self._get_ra())
-        dec = np.radians(self._get_dec())
-        roll = np.radians(self._get_roll())
+        ra = np.radians(self.ra)
+        dec = np.radians(self.dec)
+        roll = np.radians(self.roll)
         ca = np.cos(ra)
         sa = np.sin(ra)
         cd = np.cos(dec)

@@ -599,3 +599,14 @@ def test_rotate_about_vec_exceptions():
     with pytest.raises(ValueError, match='quaternion must be a scalar'):
         q2.rotate_about_vec([1, 2, 3], 25)
 
+
+@pytest.mark.parametrize('attr', ['q', 'equatorial', 'transform'])
+def test_setting_different_shape(attr):
+    q0 = Quat([1, 2, 3])
+    q1 = Quat(equatorial=[[3, 1, 2],
+                          [4, 5, 6]])
+    assert q1.shape == (2,)
+    val = getattr(q1, attr)
+    setattr(q0, attr, val)
+    assert q0.shape == q1.shape
+    assert np.all(getattr(q0, attr) == getattr(q1, attr))
