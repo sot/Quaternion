@@ -543,6 +543,43 @@ def test_pickle():
                                                [0.34202014, 0.46984631, 0.81379768]]))
 
 
+def test_init_quat_from_attitude():
+    # Basic tests for Quat.from_attitude
+    q = Quat.from_attitude([Quat([0, 1, 2]),
+                            Quat([3, 4, 5])])
+    # 1-d list of Quat
+    assert np.allclose(q.equatorial, [[0, 1, 2],
+                                      [3, 4, 5]])
+
+    # 2-d list of Quat
+    q = Quat.from_attitude([[Quat([0, 1, 2]), Quat([3, 4, 5])]])
+    assert np.allclose(q.equatorial, [[[0, 1, 2],
+                                       [3, 4, 5]]])
+
+    # 1-d list of equatorial floats
+    q = Quat.from_attitude([[0, 1, 2], [3, 4, 5]])
+    assert np.allclose(q.equatorial, [[[0, 1, 2],
+                                       [3, 4, 5]]])
+
+    # Heterogenous list of floats
+    q = Quat.from_attitude([[0, 1, 2], [0, 1, 0, 0]])
+    assert np.allclose(q.equatorial, [[0, 1, 2],
+                                      [180, 0, 180]])
+
+    # Bad 1-d list of equatorial floats
+    with pytest.raises(ValueError, match="Float input must be a Nx3 or Nx4 array"):
+        q = Quat.from_attitude([[0, 1, 2, 4, 5], [3, 4, 5, 6, 7]])
+
+    # 1-d list of 4-vectors
+    q_list = [[0, 0, 1, 0], [0, 1, 0, 0]]
+    q = Quat.from_attitude(q_list)
+    assert np.allclose(q.q, q_list)
+
+    # Bad input
+    with pytest.raises(ValueError, match="Unable to initialize Quat from 'blah'"):
+        Quat.from_attitude('blah')
+
+
 def test_rotate_x_to_vec_regress():
     """Note that truth values are just results from original code in Ska.quatutil.
     They have not been independently validated"""

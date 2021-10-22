@@ -873,6 +873,66 @@ class Quat(ShapedLikeNDArray):
         att_out = dq * self
         return att_out
 
+    @classmethod
+    def from_attitude(cls, att):
+        """Initial Quat from attitude(s)
+
+        This allows initialization from several possibilities that are less
+        strict than the normal initializer:
+        - Quat already (returns same)
+        - Input that works with Quat already
+        - Input that initializes a float ndarray which has shape[-1] == 3 or 4
+        - Input that initializes an object ndarray where each element inits Quat,
+        e.g. a list of Quat
+
+        Parameters
+        ----------
+        att : Quaternion-like
+            Attitude(s)
+
+        Returns
+        -------
+        Quat
+            Attitude(s) as a Quat
+        """
+        if isinstance(att, Quat):
+            return att
+
+        # Input that works with Quat already
+        try:
+            att = cls(att)
+        except Exception:
+            pass
+        else:
+            return att
+
+        # Input that initializes a float ndarray which has shape[-1] == 3 or 4
+        try:
+            att_array = np.asarray(att, dtype=np.float64)
+        except Exception:
+            pass
+        else:
+            if att_array.shape[-1] == 4:
+                return cls(q=att_array)
+            elif att_array.shape[-1] == 3:
+                return cls(equatorial=att_array)
+            else:
+                raise ValueError("Float input must be a Nx3 or Nx4 array")
+
+        # Input that initializes an object ndarray where each element inits Quat,
+        # e.g. a list of Quat
+        try:
+            att_array = np.asarray(att, dtype=object)
+            qs = []
+            for val in att_array.ravel():
+                qs.append(val.q if isinstance(val, Quat) else cls(val).q)
+            qs = np.array(qs, dtype=np.float64).reshape(att_array.shape + (4,))
+            return cls(q=qs)
+        except Exception:
+            pass
+
+        raise ValueError(f"Unable to initialize {cls.__name__} from {att!r}")
+
 
 def normalize(array):
     """
