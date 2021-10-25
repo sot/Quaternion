@@ -896,7 +896,7 @@ class Quat(ShapedLikeNDArray):
             Attitude(s) as a Quat
         """
         if isinstance(att, Quat):
-            return att
+            return att.copy()
 
         # Input that works with Quat already
         try:

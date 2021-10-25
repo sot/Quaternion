@@ -551,6 +551,15 @@ def test_init_quat_from_attitude():
     assert np.allclose(q.equatorial, [[0, 1, 2],
                                       [3, 4, 5]])
 
+    # From existing Quat
+    q2 = Quat.from_attitude(q)
+    assert np.all(q.q == q2.q)
+    assert q is not q2
+
+    # Normal Quat initializer: 3-element list implies equatorial
+    q = Quat.from_attitude([10, 20, 30])
+    assert np.allclose(q.equatorial, [10, 20, 30])
+
     # 2-d list of Quat
     q = Quat.from_attitude([[Quat([0, 1, 2]), Quat([3, 4, 5])]])
     assert np.allclose(q.equatorial, [[[0, 1, 2],
