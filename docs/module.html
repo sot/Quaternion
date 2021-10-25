@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quaternion Class (Quat) &#8212; Quaternion 4.0.1 documentation</title>
+    <title>Quaternion Class (Quat) &#8212; Quaternion 4.1 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -61,7 +61,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Quaternion 4.0.1 documentation</a>
+	<a href="index.html">Quaternion 4.1 documentation</a>
 	 &#187;
       </li>
       
@@ -152,6 +152,27 @@ from the frame of this quaternion (<code class="docutils literal notranslate"><s
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Quaternion.Quaternion.Quat.from_attitude">
+<em class="property">classmethod </em><code class="sig-name descname">from_attitude</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">att</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#Quat.from_attitude"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Quaternion.Quaternion.Quat.from_attitude" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initial Quat from attitude(s)</p>
+<p>This allows initialization from several possibilities that are less
+strict than the normal initializer:
+- Quat already (returns same)
+- Input that works with Quat already
+- Input that initializes a float ndarray which has shape[-1] == 3 or 4
+- Input that initializes an object ndarray where each element inits Quat,
+e.g. a list of Quat</p>
+<dl class="simple">
+<dt>att<span class="classifier">Quaternion-like</span></dt><dd><p>Attitude(s)</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Quat</dt><dd><p>Attitude(s) as a Quat</p>
 </dd>
 </dl>
 </dd></dl>
