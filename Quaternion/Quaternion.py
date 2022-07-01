@@ -41,6 +41,7 @@ Quaternion provides a class for manipulating quaternion objects.  This class pro
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import operator
+import warnings
 import numpy as np
 from .shapes import ShapedLikeNDArray
 
@@ -936,12 +937,27 @@ class Quat(ShapedLikeNDArray):
 
 def normalize(array):
     """
-    Normalize a 4 (or Nx4) element array/list/numpy.array for use as a quaternion
+    Normalize a 4 (or Nx4) element list or np.array for use as a quaternion.
+
+    This replaces any [0, 0, 0, 0] values with [0, 0, 0, 1].
 
     :param array: 4 or Nx4 element list/array
     :returns: normalized array
     :rtype: numpy array
 
     """
-    quat = np.array(array)
-    return np.squeeze(quat / np.sqrt(np.sum(quat * quat, axis=-1, keepdims=True)))
+    quat = np.array(array, dtype=np.float64)
+    norm = np.sqrt(np.sum(quat ** 2, axis=-1, keepdims=True))
+
+    # Prevent warning when dividing by zero (it happens)
+    ok = np.squeeze(norm) != 0
+    quat[ok] /= norm[ok]
+
+    # Replace zero norm with identity (ra=dec=roll=0). This can happen in
+    # practice for bad telemetry, e.g. in safe mode when OBC is outputting
+    # junk telemetry.
+    if np.any(~ok):
+        quat[~ok] = [0.0, 0.0, 0.0, 1.0]
+        warnings.warn(f"Normalizing quaternion with zero norm")
+
+    return quat
