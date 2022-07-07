@@ -4,17 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quaternion Class (Quat) &#8212; Quaternion 4.1 documentation</title>
-    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Quaternion Class (Quat) &#8212; Quaternion 4.1.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -61,7 +60,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Quaternion 4.1 documentation</a>
+	<a href="index.html">Quaternion 4.1.1 documentation</a>
 	 &#187;
       </li>
       
@@ -75,7 +74,7 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-Quaternion.Quaternion">
+  <section id="module-Quaternion.Quaternion">
 <span id="quaternion-class-quat"></span><h1>Quaternion Class (Quat)<a class="headerlink" href="#module-Quaternion.Quaternion" title="Permalink to this headline">¶</a></h1>
 <p>Quaternion provides a class for manipulating quaternion objects.  This class provides:</p>
 <blockquote>
@@ -103,17 +102,17 @@ coordinates, matrix and quaternion):</p>
 </dd>
 </dl>
 <dl class="py class">
-<dt id="Quaternion.Quaternion.Quat">
-<em class="property">class </em><code class="sig-prename descclassname">Quaternion.Quaternion.</code><code class="sig-name descname">Quat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">attitude</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">transform</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">q</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">equatorial</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#Quat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Quaternion.Quaternion.Quat" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
-<dt id="Quaternion.Quaternion.Quat.dec">
-<em class="property">property </em><code class="sig-name descname">dec</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.dec" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Quaternion.Quaternion.Quat">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">Quaternion.Quaternion.</span></span><span class="sig-name descname"><span class="pre">Quat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equatorial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#Quat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Quaternion.Quaternion.Quat" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py property">
+<dt class="sig sig-object py" id="Quaternion.Quaternion.Quat.dec">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dec</span></span><a class="headerlink" href="#Quaternion.Quaternion.Quat.dec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve Dec term from equatorial system in degrees</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Quaternion.Quaternion.Quat.dq">
-<code class="sig-name descname">dq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">q2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#Quat.dq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Quaternion.Quaternion.Quat.dq" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Quaternion.Quaternion.Quat.dq">
+<span class="sig-name descname"><span class="pre">dq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#Quat.dq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Quaternion.Quaternion.Quat.dq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a delta quaternion <code class="docutils literal notranslate"><span class="pre">dq</span></code> such that <code class="docutils literal notranslate"><span class="pre">q2</span> <span class="pre">=</span> <span class="pre">self</span> <span class="pre">*</span> <span class="pre">dq</span></code>.
 I works with any argument that instantiates a <code class="docutils literal notranslate"><span class="pre">Quat</span></code> object.</p>
 <p>This method returns the delta quaternion which represents the transformation
@@ -145,9 +144,9 @@ from the frame of this quaternion (<code class="docutils literal notranslate"><s
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Quaternion.Quaternion.Quat.equatorial">
-<em class="property">property </em><code class="sig-name descname">equatorial</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.equatorial" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Quaternion.Quaternion.Quat.equatorial">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">equatorial</span></span><a class="headerlink" href="#Quaternion.Quaternion.Quat.equatorial" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve [RA, Dec, Roll]</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
@@ -157,8 +156,8 @@ from the frame of this quaternion (<code class="docutils literal notranslate"><s
 </dd></dl>
 
 <dl class="py method">
-<dt id="Quaternion.Quaternion.Quat.from_attitude">
-<em class="property">classmethod </em><code class="sig-name descname">from_attitude</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">att</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#Quat.from_attitude"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Quaternion.Quaternion.Quat.from_attitude" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Quaternion.Quaternion.Quat.from_attitude">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_attitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">att</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#Quat.from_attitude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Quaternion.Quaternion.Quat.from_attitude" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initial Quat from attitude(s)</p>
 <p>This allows initialization from several possibilities that are less
 strict than the normal initializer:
@@ -178,8 +177,8 @@ e.g. a list of Quat</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Quaternion.Quaternion.Quat.inv">
-<code class="sig-name descname">inv</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#Quat.inv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Quaternion.Quaternion.Quat.inv" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Quaternion.Quaternion.Quat.inv">
+<span class="sig-name descname"><span class="pre">inv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#Quat.inv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Quaternion.Quaternion.Quat.inv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Invert the quaternion.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -191,15 +190,15 @@ e.g. a list of Quat</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Quaternion.Quaternion.Quat.pitch">
-<em class="property">property </em><code class="sig-name descname">pitch</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.pitch" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Quaternion.Quaternion.Quat.pitch">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">pitch</span></span><a class="headerlink" href="#Quaternion.Quaternion.Quat.pitch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return quaternion pitch (same as -dec)</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Quaternion.Quaternion.Quat.q">
-<em class="property">property </em><code class="sig-name descname">q</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.q" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Quaternion.Quaternion.Quat.q">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">q</span></span><a class="headerlink" href="#Quaternion.Quaternion.Quat.q" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve 4-vector of quaternion elements in [x, y, z, w] form
 or N x 4-vector if N &gt; 1.</p>
 <dl class="field-list simple">
@@ -209,33 +208,33 @@ or N x 4-vector if N &gt; 1.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Quaternion.Quaternion.Quat.ra">
-<em class="property">property </em><code class="sig-name descname">ra</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.ra" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Quaternion.Quaternion.Quat.ra">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">ra</span></span><a class="headerlink" href="#Quaternion.Quaternion.Quat.ra" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve RA term from equatorial system in degrees</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Quaternion.Quaternion.Quat.ra0">
-<em class="property">property </em><code class="sig-name descname">ra0</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.ra0" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Quaternion.Quaternion.Quat.ra0">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">ra0</span></span><a class="headerlink" href="#Quaternion.Quaternion.Quat.ra0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return quaternion RA in the range -180 &lt;= roll &lt; 180.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Quaternion.Quaternion.Quat.roll">
-<em class="property">property </em><code class="sig-name descname">roll</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.roll" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Quaternion.Quaternion.Quat.roll">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">roll</span></span><a class="headerlink" href="#Quaternion.Quaternion.Quat.roll" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve Roll term from equatorial system in degrees</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Quaternion.Quaternion.Quat.roll0">
-<em class="property">property </em><code class="sig-name descname">roll0</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.roll0" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Quaternion.Quaternion.Quat.roll0">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">roll0</span></span><a class="headerlink" href="#Quaternion.Quaternion.Quat.roll0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return quaternion roll in the range -180 &lt;= roll &lt; 180.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Quaternion.Quaternion.Quat.rotate_about_vec">
-<code class="sig-name descname">rotate_about_vec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vec</span></em>, <em class="sig-param"><span class="n">alpha</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#Quat.rotate_about_vec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Quaternion.Quaternion.Quat.rotate_about_vec" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Quaternion.Quaternion.Quat.rotate_about_vec">
+<span class="sig-name descname"><span class="pre">rotate_about_vec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#Quat.rotate_about_vec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Quaternion.Quaternion.Quat.rotate_about_vec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotate self about a 3-vector</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -254,8 +253,8 @@ Rotated attitude</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Quaternion.Quaternion.Quat.rotate_x_to_vec">
-<em class="property">classmethod </em><code class="sig-name descname">rotate_x_to_vec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vec</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'radec'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#Quat.rotate_x_to_vec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Quaternion.Quaternion.Quat.rotate_x_to_vec" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="Quaternion.Quaternion.Quat.rotate_x_to_vec">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">rotate_x_to_vec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'radec'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#Quat.rotate_x_to_vec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Quaternion.Quaternion.Quat.rotate_x_to_vec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate quaternion that rotates X-axis into <code class="docutils literal notranslate"><span class="pre">vec</span></code>.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">method</span></code> parameter can take one of three values: “shortest”,
 “keep_z”, or “radec” (default).  The “shortest” method takes the shortest
@@ -282,9 +281,9 @@ theta = atan2(T[1,2], T[1,1])</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Quaternion.Quaternion.Quat.shape">
-<em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.shape" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Quaternion.Quaternion.Quat.shape">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#Quaternion.Quaternion.Quat.shape" title="Permalink to this definition">¶</a></dt>
 <dd><p>The shape of the multi-quaternion.</p>
 <p>For example, if the Quat is:
 - a single quaternion, then its shape is ().
@@ -299,9 +298,9 @@ theta = atan2(T[1,2], T[1,1])</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Quaternion.Quaternion.Quat.transform">
-<em class="property">property </em><code class="sig-name descname">transform</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.transform" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Quaternion.Quaternion.Quat.transform">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">transform</span></span><a class="headerlink" href="#Quaternion.Quaternion.Quat.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve the value of the 3x3 rotation/transform matrix</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -313,18 +312,19 @@ theta = atan2(T[1,2], T[1,1])</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="Quaternion.Quaternion.Quat.yaw">
-<em class="property">property </em><code class="sig-name descname">yaw</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.yaw" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="Quaternion.Quaternion.Quat.yaw">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">yaw</span></span><a class="headerlink" href="#Quaternion.Quaternion.Quat.yaw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return quaternion yaw (same as ra0)</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
-<dt id="Quaternion.Quaternion.normalize">
-<code class="sig-prename descclassname">Quaternion.Quaternion.</code><code class="sig-name descname">normalize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">array</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Quaternion.Quaternion.normalize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Normalize a 4 (or Nx4) element array/list/numpy.array for use as a quaternion</p>
+<dt class="sig sig-object py" id="Quaternion.Quaternion.normalize">
+<span class="sig-prename descclassname"><span class="pre">Quaternion.Quaternion.</span></span><span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Quaternion.Quaternion.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize a 4 (or Nx4) element list or np.array for use as a quaternion.</p>
+<p>This replaces any [0, 0, 0, 0] values with [0, 0, 0, 1].</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>array</strong> – 4 or Nx4 element list/array</p>
@@ -338,7 +338,7 @@ theta = atan2(T[1,2], T[1,1])</p>
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
             <div class="clearer"></div>
@@ -381,7 +381,7 @@ theta = atan2(T[1,2], T[1,1])</p>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2015, Jean Connelly, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
   </p>
 </footer>
   </body>
