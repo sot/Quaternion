@@ -420,7 +420,17 @@ def test_mult_vectorized():
 def test_normalize():
     a = [[[1., 0., 0., 1.]]]
     b = normalize(a)
-    assert np.isclose(np.sum(b**2), 1)
+    assert np.array(a).shape == b.shape
+    assert np.isclose(np.sum(b**2), 1.0, rtol=0, atol=1e-12)
+
+    # Check special case for an exact zero input
+    a2 = [[1., 0., 0., 1.],
+          [0., 0., 0., 0.]]
+    with pytest.warns(UserWarning, match='Normalizing quaternion with zero norm'):
+        b2 = normalize(a2)
+    assert np.array(a2).shape == b2.shape
+    assert np.allclose(np.sum(b2**2, axis=-1), 1.0, rtol=0, atol=1e-12)
+    assert np.all(b2[1] == [0.0, 0.0, 0.0, 1.0])
 
 
 def test_copy():
