@@ -42,8 +42,63 @@ Quaternion provides a class for manipulating quaternion objects.  This class pro
 
 import operator
 import warnings
+import numba
 import numpy as np
 from .shapes import ShapedLikeNDArray
+
+
+@numba.njit
+def quat_to_equatorial(q):
+    """Compute Right Ascension, Declination, and Roll for the quaternion.
+
+    :param q: 4-component quaternion
+    :returns: RA, Dec, Roll
+    """
+    q2 = q ** 2
+
+    # calculate direction cosine matrix elements from $quaternions
+    xa = q2[0] - q2[1] - q2[2] + q2[3]
+    xb = 2 * (q[0] * q[1] + q[2] * q[3])
+    xn = 2 * (q[0] * q[2] - q[1] * q[3])
+    yn = 2 * (q[1] * q[2] + q[0] * q[3])
+    zn = q2[3] + q2[2] - q2[0] - q2[1]
+
+    # Due to numerical precision this can go negative.  Allow *slightly* negative
+    # values but raise an exception otherwise.
+    one_minus_xn2 = 1 - xn**2
+    if one_minus_xn2 < 0:
+        if one_minus_xn2 < -1e-12:
+            raise ValueError('Unexpected negative norm:')  # {}'.format(one_minus_xn2))
+        one_minus_xn2 = 0
+
+    # ; calculate RA, Dec, Roll from cosine matrix elements
+    ra = np.degrees(np.arctan2(xb, xa))
+    dec = np.degrees(np.arctan2(xn, np.sqrt(one_minus_xn2)))
+    roll = np.degrees(np.arctan2(yn, zn))
+    # all negative angles are incremented by 360,
+    # the output is in the (0,360) interval instead of in (-180, 180)
+    if ra < 0:
+        ra += 360
+    if roll < 0:
+        roll += 360
+
+    return ra, dec, roll
+
+
+@numba.njit
+def quat_mult(q1, q2):
+    """Multiply two quaternions ``q1 * q2``.
+
+    :param q1: 4-component quaternion
+    :param q2: 4-component quaternion
+    :returns: np.ndarray 4-component quaternion
+    """
+    q_out = np.empty(4, dtype=np.float64)
+    q_out[0] = q1[3] * q2[0] - q1[2] * q2[1] + q1[1] * q2[2] + q1[0] * q2[3]
+    q_out[1] = q1[2] * q2[0] + q1[3] * q2[1] - q1[0] * q2[2] + q1[1] * q2[3]
+    q_out[2] = -q1[1] * q2[0] + q1[0] * q2[1] + q1[3] * q2[2] + q1[2] * q2[3]
+    q_out[3] = -q1[0] * q2[0] - q1[1] * q2[1] - q1[2] * q2[2] + q1[3] * q2[3]
+    return q_out
 
 
 class Quat(ShapedLikeNDArray):
