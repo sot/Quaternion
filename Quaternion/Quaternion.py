@@ -47,7 +47,7 @@ import numpy as np
 from .shapes import ShapedLikeNDArray
 
 
-@numba.njit
+@numba.njit(cache=True)
 def quat_to_equatorial(q):
     """Compute Right Ascension, Declination, and Roll for the quaternion.
 
@@ -85,7 +85,7 @@ def quat_to_equatorial(q):
     return ra, dec, roll
 
 
-@numba.njit
+@numba.njit(cache=True)
 def quat_mult(q1, q2):
     """Multiply two quaternions ``q1 * q2``.
 
