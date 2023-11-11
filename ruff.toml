@@ -37,11 +37,6 @@ ignore = [
   "PLR0915", # Too many statements
 ]
 
-# TODO : fix these and stop ignoring. Commented out ones are common and OK to except.
-extend-ignore = [
-  "PGH004", # Use specific rule codes when using `noqa`
-]
-
 extend-exclude = [
   "docs",
 ]
