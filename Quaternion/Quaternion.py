@@ -1,14 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-Quaternion provides a class for manipulating quaternion objects.  This class provides:
+Quaternion provides a class and functions for manipulating quaternion objects.
 
-  - convenient ways to deal with rotation representations (equatorial
-    coordinates, matrix and quaternion):
+The ``Quat`` class provides the following:
 
-    - a constructor to initialize from rotations in various representations,
-    - conversion methods to the different representations.
+- Convenient ways to deal with rotation representations (equatorial
+  coordinates, matrix and quaternion) including initialization and transformation.
+- Methods to multiply and divide quaternions.
 
-  - methods to multiply and divide quaternions.
+Additional convenience functions are provided for performance applications.
 
 :Copyright: Smithsonian Astrophysical Observatory (2010)
 :Authors: - Tom Aldcroft (aldcroft@cfa.harvard.edu)
@@ -46,13 +46,29 @@ import numba
 import numpy as np
 from .shapes import ShapedLikeNDArray
 
+__all__ = ["Quat", "quat_to_equatorial", "quat_mult", "normalize"]
+
 
 @numba.njit(cache=True)
 def quat_to_equatorial(q):
-    """Compute Right Ascension, Declination, and Roll for the quaternion.
+    """Compute RA, dec, roll for the quaternion.
 
-    :param q: 4-component quaternion
-    :returns: RA, Dec, Roll
+    This is a fast numba-compiled version of the original code in the ``Quat`` class
+    which is used for a single quaternion.
+
+    Parameters
+    ----------
+    q : array-like
+        4-component quaternion
+
+    Returns
+    -------
+    ra : float
+        Right ascension in degrees
+    dec : float
+        Declination in degrees
+    roll : float
+        Roll in degrees
     """
     q2 = q ** 2
 
@@ -89,9 +105,20 @@ def quat_to_equatorial(q):
 def quat_mult(q1, q2):
     """Multiply two quaternions ``q1 * q2``.
 
-    :param q1: 4-component quaternion
-    :param q2: 4-component quaternion
-    :returns: np.ndarray 4-component quaternion
+    This is a fast numba-compiled version of the original code in the ``Quat`` class
+    which is used for a single quaternion.
+
+    Parameters
+    ----------
+    q1 : array-like
+        4-component quaternion
+    q2 : array-like
+        4-component quaternion
+
+    Returns
+    -------
+    q_out : array-like
+        4-component quaternion
     """
     q_out = np.empty(4, dtype=np.float64)
     q_out[0] = q1[3] * q2[0] - q1[2] * q2[1] + q1[1] * q2[2] + q1[0] * q2[3]
@@ -151,6 +178,7 @@ class Quat(ShapedLikeNDArray):
 
     Note that each step is as described in the section
     :ref:`Equatorial -> Matrix <equatorialmatrix>`
+    ::
 
       >>> q1 = Quat(equatorial=(20, 0, 0))
       >>> q2 = Quat(equatorial=(0, 30, 0))
@@ -852,13 +880,12 @@ class Quat(ShapedLikeNDArray):
         a roll about X-axis (followed by the "shortest" path) such that the
         transformed Z-axis is in the original X-Z plane.  In equations::
 
-        T: "shortest" quaternion taking X-axis to vec
-        Rx(theta): Rotation by theta about X-axis = [[1,0,0], [0,c,s], [0,-s,c]]
-        Z: Z-axis [0,0,1]
-
-        [T * Rx(theta) * Z]_y = 0
-        T[1,1] * sin(theta) + T[1,2]*cos(theta) = 0
-        theta = atan2(T[1,2], T[1,1])
+          T: "shortest" quaternion taking X-axis to vec
+          Rx(theta): Rotation by theta about X-axis = [[1,0,0], [0,c,s], [0,-s,c]]
+          Z: Z-axis [0,0,1]
+          [T * Rx(theta) * Z]_y = 0
+          T[1,1] * sin(theta) + T[1,2]*cos(theta) = 0
+          theta = atan2(T[1,2], T[1,1])
 
         :param vec: Input 3-vector
         :param method: method for determining path (shortest|keep_z|radec)
