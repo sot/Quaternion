@@ -4,7 +4,7 @@ import pytest
 import pickle
 import os
 
-from .. import Quat, normalize
+from Quaternion import Quat, normalize, quat_to_equatorial, quat_mult
 
 
 def indices(t):
@@ -666,3 +666,31 @@ def test_setting_different_shape(attr):
     setattr(q0, attr, val)
     assert q0.shape == q1.shape
     assert np.all(getattr(q0, attr) == getattr(q1, attr))
+
+
+def test_quat_to_equatorial():
+    ras = np.arange(0, 361, 30)
+    decs = np.arange(-90, 91, 30)
+    rolls = np.arange(0, 361, 30)
+    for ra in ras:
+        for dec in decs:
+            for roll in rolls:
+                q = Quat([ra, dec, roll])
+                eq0 = Quat(q=q.q).equatorial
+                eq1 = quat_to_equatorial(q.q)
+                assert np.allclose(eq0, eq1, rtol=0, atol=1e-10)
+
+
+def test_quat_mult():
+    ras = np.arange(0, 361, 30)
+    decs = np.arange(-90, 91, 30)
+    rolls = np.arange(0, 361, 30)
+    for ra0, ra1 in zip(ras[:-1], ras[1:]):
+        for dec0, dec1 in zip(decs[:-1], decs[1:]):
+            for roll0, roll1 in zip(rolls[:-1], rolls[1:]):
+                q0 = Quat([ra0, dec0, roll0])
+                q1 = Quat([ra1, dec1, roll1])
+                q01_0 = (q0 * q1).q
+                q01_1 = quat_mult(q0.q, q1.q)
+                assert np.allclose(q01_0, q01_1, rtol=0, atol=1e-10)
+
