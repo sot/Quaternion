@@ -5,7 +5,7 @@ import pytest
 from .. import Quat
 
 
-@pytest.mark.parametrize('attr', ['q', 'equatorial', 'transform'])
+@pytest.mark.parametrize("attr", ["q", "equatorial", "transform"])
 def test_getitem(attr):
     """Test getitem and iteration"""
     eqs = np.arange(24).reshape(2, 4, 3)
@@ -30,19 +30,30 @@ def test_getitem(attr):
         assert val1.shape == val2.shape
 
 
-shape_methods = ('copy', 'reshape', 'transpose', 'flatten', 'ravel', 'swapaxes',
-                 'diagonal', 'squeeze', 'take')
-@pytest.mark.parametrize('method', shape_methods)  # noqa
+shape_methods = (
+    "copy",
+    "reshape",
+    "transpose",
+    "flatten",
+    "ravel",
+    "swapaxes",
+    "diagonal",
+    "squeeze",
+    "take",
+)
+
+
+@pytest.mark.parametrize("method", shape_methods)  # noqa
 def test_shape_changing_methods(method):
     eqs = np.arange(4 * 1 * 3).reshape(4, 1, 3)
     q1 = Quat(equatorial=eqs)
-    if method == 'take':
+    if method == "take":
         args = (3, 0)
-    elif method == 'squeeze':
+    elif method == "squeeze":
         args = (-1,)
-    elif method == 'reshape':
+    elif method == "reshape":
         args = (2, 2)
-    elif method == 'swapaxes':
+    elif method == "swapaxes":
         args = (0, 1)
     else:
         args = ()
@@ -92,11 +103,11 @@ applicable_methods = [
     (np.flipud, ()),
     (np.rot90, ()),
     (np.roll, (1,)),
-    (np.delete, ([0, 2], 0))
+    (np.delete, ([0, 2], 0)),
 ]
 
 
-@pytest.mark.parametrize('method, args', applicable_methods)
+@pytest.mark.parametrize("method, args", applicable_methods)
 def test_applicable_methods(method, args):
     eqs = np.arange(4 * 1 * 3).reshape(4, 1, 3)
     q1 = Quat(equatorial=eqs)

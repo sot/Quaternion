@@ -9,6 +9,7 @@ from Quaternion import Quat, normalize, quat_to_equatorial, quat_mult
 
 def indices(t):
     import itertools
+
     for k in itertools.product(*[range(i) for i in t]):
         yield k
 
@@ -20,18 +21,19 @@ def normalize_angles(x, xmin, xmax):
         x += np.where(x < xmin, 360, 0)
 
 
-ra = 10.
-dec = 20.
-roll = 30.
+ra = 10.0
+dec = 20.0
+roll = 30.0
 q0 = Quat([ra, dec, roll])
 
 
-equatorial_23 = np.array([[[10, 20, 30],
-                           [10, 20, -30],
-                           [10, -60, 30]],
-                          [[10, 20, 0],
-                           [10, 50, 30],
-                           [10, -50, -30]]], dtype=float)
+equatorial_23 = np.array(
+    [
+        [[10, 20, 30], [10, 20, -30], [10, -60, 30]],
+        [[10, 20, 0], [10, 50, 30], [10, -50, -30]],
+    ],
+    dtype=float,
+)
 
 q_23 = np.zeros(equatorial_23[..., 0].shape + (4,))
 for _i, _j in indices(equatorial_23.shape[:-1]):
@@ -43,7 +45,11 @@ for _i, _j in indices(transform_23.shape[:-2]):
 
 
 def test_shape():
-    q = Quat(q=np.zeros(4,))
+    q = Quat(
+        q=np.zeros(
+            4,
+        )
+    )
     assert q.shape == ()
     with pytest.raises(AttributeError):
         q.shape = (4,)
@@ -51,15 +57,15 @@ def test_shape():
 
 def test_init_exceptions():
     with pytest.raises(TypeError):
-        _ = Quat(q=np.zeros((3, )))  # old-style API, wrong shape
+        _ = Quat(q=np.zeros((3,)))  # old-style API, wrong shape
     with pytest.raises(TypeError):
-        _ = Quat(equatorial=np.zeros((4, )))  # old-style API, wrong shape
+        _ = Quat(equatorial=np.zeros((4,)))  # old-style API, wrong shape
     with pytest.raises(TypeError):
-        _ = Quat(transform=np.zeros((4, )))  # old-style API, wrong shape
+        _ = Quat(transform=np.zeros((4,)))  # old-style API, wrong shape
     with pytest.raises(TypeError):
-        _ = Quat(np.zeros((2, )))  # old-style API, wrong shape
+        _ = Quat(np.zeros((2,)))  # old-style API, wrong shape
     with pytest.raises(TypeError):
-        _ = Quat(np.zeros((5, )))  # old-style API, wrong shape
+        _ = Quat(np.zeros((5,)))  # old-style API, wrong shape
     with pytest.raises(TypeError):
         _ = Quat(equatorial_23)  # old-style API, wrong shape
     with pytest.raises(TypeError):
@@ -71,14 +77,16 @@ def test_init_exceptions():
     with pytest.raises(ValueError):
         _ = Quat(q=np.zeros(4), equatorial=np.zeros(3))  # too many arguments
     with pytest.raises(ValueError):
-        _ = Quat(equatorial=np.zeros(3), transform=np.zeros((3, 3)))  # too many arguments
+        _ = Quat(
+            equatorial=np.zeros(3), transform=np.zeros((3, 3))
+        )  # too many arguments
     with pytest.raises(ValueError):
         # too many arguments
         _ = Quat(q=np.zeros(4), transform=np.zeros((3, 3)), equatorial=np.zeros(3))
     with pytest.raises(ValueError):
-        _ = Quat(q=[[[1., 0., 0., 1.]]])  # q not normalized
+        _ = Quat(q=[[[1.0, 0.0, 0.0, 1.0]]])  # q not normalized
     with pytest.raises(ValueError):
-        _ = Quat([0, 1, 's'])  # could not convert string to float
+        _ = Quat([0, 1, "s"])  # could not convert string to float
 
 
 def test_from_q():
@@ -137,7 +145,7 @@ def test_from_eq_vectorized():
 
 
 def test_from_eq_shapes():
-    q = Quat(equatorial=[10., 20., 30.])
+    q = Quat(equatorial=[10.0, 20.0, 30.0])
     assert np.array(q.ra0).shape == ()
     assert np.array(q.roll0).shape == ()
     assert np.array(q.ra).shape == ()
@@ -145,8 +153,8 @@ def test_from_eq_shapes():
     assert np.array(q.roll).shape == ()
     assert np.array(q.yaw).shape == ()
     assert np.array(q.pitch).shape == ()
-    assert q.q.shape == (4, )
-    assert q.equatorial.shape == (3, )
+    assert q.q.shape == (4,)
+    assert q.equatorial.shape == (3,)
     assert q.transform.shape == (3, 3)
 
     q = Quat(equatorial=equatorial_23[:1, :1])
@@ -197,9 +205,15 @@ def test_from_transform_vectorized():
     q = Quat(transform=transform_23[:1, :1])
     assert q.q.shape == (1, 1, 4)
 
-    t = [[[[9.25416578e-01, -3.18795778e-01, -2.04874129e-01],
-           [1.63175911e-01, 8.23172945e-01, -5.43838142e-01],
-           [3.42020143e-01, 4.69846310e-01, 8.13797681e-01]]]]
+    t = [
+        [
+            [
+                [9.25416578e-01, -3.18795778e-01, -2.04874129e-01],
+                [1.63175911e-01, 8.23172945e-01, -5.43838142e-01],
+                [3.42020143e-01, 4.69846310e-01, 8.13797681e-01],
+            ]
+        ]
+    ]
     q = Quat(transform=t)
     assert q.q.shape == (1, 1, 4)
 
@@ -362,16 +376,20 @@ def test_ra0_roll0():
 
 def test_repr():
     q = Quat([1, 2, 3])
-    assert repr(q) == '<Quat q1=0.02632421 q2=-0.01721736 q3=0.00917905 q4=0.99946303>'
+    assert repr(q) == "<Quat q1=0.02632421 q2=-0.01721736 q3=0.00917905 q4=0.99946303>"
 
     class SubQuat(Quat):
         pass
 
     q = SubQuat([1, 2, 3])
-    assert repr(q) == '<SubQuat q1=0.02632421 q2=-0.01721736 q3=0.00917905 q4=0.99946303>'
+    assert (
+        repr(q) == "<SubQuat q1=0.02632421 q2=-0.01721736 q3=0.00917905 q4=0.99946303>"
+    )
 
     q = Quat(equatorial=[[1, 2, 3]])
-    assert repr(q) == 'Quat(array([[ 0.02632421, -0.01721736,  0.00917905,  0.99946303]]))'
+    assert (
+        repr(q) == "Quat(array([[ 0.02632421, -0.01721736,  0.00917905,  0.99946303]]))"
+    )
 
 
 def test_numeric_underflow():
@@ -418,15 +436,14 @@ def test_mult_vectorized():
 
 
 def test_normalize():
-    a = [[[1., 0., 0., 1.]]]
+    a = [[[1.0, 0.0, 0.0, 1.0]]]
     b = normalize(a)
     assert np.array(a).shape == b.shape
     assert np.isclose(np.sum(b**2), 1.0, rtol=0, atol=1e-12)
 
     # Check special case for an exact zero input
-    a2 = [[1., 0., 0., 1.],
-          [0., 0., 0., 0.]]
-    with pytest.warns(UserWarning, match='Normalizing quaternion with zero norm'):
+    a2 = [[1.0, 0.0, 0.0, 1.0], [0.0, 0.0, 0.0, 0.0]]
+    with pytest.warns(UserWarning, match="Normalizing quaternion with zero norm"):
         b2 = normalize(a2)
     assert np.array(a2).shape == b2.shape
     assert np.allclose(np.sum(b2**2, axis=-1), 1.0, rtol=0, atol=1e-12)
@@ -456,12 +473,12 @@ def test_copy():
 def test_format():
     # this is to test standard usage downstream
     q = Quat(q_23[0, 0])
-    print(f'ra={q.ra:.5f}, dec={q.dec:.5f}, roll={q.roll:.5f}')
+    print(f"ra={q.ra:.5f}, dec={q.dec:.5f}, roll={q.roll:.5f}")
 
 
 def test_scalar_attribute_types():
     q = Quat(equatorial=[10, 20, 30])
-    attrs = ['ra', 'dec', 'roll', 'ra0', 'roll0', 'pitch', 'yaw', 'transform', 'q']
+    attrs = ["ra", "dec", "roll", "ra0", "roll0", "pitch", "yaw", "transform", "q"]
     types = [np.float64] * 7 + [np.ndarray] * 2
 
     # All returned as scalars
@@ -478,8 +495,7 @@ def test_scalar_attribute_types():
 
 
 def test_mult_and_dq_broadcasted():
-    """Test mult and delta quat of Quats with different but broadcastable shapes.
-    """
+    """Test mult and delta quat of Quats with different but broadcastable shapes."""
     q2 = Quat(equatorial=np.arange(18).reshape(3, 2, 3))
     q1 = Quat(equatorial=[[10, 20, 30], [40, 50, 60]])
     q0 = Quat(equatorial=[10, 20, 30])
@@ -510,7 +526,7 @@ def test_mult_and_dq_broadcasted():
 
 def test_array_attribute_types():
     q = Quat(equatorial=[[10, 20, 30]])  # 1-d
-    attrs = ['ra', 'dec', 'roll', 'ra0', 'roll0', 'pitch', 'yaw', 'transform', 'q']
+    attrs = ["ra", "dec", "roll", "ra0", "roll0", "pitch", "yaw", "transform", "q"]
     shapes = [(1,), (1,), (1,), (1,), (1,), (1,), (1,), (1, 3, 3), (1, 4)]
 
     # All returned as shape (1,) array
@@ -542,24 +558,31 @@ def test_pickle():
             pickle.dump(quats, f)
     """
     # testing we can unpickle older versions
-    filename = os.path.join(os.path.dirname(__file__), 'data', 'quaternion-v3.4.1.pkl')
-    with open(filename, 'rb') as f:
+    filename = os.path.join(os.path.dirname(__file__), "data", "quaternion-v3.4.1.pkl")
+    with open(filename, "rb") as f:
         quaternions = pickle.load(f)
     for q in quaternions:
-        assert np.all(np.isclose(q.q, [0.26853582, -0.14487813, 0.12767944, 0.94371436]))
-        assert np.all(np.isclose(q.equatorial, [10., 20., 30.]))
-        assert np.all(np.isclose(q.transform, [[0.92541658, -0.31879578, -0.20487413],
-                                               [0.16317591, 0.82317294, -0.54383814],
-                                               [0.34202014, 0.46984631, 0.81379768]]))
+        assert np.all(
+            np.isclose(q.q, [0.26853582, -0.14487813, 0.12767944, 0.94371436])
+        )
+        assert np.all(np.isclose(q.equatorial, [10.0, 20.0, 30.0]))
+        assert np.all(
+            np.isclose(
+                q.transform,
+                [
+                    [0.92541658, -0.31879578, -0.20487413],
+                    [0.16317591, 0.82317294, -0.54383814],
+                    [0.34202014, 0.46984631, 0.81379768],
+                ],
+            )
+        )
 
 
 def test_init_quat_from_attitude():
     # Basic tests for Quat.from_attitude
-    q = Quat.from_attitude([Quat([0, 1, 2]),
-                            Quat([3, 4, 5])])
+    q = Quat.from_attitude([Quat([0, 1, 2]), Quat([3, 4, 5])])
     # 1-d list of Quat
-    assert np.allclose(q.equatorial, [[0, 1, 2],
-                                      [3, 4, 5]])
+    assert np.allclose(q.equatorial, [[0, 1, 2], [3, 4, 5]])
 
     # From existing Quat
     q2 = Quat.from_attitude(q)
@@ -572,18 +595,15 @@ def test_init_quat_from_attitude():
 
     # 2-d list of Quat
     q = Quat.from_attitude([[Quat([0, 1, 2]), Quat([3, 4, 5])]])
-    assert np.allclose(q.equatorial, [[[0, 1, 2],
-                                       [3, 4, 5]]])
+    assert np.allclose(q.equatorial, [[[0, 1, 2], [3, 4, 5]]])
 
     # 1-d list of equatorial floats
     q = Quat.from_attitude([[0, 1, 2], [3, 4, 5]])
-    assert np.allclose(q.equatorial, [[[0, 1, 2],
-                                       [3, 4, 5]]])
+    assert np.allclose(q.equatorial, [[[0, 1, 2], [3, 4, 5]]])
 
     # Heterogenous list of floats
     q = Quat.from_attitude([[0, 1, 2], [0, 1, 0, 0]])
-    assert np.allclose(q.equatorial, [[0, 1, 2],
-                                      [180, 0, 180]])
+    assert np.allclose(q.equatorial, [[0, 1, 2], [180, 0, 180]])
 
     # Bad 1-d list of equatorial floats
     with pytest.raises(ValueError, match="Float input must be a Nx3 or Nx4 array"):
@@ -596,7 +616,7 @@ def test_init_quat_from_attitude():
 
     # Bad input
     with pytest.raises(ValueError, match="Unable to initialize Quat from 'blah'"):
-        Quat.from_attitude('blah')
+        Quat.from_attitude("blah")
 
 
 def test_rotate_x_to_vec_regress():
@@ -606,32 +626,32 @@ def test_rotate_x_to_vec_regress():
     q = Quat.rotate_x_to_vec(vec)  # method='radec', default
     assert np.allclose(q.q, [0.2358142, -0.38155539, 0.4698775, 0.76027777])
 
-    q = Quat.rotate_x_to_vec(vec, method='shortest')
-    assert np.allclose(q.q, [0., -0.50362718, 0.33575146, 0.79600918])
+    q = Quat.rotate_x_to_vec(vec, method="shortest")
+    assert np.allclose(q.q, [0.0, -0.50362718, 0.33575146, 0.79600918])
 
-    q = Quat.rotate_x_to_vec(vec, method='keep_z')
+    q = Quat.rotate_x_to_vec(vec, method="keep_z")
     assert np.allclose(q.q, [-0.16269544, -0.56161937, 0.22572786, 0.77920525])
 
 
-@pytest.mark.parametrize('method', ('keep_z', 'shortest', 'radec'))
+@pytest.mark.parametrize("method", ("keep_z", "shortest", "radec"))
 def test_rotate_x_to_vec_functional(method):
     vecs = np.random.random((100, 3)) - 0.5
     for vec in vecs:
-        vec = vec / np.sqrt(np.sum(vec ** 2))
+        vec = vec / np.sqrt(np.sum(vec**2))
         q = Quat.rotate_x_to_vec(vec, method)
         vec1 = np.dot(q.transform, [1.0, 0, 0])
         assert np.allclose(vec, vec1)
 
-        if method == 'radec':
+        if method == "radec":
             assert np.isclose(q.roll, 0.0)
-        elif method == 'keep_z':
+        elif method == "keep_z":
             vec1 = np.dot(q.transform, [0, 0, 1.0])
             assert np.isclose(vec1[1], 0.0)
 
 
 def test_rotate_x_to_vec_bad_method():
-    with pytest.raises(ValueError, match='method must be one of'):
-        Quat.rotate_x_to_vec([1, 2, 3], 'not-a-method')
+    with pytest.raises(ValueError, match="method must be one of"):
+        Quat.rotate_x_to_vec([1, 2, 3], "not-a-method")
 
 
 def test_rotate_about_vec():
@@ -640,27 +660,26 @@ def test_rotate_about_vec():
     assert np.allclose(q2.equatorial, [10 + 25, 20, 30])
 
     q2 = q.rotate_about_vec([-10, 0, 0], 180)
-    assert np.allclose(q2.equatorial, [350., -20., 210.])
+    assert np.allclose(q2.equatorial, [350.0, -20.0, 210.0])
 
 
 def test_rotate_about_vec_exceptions():
     q1 = Quat([10, 20, 30])
     q2 = Quat(equatorial=[[10, 20, 30], [1, 2, 3]])
-    with pytest.raises(ValueError, match='vec must be a single 3-vector'):
+    with pytest.raises(ValueError, match="vec must be a single 3-vector"):
         q1.rotate_about_vec([[1, 2, 3], [4, 5, 6]], 25)
 
-    with pytest.raises(ValueError, match='alpha must be a scalar'):
+    with pytest.raises(ValueError, match="alpha must be a scalar"):
         q1.rotate_about_vec([1, 2, 3], [25, 50])
 
-    with pytest.raises(ValueError, match='quaternion must be a scalar'):
+    with pytest.raises(ValueError, match="quaternion must be a scalar"):
         q2.rotate_about_vec([1, 2, 3], 25)
 
 
-@pytest.mark.parametrize('attr', ['q', 'equatorial', 'transform'])
+@pytest.mark.parametrize("attr", ["q", "equatorial", "transform"])
 def test_setting_different_shape(attr):
     q0 = Quat([1, 2, 3])
-    q1 = Quat(equatorial=[[3, 1, 2],
-                          [4, 5, 6]])
+    q1 = Quat(equatorial=[[3, 1, 2], [4, 5, 6]])
     assert q1.shape == (2,)
     val = getattr(q1, attr)
     setattr(q0, attr, val)
@@ -693,4 +712,3 @@ def test_quat_mult():
                 q01_0 = (q0 * q1).q
                 q01_1 = quat_mult(q0.q, q1.q)
                 assert np.allclose(q01_0, q01_1, rtol=0, atol=1e-10)
-
