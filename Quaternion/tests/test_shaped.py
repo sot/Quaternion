@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 
-from .. import Quat
+from Quaternion import Quat
 
 
 @pytest.mark.parametrize("attr", ["q", "equatorial", "transform"])
@@ -43,7 +43,7 @@ shape_methods = (
 )
 
 
-@pytest.mark.parametrize("method", shape_methods)  # noqa
+@pytest.mark.parametrize("method", shape_methods)
 def test_shape_changing_methods(method):
     eqs = np.arange(4 * 1 * 3).reshape(4, 1, 3)
     q1 = Quat(equatorial=eqs)

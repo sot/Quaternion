@@ -42,6 +42,7 @@ Additional convenience functions are provided for performance applications.
 
 import operator
 import warnings
+
 import numba
 import numpy as np
 from astropy.utils.shapes import ShapedLikeNDArray
@@ -545,7 +546,7 @@ class Quat(ShapedLikeNDArray):
             reshape : ``_apply('reshape', new_shape)``
         """
         if callable(method):
-            apply_method = lambda array: method(array, *args, **kwargs)  # noqa
+            apply_method = lambda array: method(array, *args, **kwargs)
         else:
             apply_method = operator.methodcaller(method, *args, **kwargs)
 
@@ -772,7 +773,7 @@ class Quat(ShapedLikeNDArray):
         # fmt: on
 
         q = np.zeros(tuple(T.shape[:-2] + (4,)))
-        for idx in range(0, 4):
+        for idx in range(4):
             max_match = max_idx == idx
             q[max_match] = poss_quat[idx][max_match]
 
@@ -835,10 +836,10 @@ class Quat(ShapedLikeNDArray):
             q1, q2 = np.broadcast_arrays(q1, q2)
         mult = np.zeros(q1.shape)
         # fmt: off
-        mult[...,0] =  q1[...,3] * q2[...,0] - q1[...,2] * q2[...,1] + q1[...,1] * q2[...,2] + q1[...,0] * q2[...,3]  # noqa
-        mult[...,1] =  q1[...,2] * q2[...,0] + q1[...,3] * q2[...,1] - q1[...,0] * q2[...,2] + q1[...,1] * q2[...,3]  # noqa
-        mult[...,2] = -q1[...,1] * q2[...,0] + q1[...,0] * q2[...,1] + q1[...,3] * q2[...,2] + q1[...,2] * q2[...,3]  # noqa
-        mult[...,3] = -q1[...,0] * q2[...,0] - q1[...,1] * q2[...,1] - q1[...,2] * q2[...,2] + q1[...,3] * q2[...,3]  # noqa
+        mult[...,0] =  q1[...,3] * q2[...,0] - q1[...,2] * q2[...,1] + q1[...,1] * q2[...,2] + q1[...,0] * q2[...,3]  # noqa: E501
+        mult[...,1] =  q1[...,2] * q2[...,0] + q1[...,3] * q2[...,1] - q1[...,0] * q2[...,2] + q1[...,1] * q2[...,3]  # noqa: E501
+        mult[...,2] = -q1[...,1] * q2[...,0] + q1[...,0] * q2[...,1] + q1[...,3] * q2[...,2] + q1[...,2] * q2[...,3]  # noqa: E501
+        mult[...,3] = -q1[...,0] * q2[...,0] - q1[...,1] * q2[...,1] - q1[...,2] * q2[...,2] + q1[...,3] * q2[...,3]  # noqa: E501
         # fmt: on
         shape = (
             self.q.shape if len(self.q.shape) > len(quat2.q.shape) else quat2.q.shape

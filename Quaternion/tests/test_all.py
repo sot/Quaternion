@@ -1,10 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import os
+import pickle
+
 import numpy as np
 import pytest
-import pickle
-import os
 
-from Quaternion import Quat, normalize, quat_to_equatorial, quat_mult
+from Quaternion import Quat, normalize, quat_mult, quat_to_equatorial
 
 
 def indices(t):
@@ -637,7 +638,7 @@ def test_rotate_x_to_vec_regress():
 def test_rotate_x_to_vec_functional(method):
     vecs = np.random.random((100, 3)) - 0.5
     for vec in vecs:
-        vec = vec / np.sqrt(np.sum(vec**2))
+        vec = vec / np.sqrt(np.sum(vec**2))  # noqa: PLW2901
         q = Quat.rotate_x_to_vec(vec, method)
         vec1 = np.dot(q.transform, [1.0, 0, 0])
         assert np.allclose(vec, vec1)

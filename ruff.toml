@@ -34,30 +34,16 @@ ignore = [
   "PLR0912", # Too many branches
   "PLR0913", # Too many arguments to function call
   "PLR2004", # Magic number
-  "PYI021", # Docstrings should not be included in stubs
   "PLR0915", # Too many statements
-  "PLW0603", # Global statements are discouraged
-  "PLW2901", # Redefined loop name
 ]
 
-# TODO : fix these and stop ignoring
+# TODO : fix these and stop ignoring. Commented out ones are common and OK to except.
 extend-ignore = [
-  "B006", # Do not use mutable data structures for argument defaults
-  "C401", # Unnecessary generator (rewrite as a `set` comprehension)
-  "C402", # Unnecessary generator (rewrite as a dict comprehension)
-  "C405", # Unnecessary `list` literal (rewrite as a `set` literal)
-  "C408", # Unnecessary `dict` call (rewrite as a literal)
-  "C416", # Unnecessary `dict` comprehension (rewrite using `dict()`)
-  "PGH002", # warn is deprecated in favor of warning
   "PGH004", # Use specific rule codes when using `noqa`
-  "PYI056", # Calling `.append()` on `__all__` may not be supported by all type checkers
 ]
 
-exclude = [
+extend-exclude = [
   "docs",
-  "utils",
-  "validate",
-  ".eggs",
 ]
 
 [pycodestyle]
@@ -65,6 +51,3 @@ max-line-length = 100 # E501 reports lines that exceed the length of 100.
 
 [lint.extend-per-file-ignores]
 "__init__.py" = ["E402", "F401", "F403"]
-"command_sets.py" = ["ARG001"]
-"**/tests/**" = ["D", "E501"]
-"states.py" = ["N801", "ARG003"]
