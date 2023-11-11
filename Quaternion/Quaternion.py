@@ -696,9 +696,15 @@ class Quat(ShapedLikeNDArray):
 
         # This is the transpose of the transformation matrix (related to translation
         # of original perl code
-        rmat = np.array([[ca * cd,                    sa * cd,                  sd],  # noqa
-                         [-ca * sd * sr - sa * cr,   -sa * sd * sr + ca * cr,   cd * sr],  # noqa
-                         [-ca * sd * cr + sa * sr,   -sa * sd * cr - ca * sr,   cd * cr]])  # noqa
+        # fmt: off
+        rmat = np.array(
+            [
+                [ca * cd,                    sa * cd,                  sd],
+                [-ca * sd * sr - sa * cr,   -sa * sd * sr + ca * cr,   cd * sr],
+                [-ca * sd * cr + sa * sr,   -sa * sd * cr - ca * sr,   cd * cr]
+            ]
+        )
+        # fmt: on
 
         return np.moveaxis(np.moveaxis(rmat, 0, -1), 0, -2)
 
@@ -712,15 +718,20 @@ class Quat(ShapedLikeNDArray):
         T = self.transform
         if T.ndim == 2:
             T = T[np.newaxis]
-        den = np.array([1.0 + T[..., 0, 0] - T[..., 1, 1] - T[..., 2, 2],
-                        1.0 - T[..., 0, 0] + T[..., 1, 1] - T[..., 2, 2],
-                        1.0 - T[..., 0, 0] - T[..., 1, 1] + T[..., 2, 2],
-                        1.0 + T[..., 0, 0] + T[..., 1, 1] + T[..., 2, 2]])
+        den = np.array(
+            [
+                1.0 + T[..., 0, 0] - T[..., 1, 1] - T[..., 2, 2],
+                1.0 - T[..., 0, 0] + T[..., 1, 1] - T[..., 2, 2],
+                1.0 - T[..., 0, 0] - T[..., 1, 1] + T[..., 2, 2],
+                1.0 + T[..., 0, 0] + T[..., 1, 1] + T[..., 2, 2],
+            ]
+        )
 
         half_rt_q_max = 0.5 * np.sqrt(np.max(den, axis=0))
         max_idx = np.argmax(den, axis=0)
         poss_quat = np.zeros(tuple((4,) + T.shape[:-2] + (4,)))
         denom = 4.0 * half_rt_q_max
+        # fmt: off
         poss_quat[0] = np.moveaxis(
             np.array(
                 [half_rt_q_max,
@@ -745,6 +756,7 @@ class Quat(ShapedLikeNDArray):
                  (T[..., 0, 2] - T[..., 2, 0]) / denom,
                  (T[..., 1, 0] - T[..., 0, 1]) / denom,
                  half_rt_q_max]), 0, -1)
+        # fmt: on
 
         q = np.zeros(tuple(T.shape[:-2] + (4,)))
         for idx in range(0, 4):
@@ -809,10 +821,12 @@ class Quat(ShapedLikeNDArray):
         if q1.shape != q2.shape:
             q1, q2 = np.broadcast_arrays(q1, q2)
         mult = np.zeros(q1.shape)
+        # fmt: off
         mult[...,0] =  q1[...,3] * q2[...,0] - q1[...,2] * q2[...,1] + q1[...,1] * q2[...,2] + q1[...,0] * q2[...,3]  # noqa
         mult[...,1] =  q1[...,2] * q2[...,0] + q1[...,3] * q2[...,1] - q1[...,0] * q2[...,2] + q1[...,1] * q2[...,3]  # noqa
         mult[...,2] = -q1[...,1] * q2[...,0] + q1[...,0] * q2[...,1] + q1[...,3] * q2[...,2] + q1[...,2] * q2[...,3]  # noqa
         mult[...,3] = -q1[...,0] * q2[...,0] - q1[...,1] * q2[...,1] - q1[...,2] * q2[...,2] + q1[...,3] * q2[...,3]  # noqa
+        # fmt: on
         shape = self.q.shape if len(self.q.shape) > len(quat2.q.shape) else quat2.q.shape
         return Quat(q=mult.reshape(shape))
 
@@ -1042,6 +1056,6 @@ def normalize(array):
     # junk telemetry.
     if np.any(~ok):
         quat[~ok] = [0.0, 0.0, 0.0, 1.0]
-        warnings.warn(f"Normalizing quaternion with zero norm")
+        warnings.warn("Normalizing quaternion with zero norm")
 
     return quat
