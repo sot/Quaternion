@@ -355,8 +355,7 @@ class Quat(ShapedLikeNDArray):
     @property
     def q(self):
         """
-        Retrieve 4-vector of quaternion elements in [x, y, z, w] form
-        or N x 4-vector if N > 1.
+        Retrieve 4-vector of quaternion elements as [x, y, z, w] or N x 4-vector.
 
         :rtype: numpy array
 
@@ -371,10 +370,10 @@ class Quat(ShapedLikeNDArray):
 
     @q.setter
     def q(self, q):
-        """
-        Set the value of the 4 element quaternion vector
-        May be 4 element list or array or N x 4 element array,
-        where N can be an arbitrary shape. E.g.: (3,2,4) is allowed.
+        """Set the value of the 4 element quaternion vector.
+
+        The value may be 4 element list or array or N x 4 element array, where N can be
+        an arbitrary shape. E.g.: (3,2,4) is allowed.
 
         :param q: list or array of normalized quaternion elements
         """
@@ -418,9 +417,9 @@ class Quat(ShapedLikeNDArray):
 
     @equatorial.setter
     def equatorial(self, equatorial):
-        """Set the value of the 3 element equatorial coordinate list [RA,Dec,Roll]
-        expects values in degrees
-        bounds are not checked
+        """Set the value of the 3 element equatorial coordinate list [RA, Dec, Roll].
+
+        This expects values in degrees and the bounds are not checked.
 
         :param equatorial: list or array [ RA, Dec, Roll] in degrees
 
@@ -858,9 +857,9 @@ class Quat(ShapedLikeNDArray):
         return Quat(q=q)
 
     def dq(self, q2=None, **kwargs):
-        """
-        Return a delta quaternion ``dq`` such that ``q2 = self * dq``.
-        I works with any argument that instantiates a ``Quat`` object.
+        """Return a delta quaternion ``dq`` such that ``q2 = self * dq``.
+
+        This works with any argument that instantiates a ``Quat`` object.
 
         This method returns the delta quaternion which represents the transformation
         from the frame of this quaternion (``self``) to ``q2``.
@@ -1037,9 +1036,10 @@ class Quat(ShapedLikeNDArray):
         # e.g. a list of Quat
         try:
             att_array = np.asarray(att, dtype=object)
-            qs = []
-            for val in att_array.ravel():
-                qs.append(val.q if isinstance(val, Quat) else cls(val).q)
+            qs = [
+                (val.q if isinstance(val, Quat) else cls(val).q)
+                for val in att_array.ravel()
+            ]
             qs = np.array(qs, dtype=np.float64).reshape(att_array.shape + (4,))
             return cls(q=qs)
         except Exception:
