@@ -1,14 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-Quaternion provides a class for manipulating quaternion objects.  This class provides:
+Quaternion provides a class and functions for manipulating quaternion objects.
 
-  - convenient ways to deal with rotation representations (equatorial
-    coordinates, matrix and quaternion):
+The ``Quat`` class provides the following:
 
-    - a constructor to initialize from rotations in various representations,
-    - conversion methods to the different representations.
+- Convenient ways to deal with rotation representations (equatorial
+  coordinates, matrix and quaternion) including initialization and transformation.
+- Methods to multiply and divide quaternions.
 
-  - methods to multiply and divide quaternions.
+Additional convenience functions are provided for performance applications.
 
 :Copyright: Smithsonian Astrophysical Observatory (2010)
 :Authors: - Tom Aldcroft (aldcroft@cfa.harvard.edu)
@@ -42,8 +42,92 @@ Quaternion provides a class for manipulating quaternion objects.  This class pro
 
 import operator
 import warnings
+import numba
 import numpy as np
 from astropy.utils.shapes import ShapedLikeNDArray
+
+__all__ = ["Quat", "quat_to_equatorial", "quat_mult", "normalize"]
+
+
+@numba.njit(cache=True)
+def quat_to_equatorial(q):
+    """Compute RA, dec, roll for the quaternion.
+
+    This is a fast numba-compiled version of the original code in the ``Quat`` class
+    which is used for a single quaternion.
+
+    Parameters
+    ----------
+    q : array-like
+        4-component quaternion
+
+    Returns
+    -------
+    ra : float
+        Right ascension in degrees
+    dec : float
+        Declination in degrees
+    roll : float
+        Roll in degrees
+    """
+    q2 = q ** 2
+
+    # calculate direction cosine matrix elements from $quaternions
+    xa = q2[0] - q2[1] - q2[2] + q2[3]
+    xb = 2 * (q[0] * q[1] + q[2] * q[3])
+    xn = 2 * (q[0] * q[2] - q[1] * q[3])
+    yn = 2 * (q[1] * q[2] + q[0] * q[3])
+    zn = q2[3] + q2[2] - q2[0] - q2[1]
+
+    # Due to numerical precision this can go negative.  Allow *slightly* negative
+    # values but raise an exception otherwise.
+    one_minus_xn2 = 1 - xn**2
+    if one_minus_xn2 < 0:
+        if one_minus_xn2 < -1e-12:
+            raise ValueError('Unexpected negative norm:')  # {}'.format(one_minus_xn2))
+        one_minus_xn2 = 0
+
+    # ; calculate RA, Dec, Roll from cosine matrix elements
+    ra = np.degrees(np.arctan2(xb, xa))
+    dec = np.degrees(np.arctan2(xn, np.sqrt(one_minus_xn2)))
+    roll = np.degrees(np.arctan2(yn, zn))
+    # all negative angles are incremented by 360,
+    # the output is in the (0,360) interval instead of in (-180, 180)
+    if ra < 0:
+        ra += 360
+    if roll < 0:
+        roll += 360
+
+    return ra, dec, roll
+
+
+@numba.njit(cache=True)
+def quat_mult(q1, q2):
+    """Multiply two quaternions ``q1 * q2``.
+
+    This is a fast numba-compiled version of the original code in the ``Quat`` class
+    which is used for a single quaternion.
+
+    Parameters
+    ----------
+    q1 : array-like
+        4-component quaternion
+    q2 : array-like
+        4-component quaternion
+
+    Returns
+    -------
+    q_out : array-like
+        4-component quaternion
+    """
+    q_out = np.empty(4, dtype=np.float64)
+    q_out[0] = q1[3] * q2[0] - q1[2] * q2[1] + q1[1] * q2[2] + q1[0] * q2[3]
+    q_out[1] = q1[2] * q2[0] + q1[3] * q2[1] - q1[0] * q2[2] + q1[1] * q2[3]
+    q_out[2] = -q1[1] * q2[0] + q1[0] * q2[1] + q1[3] * q2[2] + q1[2] * q2[3]
+    q_out[3] = -q1[0] * q2[0] - q1[1] * q2[1] - q1[2] * q2[2] + q1[3] * q2[3]
+    if q_out[3] < 0:
+        q_out *= -1
+    return q_out
 
 
 class Quat(ShapedLikeNDArray):
@@ -94,6 +178,7 @@ class Quat(ShapedLikeNDArray):
 
     Note that each step is as described in the section
     :ref:`Equatorial -> Matrix <equatorialmatrix>`
+    ::
 
       >>> q1 = Quat(equatorial=(20, 0, 0))
       >>> q2 = Quat(equatorial=(0, 30, 0))
@@ -795,13 +880,12 @@ class Quat(ShapedLikeNDArray):
         a roll about X-axis (followed by the "shortest" path) such that the
         transformed Z-axis is in the original X-Z plane.  In equations::
 
-        T: "shortest" quaternion taking X-axis to vec
-        Rx(theta): Rotation by theta about X-axis = [[1,0,0], [0,c,s], [0,-s,c]]
-        Z: Z-axis [0,0,1]
-
-        [T * Rx(theta) * Z]_y = 0
-        T[1,1] * sin(theta) + T[1,2]*cos(theta) = 0
-        theta = atan2(T[1,2], T[1,1])
+          T: "shortest" quaternion taking X-axis to vec
+          Rx(theta): Rotation by theta about X-axis = [[1,0,0], [0,c,s], [0,-s,c]]
+          Z: Z-axis [0,0,1]
+          [T * Rx(theta) * Z]_y = 0
+          T[1,1] * sin(theta) + T[1,2]*cos(theta) = 0
+          theta = atan2(T[1,2], T[1,1])
 
         :param vec: Input 3-vector
         :param method: method for determining path (shortest|keep_z|radec)
