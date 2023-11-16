@@ -6,19 +6,22 @@ try:
 except ImportError:
     cmdclass = {}
 
-setup(name='Quaternion',
-      author='Jean Connelly',
-      description='Quaternion object manipulation',
-      author_email='jconnelly@cfa.harvard.edu',
-      packages=['Quaternion', 'Quaternion.tests'],
-      license=("New BSD/3-clause BSD License\nCopyright (c) 2016"
-               " Smithsonian Astrophysical Observatory\nAll rights reserved."),
-      download_url='http://pypi.python.org/pypi/Quaternion/',
-      url='http://cxc.harvard.edu/mta/ASPECT/tool_doc/pydocs/Quaternion.html',
-      use_scm_version=True,
-      setup_requires=['setuptools_scm', 'setuptools_scm_git_archive'],
-      zip_safe=False,
-      tests_require=['pytest'],
-      package_data={'Quaternion.tests': ['data/*.pkl']},
-      cmdclass=cmdclass,
-      )
+setup(
+    name="Quaternion",
+    author="Jean Connelly",
+    description="Quaternion object manipulation",
+    author_email="jconnelly@cfa.harvard.edu",
+    packages=["Quaternion", "Quaternion.tests"],
+    license=(
+        "New BSD/3-clause BSD License\nCopyright (c) 2016"
+        " Smithsonian Astrophysical Observatory\nAll rights reserved."
+    ),
+    download_url="http://pypi.python.org/pypi/Quaternion/",
+    url="http://cxc.harvard.edu/mta/ASPECT/tool_doc/pydocs/Quaternion.html",
+    use_scm_version=True,
+    setup_requires=["setuptools_scm", "setuptools_scm_git_archive"],
+    zip_safe=False,
+    tests_require=["pytest"],
+    package_data={"Quaternion.tests": ["data/*.pkl"]},
+    cmdclass=cmdclass,
+)

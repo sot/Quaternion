@@ -42,6 +42,7 @@ Additional convenience functions are provided for performance applications.
 
 import operator
 import warnings
+
 import numba
 import numpy as np
 from astropy.utils.shapes import ShapedLikeNDArray
@@ -70,7 +71,7 @@ def quat_to_equatorial(q):
     roll : float
         Roll in degrees
     """
-    q2 = q ** 2
+    q2 = q**2
 
     # calculate direction cosine matrix elements from $quaternions
     xa = q2[0] - q2[1] - q2[2] + q2[3]
@@ -84,7 +85,7 @@ def quat_to_equatorial(q):
     one_minus_xn2 = 1 - xn**2
     if one_minus_xn2 < 0:
         if one_minus_xn2 < -1e-12:
-            raise ValueError('Unexpected negative norm:')  # {}'.format(one_minus_xn2))
+            raise ValueError("Unexpected negative norm:")  # {}'.format(one_minus_xn2))
         one_minus_xn2 = 0
 
     # ; calculate RA, Dec, Roll from cosine matrix elements
@@ -272,12 +273,16 @@ class Quat(ShapedLikeNDArray):
         return self
 
     def __init__(self, attitude=None, transform=None, q=None, equatorial=None):
-        npar = (int(attitude is not None) + int(transform is not None)
-                + int(q is not None) + int(equatorial is not None))
+        npar = (
+            int(attitude is not None)
+            + int(transform is not None)
+            + int(q is not None)
+            + int(equatorial is not None)
+        )
         if npar != 1:
             raise ValueError(
-                f'{npar} arguments passed to constructor that takes only one of'
-                ' attitude, transform, quaternion, equatorial.'
+                f"{npar} arguments passed to constructor that takes only one of"
+                " attitude, transform, quaternion, equatorial."
             )
 
         # checks to see if we've been passed a Quat
@@ -295,34 +300,41 @@ class Quat(ShapedLikeNDArray):
             else:
                 try:
                     shape = attitude.shape
-                    shape = f' (shape {shape})'
+                    shape = f" (shape {shape})"
                 except Exception:
-                    shape = ''
+                    shape = ""
                 raise TypeError(
                     f"attitude argument{shape} is not one of an allowed type:"
-                    " Quat or array with shape (...,3), (...,4), or (..., 3, 3)")
+                    " Quat or array with shape (...,3), (...,4), or (..., 3, 3)"
+                )
 
         # checking correct shapes
         if q is not None:
             q = np.atleast_1d(q).astype(np.float64)
             self._shape = q.shape[:-1]
             if q.shape[-1:] != (4,):
-                raise TypeError("Creating a Quaternion from quaternion(s) "
-                                "requires shape (..., 4), not {}".format(q.shape))
+                raise TypeError(
+                    "Creating a Quaternion from quaternion(s) "
+                    "requires shape (..., 4), not {}".format(q.shape)
+                )
             self.q = q
         elif transform is not None:
             transform = np.atleast_2d(transform).astype(np.float64)
             self._shape = transform.shape[:-2]
             if transform.shape[-2:] != (3, 3):
-                raise TypeError("Creating a Quaternion from quaternion(s) "
-                                "requires shape (..., 3, 3), not {}".format(transform.shape))
+                raise TypeError(
+                    "Creating a Quaternion from quaternion(s) "
+                    "requires shape (..., 3, 3), not {}".format(transform.shape)
+                )
             self.transform = transform
         elif equatorial is not None:
             equatorial = np.atleast_1d(equatorial).astype(np.float64)
             self._shape = equatorial.shape[:-1]
             if equatorial.shape[-1:] != (3,):
-                raise TypeError("Creating a Quaternion from ra, dec, roll "
-                                "requires shape (..., 3), not {}".format(equatorial.shape))
+                raise TypeError(
+                    "Creating a Quaternion from ra, dec, roll "
+                    "requires shape (..., 3), not {}".format(equatorial.shape)
+                )
             self.equatorial = equatorial
         assert self._shape is not None
 
@@ -343,8 +355,7 @@ class Quat(ShapedLikeNDArray):
     @property
     def q(self):
         """
-        Retrieve 4-vector of quaternion elements in [x, y, z, w] form
-        or N x 4-vector if N > 1.
+        Retrieve 4-vector of quaternion elements as [x, y, z, w] or N x 4-vector.
 
         :rtype: numpy array
 
@@ -359,19 +370,20 @@ class Quat(ShapedLikeNDArray):
 
     @q.setter
     def q(self, q):
-        """
-        Set the value of the 4 element quaternion vector
-        May be 4 element list or array or N x 4 element array,
-        where N can be an arbitrary shape. E.g.: (3,2,4) is allowed.
+        """Set the value of the 4 element quaternion vector.
+
+        The value may be 4 element list or array or N x 4 element array, where N can be
+        an arbitrary shape. E.g.: (3,2,4) is allowed.
 
         :param q: list or array of normalized quaternion elements
         """
         q = np.array(q)
         shape = q.shape[:-1]  # Capture input shape sans 4-vector dimension
         q = np.atleast_2d(q)
-        if np.any((np.sum(q ** 2, axis=-1, keepdims=True) - 1.0) > 1e-6):
+        if np.any((np.sum(q**2, axis=-1, keepdims=True) - 1.0) > 1e-6):
             raise ValueError(
-                'Quaternions must be normalized so sum(q**2) == 1; use Quaternion.normalize')
+                "Quaternions must be normalized so sum(q**2) == 1; use Quaternion.normalize"
+            )
 
         self._q = q
         flip_q = q[..., 3] < 0
@@ -384,9 +396,10 @@ class Quat(ShapedLikeNDArray):
     def __repr__(self):
         q = self.q
         if q.ndim == 1:
-            return ('<{} q1={:.8f} q2={:.8f} q3={:.8f} q4={:.8f}>'
-                    .format(self.__class__.__name__, q[0], q[1], q[2], q[3]))
-        return '{}({})'.format(self.__class__.__name__, repr(q))
+            return "<{} q1={:.8f} q2={:.8f} q3={:.8f} q4={:.8f}>".format(
+                self.__class__.__name__, q[0], q[1], q[2], q[3]
+            )
+        return "{}({})".format(self.__class__.__name__, repr(q))
 
     @property
     def equatorial(self):
@@ -404,11 +417,11 @@ class Quat(ShapedLikeNDArray):
 
     @equatorial.setter
     def equatorial(self, equatorial):
-        """Set the value of the 3 element equatorial coordinate list [RA,Dec,Roll]
-           expects values in degrees
-           bounds are not checked
+        """Set the value of the 3 element equatorial coordinate list [RA, Dec, Roll].
 
-           :param equatorial: list or array [ RA, Dec, Roll] in degrees
+        This expects values in degrees and the bounds are not checked.
+
+        :param equatorial: list or array [ RA, Dec, Roll] in degrees
 
         """
         equatorial = np.array(equatorial)
@@ -532,17 +545,17 @@ class Quat(ShapedLikeNDArray):
             reshape : ``_apply('reshape', new_shape)``
         """
         if callable(method):
-            apply_method = lambda array: method(array, *args, **kwargs)  # noqa
+            apply_method = lambda array: method(array, *args, **kwargs)
         else:
             apply_method = operator.methodcaller(method, *args, **kwargs)
 
         # Use a trick to temporarily make q into a stuctured array with 4
         # floats so that the shape applies to the 4-float item rather than
         # the full array (essentially removing the last dimension).
-        qsa = self.q.view(np.dtype([('quat', '4f8')]))
+        qsa = self.q.view(np.dtype([("quat", "4f8")]))
         # view() always leaves a single dimension at end so squeeze it.
         qsa = qsa.squeeze(axis=-1)
-        q = apply_method(qsa)['quat']
+        q = apply_method(qsa)["quat"]
 
         # Get a new instance of our class and set its attributes directly.
         out = self.__class__.__new__(self.__class__)
@@ -553,7 +566,7 @@ class Quat(ShapedLikeNDArray):
 
     def __getitem__(self, item):
         if isinstance(item, tuple) and len(item) > self.ndim:
-            raise IndexError('too many indices for array')
+            raise IndexError("too many indices for array")
 
         out = self.__class__.__new__(self.__class__)
         q = self.q[item]
@@ -571,7 +584,7 @@ class Quat(ShapedLikeNDArray):
         """
 
         q = np.atleast_2d(self.q)
-        q2 = q ** 2
+        q2 = q**2
 
         # calculate direction cosine matrix elements from $quaternions
         xa = q2[..., 0] - q2[..., 1] - q2[..., 2] + q2[..., 3]
@@ -585,7 +598,7 @@ class Quat(ShapedLikeNDArray):
         one_minus_xn2 = 1 - xn**2
         if np.any(one_minus_xn2 < 0):
             if np.any(one_minus_xn2 < -1e-12):
-                raise ValueError('Unexpected negative norm: {}'.format(one_minus_xn2))
+                raise ValueError("Unexpected negative norm: {}".format(one_minus_xn2))
             one_minus_xn2[one_minus_xn2 < 0] = 0
 
         # ; calculate RA, Dec, Roll from cosine matrix elements
@@ -601,38 +614,38 @@ class Quat(ShapedLikeNDArray):
         # e.g. (3, 2, 5) -> (2, 5, 3) (np.transpose would give (2, 3, 5))
         return np.moveaxis(np.array([ra, dec, roll]), 0, -1)
 
-#  _quat2transform is largely from Enthought's quaternion.rotmat, though this math is
-#  probably from Hamilton.
-#  License included for completeness
-#
-# This software is OSI Certified Open Source Software.
-# OSI Certified is a certification mark of the Open Source Initiative.
-#
-# Copyright (c) 2006, Enthought, Inc.
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-#  * Redistributions of source code must retain the above copyright notice, this
-#    list of conditions and the following disclaimer.
-#  * Redistributions in binary form must reproduce the above copyright notice,
-#    this list of conditions and the following disclaimer in the documentation
-#    and/or other materials provided with the distribution.
-#  * Neither the name of Enthought, Inc. nor the names of its contributors may
-#    be used to endorse or promote products derived from this software without
-#    specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    #  _quat2transform is largely from Enthought's quaternion.rotmat, though this math is
+    #  probably from Hamilton.
+    #  License included for completeness
+    #
+    # This software is OSI Certified Open Source Software.
+    # OSI Certified is a certification mark of the Open Source Initiative.
+    #
+    # Copyright (c) 2006, Enthought, Inc.
+    # All rights reserved.
+    #
+    # Redistribution and use in source and binary forms, with or without
+    # modification, are permitted provided that the following conditions are met:
+    #
+    #  * Redistributions of source code must retain the above copyright notice, this
+    #    list of conditions and the following disclaimer.
+    #  * Redistributions in binary form must reproduce the above copyright notice,
+    #    this list of conditions and the following disclaimer in the documentation
+    #    and/or other materials provided with the distribution.
+    #  * Neither the name of Enthought, Inc. nor the names of its contributors may
+    #    be used to endorse or promote products derived from this software without
+    #    specific prior written permission.
+    #
+    # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    # DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+    # ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    # (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    # LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+    # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     def _quat2transform(self):
         """
@@ -645,26 +658,26 @@ class Quat(ShapedLikeNDArray):
         q = np.atleast_2d(self.q)
 
         x, y, z, w = q[..., 0], q[..., 1], q[..., 2], q[..., 3]
-        xx2 = x * x * 2.
-        yy2 = y * y * 2.
-        zz2 = z * z * 2.
-        xy2 = x * y * 2.
-        wz2 = w * z * 2.
-        zx2 = z * x * 2.
-        wy2 = w * y * 2.
-        yz2 = y * z * 2.
-        wx2 = w * x * 2.
+        xx2 = x * x * 2.0
+        yy2 = y * y * 2.0
+        zz2 = z * z * 2.0
+        xy2 = x * y * 2.0
+        wz2 = w * z * 2.0
+        zx2 = z * x * 2.0
+        wy2 = w * y * 2.0
+        yz2 = y * z * 2.0
+        wx2 = w * x * 2.0
 
         t = np.empty(tuple(q.shape[:-1] + (3, 3)), np.float64)
-        t[..., 0, 0] = 1. - yy2 - zz2
+        t[..., 0, 0] = 1.0 - yy2 - zz2
         t[..., 0, 1] = xy2 - wz2
         t[..., 0, 2] = zx2 + wy2
         t[..., 1, 0] = xy2 + wz2
-        t[..., 1, 1] = 1. - xx2 - zz2
+        t[..., 1, 1] = 1.0 - xx2 - zz2
         t[..., 1, 2] = yz2 - wx2
         t[..., 2, 0] = zx2 - wy2
         t[..., 2, 1] = yz2 + wx2
-        t[..., 2, 2] = 1. - xx2 - yy2
+        t[..., 2, 2] = 1.0 - xx2 - yy2
 
         return t
 
@@ -696,9 +709,15 @@ class Quat(ShapedLikeNDArray):
 
         # This is the transpose of the transformation matrix (related to translation
         # of original perl code
-        rmat = np.array([[ca * cd,                    sa * cd,                  sd],  # noqa
-                         [-ca * sd * sr - sa * cr,   -sa * sd * sr + ca * cr,   cd * sr],  # noqa
-                         [-ca * sd * cr + sa * sr,   -sa * sd * cr - ca * sr,   cd * cr]])  # noqa
+        # fmt: off
+        rmat = np.array(
+            [
+                [ca * cd,                    sa * cd,                  sd],
+                [-ca * sd * sr - sa * cr,   -sa * sd * sr + ca * cr,   cd * sr],
+                [-ca * sd * cr + sa * sr,   -sa * sd * cr - ca * sr,   cd * cr]
+            ]
+        )
+        # fmt: on
 
         return np.moveaxis(np.moveaxis(rmat, 0, -1), 0, -2)
 
@@ -712,15 +731,20 @@ class Quat(ShapedLikeNDArray):
         T = self.transform
         if T.ndim == 2:
             T = T[np.newaxis]
-        den = np.array([1.0 + T[..., 0, 0] - T[..., 1, 1] - T[..., 2, 2],
-                        1.0 - T[..., 0, 0] + T[..., 1, 1] - T[..., 2, 2],
-                        1.0 - T[..., 0, 0] - T[..., 1, 1] + T[..., 2, 2],
-                        1.0 + T[..., 0, 0] + T[..., 1, 1] + T[..., 2, 2]])
+        den = np.array(
+            [
+                1.0 + T[..., 0, 0] - T[..., 1, 1] - T[..., 2, 2],
+                1.0 - T[..., 0, 0] + T[..., 1, 1] - T[..., 2, 2],
+                1.0 - T[..., 0, 0] - T[..., 1, 1] + T[..., 2, 2],
+                1.0 + T[..., 0, 0] + T[..., 1, 1] + T[..., 2, 2],
+            ]
+        )
 
         half_rt_q_max = 0.5 * np.sqrt(np.max(den, axis=0))
         max_idx = np.argmax(den, axis=0)
         poss_quat = np.zeros(tuple((4,) + T.shape[:-2] + (4,)))
         denom = 4.0 * half_rt_q_max
+        # fmt: off
         poss_quat[0] = np.moveaxis(
             np.array(
                 [half_rt_q_max,
@@ -745,9 +769,10 @@ class Quat(ShapedLikeNDArray):
                  (T[..., 0, 2] - T[..., 2, 0]) / denom,
                  (T[..., 1, 0] - T[..., 0, 1]) / denom,
                  half_rt_q_max]), 0, -1)
+        # fmt: on
 
         q = np.zeros(tuple(T.shape[:-2] + (4,)))
-        for idx in range(0, 4):
+        for idx in range(4):
             max_match = max_idx == idx
             q[max_match] = poss_quat[idx][max_match]
 
@@ -809,11 +834,15 @@ class Quat(ShapedLikeNDArray):
         if q1.shape != q2.shape:
             q1, q2 = np.broadcast_arrays(q1, q2)
         mult = np.zeros(q1.shape)
-        mult[...,0] =  q1[...,3] * q2[...,0] - q1[...,2] * q2[...,1] + q1[...,1] * q2[...,2] + q1[...,0] * q2[...,3]  # noqa
-        mult[...,1] =  q1[...,2] * q2[...,0] + q1[...,3] * q2[...,1] - q1[...,0] * q2[...,2] + q1[...,1] * q2[...,3]  # noqa
-        mult[...,2] = -q1[...,1] * q2[...,0] + q1[...,0] * q2[...,1] + q1[...,3] * q2[...,2] + q1[...,2] * q2[...,3]  # noqa
-        mult[...,3] = -q1[...,0] * q2[...,0] - q1[...,1] * q2[...,1] - q1[...,2] * q2[...,2] + q1[...,3] * q2[...,3]  # noqa
-        shape = self.q.shape if len(self.q.shape) > len(quat2.q.shape) else quat2.q.shape
+        # fmt: off
+        mult[...,0] =  q1[...,3] * q2[...,0] - q1[...,2] * q2[...,1] + q1[...,1] * q2[...,2] + q1[...,0] * q2[...,3]  # noqa: E501
+        mult[...,1] =  q1[...,2] * q2[...,0] + q1[...,3] * q2[...,1] - q1[...,0] * q2[...,2] + q1[...,1] * q2[...,3]  # noqa: E501
+        mult[...,2] = -q1[...,1] * q2[...,0] + q1[...,0] * q2[...,1] + q1[...,3] * q2[...,2] + q1[...,2] * q2[...,3]  # noqa: E501
+        mult[...,3] = -q1[...,0] * q2[...,0] - q1[...,1] * q2[...,1] - q1[...,2] * q2[...,2] + q1[...,3] * q2[...,3]  # noqa: E501
+        # fmt: on
+        shape = (
+            self.q.shape if len(self.q.shape) > len(quat2.q.shape) else quat2.q.shape
+        )
         return Quat(q=mult.reshape(shape))
 
     def inv(self):
@@ -828,9 +857,9 @@ class Quat(ShapedLikeNDArray):
         return Quat(q=q)
 
     def dq(self, q2=None, **kwargs):
-        """
-        Return a delta quaternion ``dq`` such that ``q2 = self * dq``.
-        I works with any argument that instantiates a ``Quat`` object.
+        """Return a delta quaternion ``dq`` such that ``q2 = self * dq``.
+
+        This works with any argument that instantiates a ``Quat`` object.
 
         This method returns the delta quaternion which represents the transformation
         from the frame of this quaternion (``self``) to ``q2``.
@@ -862,15 +891,15 @@ class Quat(ShapedLikeNDArray):
         # It receives the dictionary of the unpickled state and must update the __dict__ of this
         # instance. This is the place where we "upgrade" pickled instances of earlier versions of
         # the class.
-        if '_shape' not in state:
+        if "_shape" not in state:
             # if _shape is not there, then this is a non-vectorized Quat (versions before 3.5.0).
             # Non-vectorized quaternions were basically scalars, with shape ().
-            state['_shape'] = ()
+            state["_shape"] = ()
 
         self.__dict__.update(state)
 
     @classmethod
-    def rotate_x_to_vec(cls, vec, method='radec'):
+    def rotate_x_to_vec(cls, vec, method="radec"):
         """Generate quaternion that rotates X-axis into ``vec``.
 
         The ``method`` parameter can take one of three values: "shortest",
@@ -891,24 +920,21 @@ class Quat(ShapedLikeNDArray):
         :param method: method for determining path (shortest|keep_z|radec)
         :returns: Quaternion object
         """
-        x = np.array([1., 0, 0])
+        x = np.array([1.0, 0, 0])
         vec = normalize(vec)
         if vec.shape != (3,):
-            raise ValueError('vec must be a single 3-vector')
+            raise ValueError("vec must be a single 3-vector")
 
         if method in ("shortest", "keep_z"):
             dot = np.dot(x, vec)
             if abs(dot) > 1 - 1e-8:
-                x = normalize(np.array([1., 0., 1e-7]))
+                x = normalize(np.array([1.0, 0.0, 1e-7]))
                 dot = np.dot(vec, x)
             angle = np.arccos(dot)
             axis = normalize(np.cross(x, vec))
             sin_a = np.sin(angle / 2)
             cos_a = np.cos(angle / 2)
-            q = cls([axis[0] * sin_a,
-                     axis[1] * sin_a,
-                     axis[2] * sin_a,
-                     cos_a])
+            q = cls([axis[0] * sin_a, axis[1] * sin_a, axis[2] * sin_a, cos_a])
 
             if method == "keep_z":
                 T = q.transform
@@ -939,22 +965,24 @@ class Quat(ShapedLikeNDArray):
         """
         # TODO: fix these limitations on shapes, starting with quat multiplication
         if self.shape != ():
-            raise ValueError('quaternion must be a scalar')
+            raise ValueError("quaternion must be a scalar")
 
         vec = np.asarray(vec)
         if vec.shape != (3,):
-            raise ValueError('vec must be a single 3-vector')
+            raise ValueError("vec must be a single 3-vector")
         vec = vec / np.linalg.norm(vec)
 
         alpha = np.asarray(alpha)
         if alpha.shape != ():
-            raise ValueError('alpha must be a scalar')
+            raise ValueError("alpha must be a scalar")
 
         alpha = np.deg2rad(alpha)
         sin_alpha = np.sin(alpha / 2.0)
         cos_alpha = np.cos(alpha / 2.0)
 
-        dq = Quat([sin_alpha * vec[0], sin_alpha * vec[1], sin_alpha * vec[2], cos_alpha])
+        dq = Quat(
+            [sin_alpha * vec[0], sin_alpha * vec[1], sin_alpha * vec[2], cos_alpha]
+        )
         att_out = dq * self
         return att_out
 
@@ -1008,9 +1036,10 @@ class Quat(ShapedLikeNDArray):
         # e.g. a list of Quat
         try:
             att_array = np.asarray(att, dtype=object)
-            qs = []
-            for val in att_array.ravel():
-                qs.append(val.q if isinstance(val, Quat) else cls(val).q)
+            qs = [
+                (val.q if isinstance(val, Quat) else cls(val).q)
+                for val in att_array.ravel()
+            ]
             qs = np.array(qs, dtype=np.float64).reshape(att_array.shape + (4,))
             return cls(q=qs)
         except Exception:
@@ -1031,7 +1060,7 @@ def normalize(array):
 
     """
     quat = np.array(array, dtype=np.float64)
-    norm = np.sqrt(np.sum(quat ** 2, axis=-1, keepdims=True))
+    norm = np.sqrt(np.sum(quat**2, axis=-1, keepdims=True))
 
     # Prevent warning when dividing by zero (it happens)
     ok = np.squeeze(norm) != 0
@@ -1042,6 +1071,6 @@ def normalize(array):
     # junk telemetry.
     if np.any(~ok):
         quat[~ok] = [0.0, 0.0, 0.0, 1.0]
-        warnings.warn(f"Normalizing quaternion with zero norm")
+        warnings.warn("Normalizing quaternion with zero norm")
 
     return quat
