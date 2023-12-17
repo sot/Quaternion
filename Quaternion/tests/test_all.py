@@ -1,11 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 import pickle
+from dataclasses import dataclass
 
 import numpy as np
 import pytest
 
-from Quaternion import Quat, normalize, quat_mult, quat_to_equatorial
+from Quaternion import Quat, QuatDescriptor, normalize, quat_mult, quat_to_equatorial
 
 
 def indices(t):
@@ -713,3 +714,58 @@ def test_quat_mult():
                 q01_0 = (q0 * q1).q
                 q01_1 = quat_mult(q0.q, q1.q)
                 assert np.allclose(q01_0, q01_1, rtol=0, atol=1e-10)
+
+
+def test_quat_descriptor_not_required_no_default():
+    @dataclass
+    class MyClass:
+        quat: Quat | None = QuatDescriptor()
+
+    obj = MyClass()
+    assert obj.quat is None
+
+    obj = MyClass(quat=[10, 20, 30])
+    assert isinstance(obj.quat, Quat)
+    assert np.allclose(obj.quat.equatorial, [10, 20, 30], rtol=0, atol=1e-10)
+    assert np.allclose(
+        obj.quat.q,
+        [0.26853582, -0.14487813, 0.12767944, 0.94371436],
+        rtol=0,
+        atol=1e-8,
+    )
+
+
+def test_quat_descriptor_is_required():
+    @dataclass
+    class MyClass:
+        quat: Quat = QuatDescriptor(required=True)
+
+    obj = MyClass([10, 20, 30])
+    assert np.allclose(obj.quat.equatorial, [10, 20, 30], rtol=0, atol=1e-10)
+
+    with pytest.raises(
+        ValueError, match="cannot set required attribute 'quat' to None"
+    ):
+        MyClass()
+
+
+def test_quat_descriptor_has_default():
+    @dataclass
+    class MyClass:
+        quat: Quat = QuatDescriptor(default=[10, 20, 30])
+
+    obj = MyClass()
+    assert np.allclose(obj.quat.equatorial, [10, 20, 30], rtol=0, atol=1e-10)
+
+    obj = MyClass(quat=[30, 40, 50])
+    assert np.allclose(obj.quat.equatorial, [30, 40, 50], rtol=0, atol=1e-10)
+
+
+def test_quat_descriptor_is_required_has_default_exception():
+    with pytest.raises(
+        ValueError, match="cannot set both 'required' and 'default' arguments"
+    ):
+
+        @dataclass
+        class MyClass1:
+            quat: Quat = QuatDescriptor(default=[10, 20, 30], required=True)
