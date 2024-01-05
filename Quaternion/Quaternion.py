@@ -42,12 +42,22 @@ Additional convenience functions are provided for performance applications.
 
 import operator
 import warnings
+from typing import Annotated, List
 
 import numba
 import numpy as np
+import numpy.typing as npt
 from astropy.utils.shapes import ShapedLikeNDArray
+from ska_helpers.utils import TypedDescriptor
 
-__all__ = ["Quat", "quat_to_equatorial", "quat_mult", "normalize"]
+__all__ = [
+    "Quat",
+    "QuatDescriptor",
+    "QuatLike",
+    "quat_to_equatorial",
+    "quat_mult",
+    "normalize",
+]
 
 
 @numba.njit(cache=True)
@@ -1074,3 +1084,44 @@ def normalize(array):
         warnings.warn("Normalizing quaternion with zero norm")
 
     return quat
+
+
+class QuatDescriptor(TypedDescriptor):
+    """Descriptor for an attribute that is a Quat.
+
+    Parameters
+    ----------
+    default : QuatLike, optional
+        Default value for the attribute.  If not specified, the default for the
+        attribute is ``None``.
+    required : bool, optional
+        If ``True``, the attribute is required to be set explicitly when the object
+        is created. If ``False`` the default value is used if the attribute is not set.
+
+    Examples
+    --------
+    >>> from dataclasses import dataclass
+    >>> from Quaternion import Quat, QuatDescriptor
+    >>> @dataclass
+    ... class MyClass:
+    ...     att1: Quat = QuatDescriptor(required=True)
+    ...     att2: Quat = QuatDescriptor(default=[10, 20, 30])
+    ...     att3: Quat | None = QuatDescriptor()
+    ...
+    >>> obj = MyClass(att1=[0, 0, 0, 1])
+    >>> obj.att1
+    <Quat q1=0.00000000 q2=0.00000000 q3=0.00000000 q4=1.00000000>
+    >>> obj.att2.equatorial
+    array([10., 20., 30.])
+    >>> obj.att3 is None
+    True
+    >>> obj.att3 = [10, 20, 30]
+    >>> obj.att3.equatorial
+    array([10., 20., 30.])
+    """
+
+    cls = Quat
+
+
+# Type alias for a quaternion-like object.
+QuatLike = Quat | Annotated[List[float], 4] | Annotated[List[float], 3] | npt.ArrayLike
