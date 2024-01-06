@@ -1093,10 +1093,12 @@ class QuatDescriptor(TypedDescriptor):
     ----------
     default : QuatLike, optional
         Default value for the attribute.  If not specified, the default for the
-        attribute is ``None``.
+        attribute is ``None``. If the intent is to default to a particular attitude,
+        this must be a tuple such as ``(0, 0, 0, 1)`` or ``(0, 0, 0)`` or a ``Quat``
+        object. A list is not allowed.
     required : bool, optional
-        If ``True``, the attribute is required to be set explicitly when the object
-        is created. If ``False`` the default value is used if the attribute is not set.
+        If ``True``, the attribute is required to be set explicitly when the object is
+        created. If ``False`` the default value is used if the attribute is not set.
 
     Examples
     --------
@@ -1105,7 +1107,7 @@ class QuatDescriptor(TypedDescriptor):
     >>> @dataclass
     ... class MyClass:
     ...     att1: Quat = QuatDescriptor(required=True)
-    ...     att2: Quat = QuatDescriptor(default=[10, 20, 30])
+    ...     att2: Quat = QuatDescriptor(default=(10, 20, 30))
     ...     att3: Quat | None = QuatDescriptor()
     ...
     >>> obj = MyClass(att1=[0, 0, 0, 1])
