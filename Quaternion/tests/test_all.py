@@ -744,7 +744,7 @@ def test_quat_descriptor_is_required():
     assert np.allclose(obj.quat.equatorial, [10, 20, 30], rtol=0, atol=1e-10)
 
     with pytest.raises(
-        ValueError, match="cannot set required attribute 'quat' to None"
+        ValueError, match="attribute 'quat' is required and cannot be set to None"
     ):
         MyClass()
 
@@ -752,7 +752,7 @@ def test_quat_descriptor_is_required():
 def test_quat_descriptor_has_default():
     @dataclass
     class MyClass:
-        quat: Quat = QuatDescriptor(default=[10, 20, 30])
+        quat: Quat = QuatDescriptor(default=(10, 20, 30))
 
     obj = MyClass()
     assert np.allclose(obj.quat.equatorial, [10, 20, 30], rtol=0, atol=1e-10)
