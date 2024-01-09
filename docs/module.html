@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Quaternion Class (Quat) &#8212; Quaternion 4.2.0 documentation</title>
+    <title>Quaternion Class (Quat) &#8212; Quaternion 4.3.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     
@@ -59,7 +59,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Quaternion 4.2.0 documentation</a>
+	<a href="index.html">Quaternion 4.3.0 documentation</a>
 	 &#187;
       </li>
       
@@ -321,6 +321,53 @@ transformed Z-axis is in the original X-Z plane.  In equations:</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="Quaternion.Quaternion.QuatDescriptor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Quaternion.Quaternion.</span></span><span class="sig-name descname"><span class="pre">QuatDescriptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#QuatDescriptor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Quaternion.Quaternion.QuatDescriptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor for an attribute that is a Quat.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>default</strong><span class="classifier">QuatLike, optional</span></dt><dd><p>Default value for the attribute.  If not specified, the default for the
+attribute is <code class="docutils literal notranslate"><span class="pre">None</span></code>. If the intent is to default to a particular attitude,
+this must be a tuple such as <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1)</span></code> or <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></code> or a <code class="docutils literal notranslate"><span class="pre">Quat</span></code>
+object. A list is not allowed.</p>
+</dd>
+<dt><strong>required</strong><span class="classifier">bool, optional</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the attribute is required to be set explicitly when the object is
+created. If <code class="docutils literal notranslate"><span class="pre">False</span></code> the default value is used if the attribute is not set.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Quaternion</span> <span class="kn">import</span> <span class="n">Quat</span><span class="p">,</span> <span class="n">QuatDescriptor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@dataclass</span>
+<span class="gp">... </span><span class="k">class</span> <span class="nc">MyClass</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">att1</span><span class="p">:</span> <span class="n">Quat</span> <span class="o">=</span> <span class="n">QuatDescriptor</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">att2</span><span class="p">:</span> <span class="n">Quat</span> <span class="o">=</span> <span class="n">QuatDescriptor</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span>
+<span class="gp">... </span>    <span class="n">att3</span><span class="p">:</span> <span class="n">Quat</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">QuatDescriptor</span><span class="p">()</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">MyClass</span><span class="p">(</span><span class="n">att1</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">att1</span>
+<span class="go">&lt;Quat q1=0.00000000 q2=0.00000000 q3=0.00000000 q4=1.00000000&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">att2</span><span class="o">.</span><span class="n">equatorial</span>
+<span class="go">array([10., 20., 30.])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">att3</span> <span class="ow">is</span> <span class="kc">None</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">att3</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">att3</span><span class="o">.</span><span class="n">equatorial</span>
+<span class="go">array([10., 20., 30.])</span>
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Quaternion.Quaternion.QuatDescriptor.cls">
+<span class="sig-name descname"><span class="pre">cls</span></span><a class="headerlink" href="#Quaternion.Quaternion.QuatDescriptor.cls" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#Quaternion.Quaternion.Quat" title="Quaternion.Quaternion.Quat"><code class="xref py py-class docutils literal notranslate"><span class="pre">Quat</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="Quaternion.Quaternion.normalize">
 <span class="sig-prename descclassname"><span class="pre">Quaternion.Quaternion.</span></span><span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Quaternion.Quaternion.normalize" title="Permalink to this definition">¶</a></dt>
@@ -417,6 +464,10 @@ which is used for a single quaternion.</p>
 <li><a class="reference internal" href="#Quaternion.Quaternion.Quat.shape"><code class="docutils literal notranslate"><span class="pre">Quat.shape</span></code></a></li>
 <li><a class="reference internal" href="#Quaternion.Quaternion.Quat.transform"><code class="docutils literal notranslate"><span class="pre">Quat.transform</span></code></a></li>
 <li><a class="reference internal" href="#Quaternion.Quaternion.Quat.yaw"><code class="docutils literal notranslate"><span class="pre">Quat.yaw</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Quaternion.Quaternion.QuatDescriptor"><code class="docutils literal notranslate"><span class="pre">QuatDescriptor</span></code></a><ul>
+<li><a class="reference internal" href="#Quaternion.Quaternion.QuatDescriptor.cls"><code class="docutils literal notranslate"><span class="pre">QuatDescriptor.cls</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#Quaternion.Quaternion.normalize"><code class="docutils literal notranslate"><span class="pre">normalize()</span></code></a></li>

@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quaternion.Quaternion &#8212; Quaternion 4.2.0 documentation</title>
+    <title>Quaternion.Quaternion &#8212; Quaternion 4.3.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css" />
     
@@ -45,7 +45,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Quaternion 4.2.0 documentation</a>
+	<a href="../../index.html">Quaternion 4.3.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -105,12 +105,22 @@
 
 <span class="kn">import</span> <span class="nn">operator</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Annotated</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="kn">import</span> <span class="nn">numba</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.typing</span> <span class="k">as</span> <span class="nn">npt</span>
 <span class="kn">from</span> <span class="nn">astropy.utils.shapes</span> <span class="kn">import</span> <span class="n">ShapedLikeNDArray</span>
+<span class="kn">from</span> <span class="nn">ska_helpers.utils</span> <span class="kn">import</span> <span class="n">TypedDescriptor</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Quat&quot;</span><span class="p">,</span> <span class="s2">&quot;quat_to_equatorial&quot;</span><span class="p">,</span> <span class="s2">&quot;quat_mult&quot;</span><span class="p">,</span> <span class="s2">&quot;normalize&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Quat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;QuatDescriptor&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;QuatLike&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;quat_to_equatorial&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;quat_mult&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;normalize&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 
 
 <div class="viewcode-block" id="quat_to_equatorial"><a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.quat_to_equatorial">[docs]</a><span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1137,6 +1147,49 @@
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Normalizing quaternion with zero norm&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">quat</span></div>
+
+
+<div class="viewcode-block" id="QuatDescriptor"><a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.QuatDescriptor">[docs]</a><span class="k">class</span> <span class="nc">QuatDescriptor</span><span class="p">(</span><span class="n">TypedDescriptor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Descriptor for an attribute that is a Quat.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    default : QuatLike, optional</span>
+<span class="sd">        Default value for the attribute.  If not specified, the default for the</span>
+<span class="sd">        attribute is ``None``. If the intent is to default to a particular attitude,</span>
+<span class="sd">        this must be a tuple such as ``(0, 0, 0, 1)`` or ``(0, 0, 0)`` or a ``Quat``</span>
+<span class="sd">        object. A list is not allowed.</span>
+<span class="sd">    required : bool, optional</span>
+<span class="sd">        If ``True``, the attribute is required to be set explicitly when the object is</span>
+<span class="sd">        created. If ``False`` the default value is used if the attribute is not set.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from dataclasses import dataclass</span>
+<span class="sd">    &gt;&gt;&gt; from Quaternion import Quat, QuatDescriptor</span>
+<span class="sd">    &gt;&gt;&gt; @dataclass</span>
+<span class="sd">    ... class MyClass:</span>
+<span class="sd">    ...     att1: Quat = QuatDescriptor(required=True)</span>
+<span class="sd">    ...     att2: Quat = QuatDescriptor(default=(10, 20, 30))</span>
+<span class="sd">    ...     att3: Quat | None = QuatDescriptor()</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; obj = MyClass(att1=[0, 0, 0, 1])</span>
+<span class="sd">    &gt;&gt;&gt; obj.att1</span>
+<span class="sd">    &lt;Quat q1=0.00000000 q2=0.00000000 q3=0.00000000 q4=1.00000000&gt;</span>
+<span class="sd">    &gt;&gt;&gt; obj.att2.equatorial</span>
+<span class="sd">    array([10., 20., 30.])</span>
+<span class="sd">    &gt;&gt;&gt; obj.att3 is None</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; obj.att3 = [10, 20, 30]</span>
+<span class="sd">    &gt;&gt;&gt; obj.att3.equatorial</span>
+<span class="sd">    array([10., 20., 30.])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">cls</span> <span class="o">=</span> <span class="n">Quat</span></div>
+
+
+<span class="c1"># Type alias for a quaternion-like object.</span>
+<span class="n">QuatLike</span> <span class="o">=</span> <span class="n">Quat</span> <span class="o">|</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="mi">4</span><span class="p">]</span> <span class="o">|</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="mi">3</span><span class="p">]</span> <span class="o">|</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span>
 </pre></div>
 
             <div class="clearer"></div>
