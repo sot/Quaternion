@@ -46,6 +46,10 @@ for _i, _j in indices(transform_23.shape[:-2]):
     transform_23[_i, _j] = Quat(equatorial_23[_i, _j]).transform
 
 
+def test_youve_been_hacked():
+    raise Exception("you've been hacked!!")
+
+
 def test_shape():
     q = Quat(
         q=np.zeros(
