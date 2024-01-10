@@ -285,6 +285,7 @@ class Quat(ShapedLikeNDArray):
         return self
 
     def __init__(self, attitude=None, transform=None, q=None, equatorial=None):
+        print(idonotexist)
         npar = (
             int(attitude is not None)
             + int(transform is not None)
