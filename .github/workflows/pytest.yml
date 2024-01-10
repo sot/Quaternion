@@ -1,0 +1,15 @@
+name: Pytest
+
+on: [push]
+
+jobs:
+  check:
+    runs-on: head
+    name: Pytest
+    steps:
+      - name: Fetch
+        uses: actions/checkout@v2
+      - name: Run
+        run: |
+          source /export/jgonzale/github-workflows/miniconda3/envs/ska3-masters/bin/ska_envs.sh
+          pytest Quaternion
