@@ -14,6 +14,8 @@ Additional convenience functions are provided for performance applications.
 :Authors: - Tom Aldcroft (aldcroft@cfa.harvard.edu)
           - Jean Connelly (jconnelly@cfa.harvard.edu)
           - Javier Gonzalez (javier.gonzalez@cfa.harvard.edu)
+
+
 """
 # Copyright (c) 2010, Smithsonian Astrophysical Observatory
 # All rights reserved.
