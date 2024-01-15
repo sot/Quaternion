@@ -396,8 +396,8 @@ class Quat(ShapedLikeNDArray):
             )
 
         self._q = q
-        flip_q = q[..., 3] < 0
-        self._q[flip_q] = -1 * q[flip_q]
+        # flip_q = q[..., 3] < 0
+        # self._q[flip_q] = -1 * q[flip_q]
         # Erase internal values of other representations
         self._equatorial = None
         self._T = None
@@ -863,7 +863,7 @@ class Quat(ShapedLikeNDArray):
         :rtype: Quat
         """
         q = np.array(self.q)
-        q[..., 3] *= -1
+        q[..., :3] *= -1
         return Quat(q=q)
 
     def dq(self, q2=None, **kwargs):
