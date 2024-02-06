@@ -88,6 +88,8 @@ def test_init_exceptions():
     with pytest.raises(ValueError):
         _ = Quat(q=[[[1.0, 0.0, 0.0, 1.0]]])  # q not normalized
     with pytest.raises(ValueError):
+        _ = Quat(q=[[[0.1, 0.0, 0.0, 0.1]]])  # q not normalized
+    with pytest.raises(ValueError):
         _ = Quat([0, 1, "s"])  # could not convert string to float
 
 
