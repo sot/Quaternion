@@ -71,4 +71,5 @@ max-line-length = 100 # E501 reports lines that exceed the length of 100.
 # For tests:
 # - D205: Don't worry about test docstrings
 # - ARG001: Unused function argument false positives for some fixtures
-"**/tests/test_*.py" = ["D205", "ARG001"]
+"Quaternion/shapes.py" = ["D205", "ARG001"]
+"**/tests/test*.py" = ["D205", "ARG001"]
