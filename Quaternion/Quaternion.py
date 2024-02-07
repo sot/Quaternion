@@ -390,9 +390,7 @@ class Quat(ShapedLikeNDArray):
         q = np.array(q)
         shape = q.shape[:-1]  # Capture input shape sans 4-vector dimension
         q = np.atleast_2d(q)
-        if np.any(q != 0.0) and np.any(
-            np.abs((np.sum(q**2, axis=-1, keepdims=True) - 1.0)) > 1e-6
-        ):
+        if np.any(np.abs((np.sum(q**2, axis=-1, keepdims=True) - 1.0)) > 1e-6):
             raise ValueError(
                 "Quaternions must be normalized so sum(q**2) == 1; use Quaternion.normalize"
             )

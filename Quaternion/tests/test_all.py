@@ -47,11 +47,7 @@ for _i, _j in indices(transform_23.shape[:-2]):
 
 
 def test_shape():
-    q = Quat(
-        q=np.zeros(
-            4,
-        )
-    )
+    q = Quat(q=np.array([0., 0., 0., 1.]))
     assert q.shape == ()
     with pytest.raises(AttributeError):
         q.shape = (4,)
