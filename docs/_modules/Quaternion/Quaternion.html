@@ -1,17 +1,16 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quaternion.Quaternion &#8212; Quaternion 4.3.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css" />
+    <title>Quaternion.Quaternion &#8212; Quaternion 4.3.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/documentation_options.js?v=0503a316"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
     <script type="text/javascript" src="../../_static/copybutton.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -45,7 +44,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Quaternion 4.3.0 documentation</a>
+	<a href="../../index.html">Quaternion 4.3.1 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -123,7 +122,9 @@
 <span class="p">]</span>
 
 
-<div class="viewcode-block" id="quat_to_equatorial"><a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.quat_to_equatorial">[docs]</a><span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="quat_to_equatorial">
+<a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.quat_to_equatorial">[docs]</a>
+<span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">quat_to_equatorial</span><span class="p">(</span><span class="n">q</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute RA, dec, roll for the quaternion.</span>
 
@@ -175,7 +176,10 @@
     <span class="k">return</span> <span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">roll</span></div>
 
 
-<div class="viewcode-block" id="quat_mult"><a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.quat_mult">[docs]</a><span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="quat_mult">
+<a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.quat_mult">[docs]</a>
+<span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">quat_mult</span><span class="p">(</span><span class="n">q1</span><span class="p">,</span> <span class="n">q2</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Multiply two quaternions ``q1 * q2``.</span>
 
@@ -204,7 +208,10 @@
     <span class="k">return</span> <span class="n">q_out</span></div>
 
 
-<div class="viewcode-block" id="Quat"><a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.Quat">[docs]</a><span class="k">class</span> <span class="nc">Quat</span><span class="p">(</span><span class="n">ShapedLikeNDArray</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Quat">
+<a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.Quat">[docs]</a>
+<span class="k">class</span> <span class="nc">Quat</span><span class="p">(</span><span class="n">ShapedLikeNDArray</span><span class="p">):</span>
     <span class="c1"># None of the base class method functions are defined for quaternions.</span>
     <span class="c1"># These include things like min, max, round, all, etc. Calling these numpy</span>
     <span class="c1"># functions on Quat just goes to the numpy function, which may or may not</span>
@@ -453,7 +460,7 @@
         <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Capture input shape sans 4-vector dimension</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">q</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-6</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">q</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mf">1e-6</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Quaternions must be normalized so sum(q**2) == 1; use Quaternion.normalize&quot;</span>
             <span class="p">)</span>
@@ -617,7 +624,7 @@
 <span class="sd">            copy : ``_apply(&#39;copy&#39;)``</span>
 <span class="sd">            reshape : ``_apply(&#39;reshape&#39;, new_shape)``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
             <span class="n">apply_method</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">array</span><span class="p">:</span> <span class="n">method</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">apply_method</span> <span class="o">=</span> <span class="n">operator</span><span class="o">.</span><span class="n">methodcaller</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -918,7 +925,9 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">Quat</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="n">mult</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">))</span>
 
-<div class="viewcode-block" id="Quat.inv"><a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.Quat.inv">[docs]</a>    <span class="k">def</span> <span class="nf">inv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Quat.inv">
+<a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.Quat.inv">[docs]</a>
+    <span class="k">def</span> <span class="nf">inv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Invert the quaternion.</span>
 
@@ -929,7 +938,10 @@
         <span class="n">q</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="k">return</span> <span class="n">Quat</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="n">q</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Quat.dq"><a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.Quat.dq">[docs]</a>    <span class="k">def</span> <span class="nf">dq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Quat.dq">
+<a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.Quat.dq">[docs]</a>
+    <span class="k">def</span> <span class="nf">dq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a delta quaternion ``dq`` such that ``q2 = self * dq``.</span>
 
 <span class="sd">        This works with any argument that instantiates a ``Quat`` object.</span>
@@ -959,6 +971,7 @@
             <span class="n">q2</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">(</span><span class="n">q2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inv</span><span class="p">()</span> <span class="o">*</span> <span class="n">q2</span></div>
 
+
     <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="c1"># this method is called by the pickle module when unpickling an instance of this class.</span>
         <span class="c1"># It receives the dictionary of the unpickled state and must update the __dict__ of this</span>
@@ -971,7 +984,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Quat.rotate_x_to_vec"><a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.Quat.rotate_x_to_vec">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Quat.rotate_x_to_vec">
+<a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.Quat.rotate_x_to_vec">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">rotate_x_to_vec</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">vec</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;radec&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate quaternion that rotates X-axis into ``vec``.</span>
 
@@ -1025,7 +1040,10 @@
 
         <span class="k">return</span> <span class="n">q</span></div>
 
-<div class="viewcode-block" id="Quat.rotate_about_vec"><a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.Quat.rotate_about_vec">[docs]</a>    <span class="k">def</span> <span class="nf">rotate_about_vec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vec</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Quat.rotate_about_vec">
+<a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.Quat.rotate_about_vec">[docs]</a>
+    <span class="k">def</span> <span class="nf">rotate_about_vec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vec</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate self about a 3-vector</span>
 
 <span class="sd">        :param vec: 3-element array-like</span>
@@ -1059,7 +1077,10 @@
         <span class="n">att_out</span> <span class="o">=</span> <span class="n">dq</span> <span class="o">*</span> <span class="bp">self</span>
         <span class="k">return</span> <span class="n">att_out</span></div>
 
-<div class="viewcode-block" id="Quat.from_attitude"><a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.Quat.from_attitude">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="Quat.from_attitude">
+<a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.Quat.from_attitude">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_attitude</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">att</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initial Quat from attitude(s)</span>
 
@@ -1118,10 +1139,14 @@
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">pass</span>
 
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to initialize </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">att</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to initialize </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">att</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="normalize"><a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.normalize">[docs]</a><span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+
+<div class="viewcode-block" id="normalize">
+<a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.normalize">[docs]</a>
+<span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Normalize a 4 (or Nx4) element list or np.array for use as a quaternion.</span>
 
@@ -1149,7 +1174,10 @@
     <span class="k">return</span> <span class="n">quat</span></div>
 
 
-<div class="viewcode-block" id="QuatDescriptor"><a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.QuatDescriptor">[docs]</a><span class="k">class</span> <span class="nc">QuatDescriptor</span><span class="p">(</span><span class="n">TypedDescriptor</span><span class="p">):</span>
+
+<div class="viewcode-block" id="QuatDescriptor">
+<a class="viewcode-back" href="../../module.html#Quaternion.Quaternion.QuatDescriptor">[docs]</a>
+<span class="k">class</span> <span class="nc">QuatDescriptor</span><span class="p">(</span><span class="n">TypedDescriptor</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Descriptor for an attribute that is a Quat.</span>
 
 <span class="sd">    Parameters</span>
@@ -1188,6 +1216,7 @@
     <span class="bp">cls</span> <span class="o">=</span> <span class="n">Quat</span></div>
 
 
+
 <span class="c1"># Type alias for a quaternion-like object.</span>
 <span class="n">QuatLike</span> <span class="o">=</span> <span class="n">Quat</span> <span class="o">|</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="mi">4</span><span class="p">]</span> <span class="o">|</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="mi">3</span><span class="p">]</span> <span class="o">|</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span>
 </pre></div>
@@ -1214,7 +1243,7 @@
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2015, Jean Connelly, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 6.1.3. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
   </p>
 </footer>
   </body>
