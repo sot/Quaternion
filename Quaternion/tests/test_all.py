@@ -47,11 +47,7 @@ for _i, _j in indices(transform_23.shape[:-2]):
 
 
 def test_shape():
-    q = Quat(
-        q=np.zeros(
-            4,
-        )
-    )
+    q = Quat(q=np.array([0.0, 0.0, 0.0, 1.0]))
     assert q.shape == ()
     with pytest.raises(AttributeError):
         q.shape = (4,)
@@ -87,6 +83,8 @@ def test_init_exceptions():
         _ = Quat(q=np.zeros(4), transform=np.zeros((3, 3)), equatorial=np.zeros(3))
     with pytest.raises(ValueError):
         _ = Quat(q=[[[1.0, 0.0, 0.0, 1.0]]])  # q not normalized
+    with pytest.raises(ValueError):
+        _ = Quat(q=[[[0.1, 0.0, 0.0, 0.1]]])  # q not normalized
     with pytest.raises(ValueError):
         _ = Quat([0, 1, "s"])  # could not convert string to float
 
