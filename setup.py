@@ -16,7 +16,6 @@ setup(
         "New BSD/3-clause BSD License\nCopyright (c) 2016"
         " Smithsonian Astrophysical Observatory\nAll rights reserved."
     ),
-    download_url="http://pypi.python.org/pypi/Quaternion/",
     url="http://cxc.harvard.edu/mta/ASPECT/tool_doc/pydocs/Quaternion.html",
     use_scm_version=True,
     setup_requires=["setuptools_scm", "setuptools_scm_git_archive"],
